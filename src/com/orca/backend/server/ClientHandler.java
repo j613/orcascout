@@ -7,15 +7,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-import com.orca.backend.server.utils.HTTPInput;
-
 public class ClientHandler extends Thread {
 	public static final ThreadGroup ClientHandlerThreadGroup = new ThreadGroup("Orca Client Handler Group");
 	private final Socket clientSocket;
-
-	public ClientHandler(Socket cs) {
+	private final Server server;
+	public ClientHandler(Socket cs, Server s) {
 		super(ClientHandlerThreadGroup, "Client Handler for " + cs.getInetAddress());
 		this.clientSocket = cs;
+		server = s;
 	}
 
 	@Override
@@ -31,14 +30,19 @@ public class ClientHandler extends Thread {
 				for(;;){
 					char c = (char)in.read();
 					inputSize++;
+					System.out.print(c);
 					inputBuffer.append(c);
 					if(inputBuffer.length()>1024|| inputSize>1024*1024) {
 						HTTPParser.setFile("400Error.html", "400 Bad Request"); //TODO Change File Name
+						System.out.println("Rquest Too Long");
+						HTTPParser.put("disconnect", "true");
 						break;
 					}
 					if(c=='\n'){
 						if(HTTPParser.parseString(inputBuffer.toString())){
 							HTTPParser.setFile("400Error.html", "400 Bad Request"); //TODO Change File Name
+							System.out.println("Bad request Header");
+							HTTPParser.put("disconnect", "true");
 							break;
 						}
 						if(HTTPParser.isFinished()){
@@ -47,7 +51,7 @@ public class ClientHandler extends Thread {
 						inputBuffer = new StringBuffer(1024);
 					}
 				}
-				HTTPParser.writeFile(out);
+				server.sendToInputHandler(HTTPParser, out);
 			}
 		} catch (IOException ex) {
 			System.err.println("IO Error in Thread "+getName());

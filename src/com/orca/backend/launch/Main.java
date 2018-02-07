@@ -1,8 +1,15 @@
 package com.orca.backend.launch;
 
+import java.io.IOException;
+
+import com.orca.backend.server.Server;
+
 public class Main {
-	public static final String OrcaVersion = "Orca/0.1";
-	public static void main(String... args) {
-		
+	public static void main(String... args) throws IOException {
+		Server s = new Server(new TestInputHandler(),81);
+		s.start();
+		System.out.println("STARTED");
+		System.in.read();
+		System.exit(0);
 	}
 }
