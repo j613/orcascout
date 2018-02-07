@@ -6,9 +6,12 @@ import java.util.HashMap;
 
 /**
  * 
- * @author ethanf108 keys: "filePath": file path in TODO CHANGE
- *         "responseMessage": like 200 OK "method": GET, POST etc "httpVersion":
- *         like HTTP/1.1 in first line of request
+ * @author ethanf108 keys:
+ * 		"method": get pot etc
+ * 		"filePath": path requested
+ * 		"httpVersion": HTTP/1.1 etc
+ * 		everything else is what is sent
+ * 		example: "Date: 2 june 2018" -> "Date":"2 june 2018" (value is trimmed)
  * 
  */
 public class HTTPInput extends HashMap<String, String> {
@@ -22,17 +25,13 @@ public class HTTPInput extends HashMap<String, String> {
 	public boolean isFinished() {
 		return isFinished;
 	}
-
-	public void setFile(String fileName) {
-		put("filePath", fileName);
+	public String getRequestedFile(){
+		return get("filePath");
 	}
 
-	public void setFile(String fileName, String responseCode) {
-		put("filePath", fileName);
-		put("responseMesage", responseCode);
+	public void setError(boolean b){
+		hasError = b;
 	}
-
-
 	public boolean hasError() {
 		return hasError;
 	}
@@ -52,7 +51,7 @@ public class HTTPInput extends HashMap<String, String> {
 					return true;
 				}
 			} else {
-				if (s.matches("(POST|PUT|GET|HEAD) .+ HTTP\\/(1\\.1|2)\r?\n")) {
+				if (s.matches("(POST|PUT|GET|HEAD) [^ ]+ HTTP\\/(1\\.1|2|1)\r?\n")) {
 					String[] ins = s.split(" ");
 					if (ins[0].matches("(PUT|HEAD)")) {
 						hasError = true;
@@ -60,10 +59,10 @@ public class HTTPInput extends HashMap<String, String> {
 					}
 					put("method", ins[0]);
 					put("filePath", ins[1]);
-					put("httpVersion", ins[2].split("/")[1]);
+					put("httpVersion", ins[2].split("\\/")[1]);
 				} else if (s.matches(".+: .+\r?\n")) {
 					String field = s.substring(0, s.indexOf(":"));
-					put(field, s.substring(s.indexOf(":") + 1));
+					put(field, s.substring(s.indexOf(":") + 1).trim());
 				} else if (s.equals("\n") || s.equals("\r\n")) {
 					if(get("method").equals("POST")){
 						inReadRawDataMode = true;
@@ -76,33 +75,10 @@ public class HTTPInput extends HashMap<String, String> {
 				}
 			}
 			return false;
-		} catch (ArrayIndexOutOfBoundsException ex) {
+		} catch (Exception ex) {
 			hasError = true;
 			return true;
 		}
 	}
 
-	private String readFile() { // TODO work with frontend to implement
-		return "<html><head><title>test</title></head><body><h1>test file</h1></body></html>";
-	}
-
-	private String getContentType() {// TODO implement
-		return "text/html; charset=utf-8";
-	}
-
-	public void writeFile(BufferedWriter outWriter) throws IOException {
-		put("responseMessage","200 OK");
-		String fileContents = readFile();
-		outWriter.write("HTTP/1.1 " + get("responseMessage") + "\r\n");
-		outWriter.write("Date: " + Utils.getHTTPDate() + "\r\n");
-		outWriter.write("Content-Length: " + fileContents.length()+"\r\n");
-		outWriter.write("Content-Type: " + getContentType()+"\r\n");
-		outWriter.write("Content-Encoding: identity\r\n");
-		outWriter.write("Server: " + Server.OrcaVersion + "\r\n");
-		outWriter.write("Content-Language: en-US\r\n");
-		outWriter.newLine();
-		outWriter.write(fileContents);
-		outWriter.newLine();
-		outWriter.flush();
-	}
 }

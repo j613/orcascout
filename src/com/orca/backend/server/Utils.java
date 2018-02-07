@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class Utils {
+public final class Utils {
 	/**
 	 * Thanks Hannes R. from Stack Overflow
 	 * 

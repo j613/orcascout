@@ -26,8 +26,8 @@ public class Server extends Thread {
 		this(inputHandler, 80);
 	}
 
-	public synchronized void sendToInputHandler(HTTPInput in, BufferedWriter out) throws IOException {
-		inputHandler.handleFile(in, out);
+	public synchronized boolean sendToInputHandler(HTTPInput in, BufferedWriter out) throws IOException {
+		return inputHandler.handleRequest(in, out);
 	}
 
 	public void stopServer() {
@@ -48,6 +48,7 @@ public class Server extends Thread {
 			while (isRunning) {
 				Socket connection = server.accept();
 				ClientHandler chandle = new ClientHandler(connection, this);
+				System.out.println("Accepted connection from: "+connection.getInetAddress());
 				execService.submit(chandle);
 			}
 		} catch (IOException e) {
