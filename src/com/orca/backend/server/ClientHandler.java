@@ -20,7 +20,7 @@ public class ClientHandler extends Thread {
 	}
 
 	@Override
-	public void run() {
+	public void run() { //TODO make isClosed calls more clean we dont need three of them
 		try {
 			System.out.println("Connection from " + clientSocket.getInetAddress() + " opened");
 			InputStream in = clientSocket.getInputStream();
@@ -31,6 +31,8 @@ public class ClientHandler extends Thread {
 				long inputSize = 0;
 				StringBuffer inputBuffer = new StringBuffer(1024);
 				HTTPInput HTTPParser = new HTTPInput();
+				System.out.println("SHUTDOWN OUT: "+clientSocket.isOutputShutdown()+" IN: "+clientSocket.isInputShutdown()+ "CLOSED: "+clientSocket.isClosed());
+
 				int inc = in.read();
 				for (; inc >= 0 && !clientSocket.isClosed(); inc = in.read()) {
 					char c = (char)inc;
@@ -57,14 +59,16 @@ public class ClientHandler extends Thread {
 				System.out.println("Finished parsing");
 				if(inc < 0){
 					System.out.println("Input Returned null");
-				}
-				if (server.sendToInputHandler(HTTPParser, out) || inc < 0) {
+					break;
+				}else
+				if (server.sendToInputHandler(HTTPParser, out)) {
 					clientSocket.close();
+					System.out.println("Intentiaonally Closed");
 				}
 			}
 		} catch (IOException ex) {
-			System.err.println("IO Error in Thread " + getName());
-			ex.printStackTrace();
+			System.out.println("IO Error in Thread " + getName());
+			ex.printStackTrace(System.out);
 			System.err.flush();
 		/*} catch (InterruptedException e) {
 			e.printStackTrace();*/
@@ -73,8 +77,7 @@ public class ClientHandler extends Thread {
 			try {
 				clientSocket.close();
 			} catch (IOException e) {
-				System.err.println("is ok");
-				e.printStackTrace();
+				//System.err.println("is ok");
 			}
 		}
 	}

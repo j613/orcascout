@@ -38,9 +38,8 @@ public class TestInputHandler implements InputHandler {
 		}
 		System.out.println("SENDING FILE");
 		sendFile(sendFile, respMessage, null, out);
-		
-		System.out.println("LLL"+in.getOrDefault("Connection", "close")+"LLL");
-		return in.getOrDefault("Connection", "close").equals("close");
+		System.out.println("File Sent");
+		return in.getOrDefault("Connection", "keep-alive").equals("close");
 	}
 
 	@Override

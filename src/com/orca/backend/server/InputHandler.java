@@ -25,6 +25,9 @@ public interface InputHandler {
 		if (file != null) {
 			outWriter.newLine();
 			outWriter.write(file.getContents());
+			if(!file.getContents().endsWith("\n")){
+				outWriter.newLine();
+			}
 		}
 		outWriter.newLine();
 		outWriter.flush();
