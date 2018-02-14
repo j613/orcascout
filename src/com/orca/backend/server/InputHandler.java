@@ -42,6 +42,6 @@ public interface InputHandler {
 	 */
 	public boolean handleRequest(HTTPInput in, BufferedWriter out) throws IOException;
 
-	public ResponseFile getResponseFile(String fileName) throws IOException;
+	//public ResponseFile getResponseFile(String fileName) throws IOException;
 
 }

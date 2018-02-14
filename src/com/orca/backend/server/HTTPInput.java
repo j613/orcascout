@@ -19,14 +19,14 @@ public class HTTPInput extends HashMap<String, String> {
 	private String escapeSequence = null; // String that marks the start / end
 											// of POST Data
 	private boolean hasError = false;
-	private final StringBuffer postDataBuffer = new StringBuffer(1024 * 1024);
+	private StringBuffer postDataBuffer = null;
 	private boolean isFinished;
 
 	public boolean isFinished() {
 		return isFinished;
 	}
 	public String getRequestedFile(){
-		return get("filePath");
+		return get("filePath"); //TODO: not important but if the client sends a request with the filePath header, it overwrites the GET/POST FIle
 	}
 
 	public void setError(boolean b){
@@ -35,7 +35,16 @@ public class HTTPInput extends HashMap<String, String> {
 	public boolean hasError() {
 		return hasError;
 	}
-
+	public String getRawPostData(){
+		return postDataBuffer==null?null:postDataBuffer.toString();
+	}
+	public String getActualPostData(){
+		String data = getRawPostData();
+		if(data==null)return null;
+		String WKBound = data.split("\r?\n")[0];
+		String before = data.split(WKBound)[1];
+		return before.replaceAll(before.split("\r?\n\r?\n")[0], "");
+	}
 	/**
 	 * 
 	 * @param s
@@ -45,10 +54,25 @@ public class HTTPInput extends HashMap<String, String> {
 	public boolean parseString(String s) {
 		try {
 			if (inReadRawDataMode) {
-				postDataBuffer.append(s);
-				if(postDataBuffer.length()>1024*1024){
+				int clength = Integer.parseInt(getOrDefault("Content-Length","0"));
+				if(!containsKey("Content-Length")){
+					System.out.println("POST, but no content length");
 					hasError = true;
 					return true;
+				}
+				if(clength>1024*1024){
+					System.out.println("Content-Legnth too big");
+					hasError = true;
+					return true;
+				}
+				if(postDataBuffer==null){
+					postDataBuffer = new StringBuffer(clength);
+				}
+				postDataBuffer.append(s);
+				if(postDataBuffer.length()==clength){
+					//System.out.println("Length exceeded Content-Length");
+					isFinished = true;
+					
 				}
 			} else {
 				if (s.matches("(POST|PUT|GET|HEAD) [^ ]+ HTTP\\/(1\\.1|2|1)\r?\n")) {
