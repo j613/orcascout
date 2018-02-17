@@ -16,9 +16,18 @@ import java.util.HashMap;
  */
 public class HTTPInput extends HashMap<String, String> {
 	private boolean inReadRawDataMode = false;
-	private String escapeSequence = null; // String that marks the start / end
-											// of POST Data
-	private boolean hasError = false;
+	private String escapeSequence = null; // String that marks the start / end of POST Data
+	/*
+	 * List of Error codes:
+	 * 0: no Error
+	 * 1: request too long
+	 * 2: post Body too long
+	 * 3: no content-Length in post
+	 * 4: general request header error
+	 * 5: exception thrown in parsing
+	 * 6: no Content-Length specified
+	 */
+	private int error = 0;
 	private StringBuffer postDataBuffer = null;
 	private boolean isFinished;
 
@@ -29,11 +38,11 @@ public class HTTPInput extends HashMap<String, String> {
 		return get("filePath"); //TODO: not important but if the client sends a request with the filePath header, it overwrites the GET/POST FIle
 	}
 
-	public void setError(boolean b){
-		hasError = b;
+	public void setError(int b){
+		error = b;
 	}
-	public boolean hasError() {
-		return hasError;
+	public int getErrorCode() {
+		return error;
 	}
 	public String getRawPostData(){
 		return postDataBuffer==null?null:postDataBuffer.toString();
@@ -51,19 +60,19 @@ public class HTTPInput extends HashMap<String, String> {
 	 *            the string to parse
 	 * @return true if there was an error
 	 */
-	public boolean parseString(String s) {
+	public int parseString(String s) {
 		try {
 			if (inReadRawDataMode) {
 				int clength = Integer.parseInt(getOrDefault("Content-Length","0"));
 				if(!containsKey("Content-Length")){
 					System.out.println("POST, but no content length");
-					hasError = true;
-					return true;
+					error = 6;
+					return error;
 				}
-				if(clength>1024*1024){
+				if(clength>1024*1024 || clength > Integer.parseInt(get("Content-Length"))){
 					System.out.println("Content-Legnth too big");
-					hasError = true;
-					return true;
+					error = 2;
+					return error;
 				}
 				if(postDataBuffer==null){
 					postDataBuffer = new StringBuffer(clength);
@@ -78,8 +87,8 @@ public class HTTPInput extends HashMap<String, String> {
 				if (s.matches("(POST|PUT|GET|HEAD) [^ ]+ HTTP\\/(1\\.1|2|1)\r?\n")) {
 					String[] ins = s.split(" ");
 					if (ins[0].matches("(PUT|HEAD)")) {
-						hasError = true;
-						return true;
+						error = 4;
+						return error;
 					}
 					put("method", ins[0]);
 					put("filePath", ins[1]);
@@ -94,14 +103,14 @@ public class HTTPInput extends HashMap<String, String> {
 						isFinished = true;
 					}
 				} else {
-					hasError = true;
-					return true;
+					error = 4;
+					return error;
 				}
 			}
-			return false;
+			return 0;
 		} catch (Exception ex) {
-			hasError = true;
-			return true;
+			error = 5;
+			return error;
 		}
 	}
 

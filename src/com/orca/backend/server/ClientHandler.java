@@ -1,10 +1,8 @@
 package com.orca.backend.server;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -47,13 +45,12 @@ public class ClientHandler extends Thread {
                     inputBuffer.append(c);
                     if (inputBuffer.length() > 1024 || inputSize > 1024 * 1024) {
                         logln("Request Too Long");
-                        HTTPParser.setError(true);
+                        HTTPParser.setError(1);
                         break;
                     }
                     if (c == '\n') {
-                        if (HTTPParser.parseString(inputBuffer.toString())) {
+                        if (HTTPParser.parseString(inputBuffer.toString())!=0) {
                             logln("Bad request Header");
-                            HTTPParser.setError(true);
                             break;
                         }
                         if (HTTPParser.isFinished()) {

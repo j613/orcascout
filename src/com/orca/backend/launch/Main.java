@@ -6,10 +6,11 @@ import com.orca.backend.server.Server;
 
 public class Main {
 	public static void main(String... args) throws IOException {
-		Server s = new Server(new OrcascoutHandler(),81);
+		Server s = new Server(new OrcascoutHandler(),294);
 		s.start();
 		System.out.println("STARTED");
 		System.in.read();
 		System.exit(0);
 	}
 }
+

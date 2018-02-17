@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 
 public class Server extends Thread {
 
-    public static final String OrcaVersion = "Orca/0.1";
+    public static final String OrcaVersion = "Orca/"+Double.NaN;
     private final InputHandler inputHandler;
     private final int serverPort;
     private boolean isRunning; // Maybe Volatile?
@@ -54,7 +54,7 @@ public class Server extends Thread {
             ServerSocket server = new ServerSocket(serverPort);
             while (isRunning) {
                 Socket connection = server.accept();
-                connection.setSoTimeout(5000);
+                connection.setSoTimeout(60000);
                 ClientHandler chandle = new ClientHandler(connection, this);
                 System.out.println("Accepted connection from: " + connection.getInetAddress());
                 execService.submit(chandle);
