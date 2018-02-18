@@ -1,32 +1,42 @@
-// @background-blue: rgb(30, 144, 255);
-// @background-dark-blue: darken(@background-blue, 20%);
-@background-blue: rgb(0, 128, 255);
-@background-dark-blue: rgb(255, 166, 0);
+@background-blue: #212F79;
+@background-dark-blue: #121A49;
+@line-dark-blue: #0B1028;
 
 .sidebar {
     height: 100vh;
     background: @background-dark-blue;
     border-right: 1px solid white;
     color: white;
+    ul {
+        li {
+            a, a:hover, a:visited, a:active {
+                text-decoration: none;
+                color: white;
+                display: block;
+                padding: 10px;
+                padding-right: 20px;
+            }
+            font-size: 20px;
+            border-bottom: 1px solid white;
+        }
+        margin: 0;
+        padding: 0;
+    }
 }
 
 .main-content {
+    .toggle-button {
+        position: absolute;
+        padding: 0px 15px 0px 15px;
+        width: 30px;
+    }
+    h2 {
+        padding-top: 30px;
+        padding-left: 70px;
+    }
+
     height: 100vh;
     background: @background-blue;
-}
-
-ul {
-    li {
-        padding: 10px;
-        font-size: 20px;
-        border-bottom: 1px solid white;
-    }
-    margin: 0;
-    padding: 0;
-}
-
-.toggle-button {
-    position: relative;
-    padding: 0px 15px 0px 15px;
-    width: 30px;
+    color: white;
+    padding: 10px;
 }

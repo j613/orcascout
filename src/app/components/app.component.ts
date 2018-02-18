@@ -11,24 +11,25 @@ export class AppComponent {
   private _show_backdrop: boolean = true;
   private _current_icon: string;
   private pages: Page[] = [
-    { name: "Match Scouting", path: "" },
-    { name: "Edit Match Scouting", path: "" },
-    { name: "Pit Scouting", path: "" },
-    { name: "Graph", path: "" },
-    { name: "List", path: "" },
-    { name: "Coach", path: "" },
-    { name: "Match Schedule", path: "" },
-    { name: "Notes", path: "" },
-    { name: "Alliance Selection", path: "" },
-    { name: "Settings", path: "" }
+    { name: 'Home', path: '', title: 'asd' },
+    { name: 'Match Scouting', path: 'match-scouting' },
+    { name: 'Edit Match Scouting', path: 'edit-match-scouting' },
+    { name: 'Pit Scouting', path: 'pit-scouting' },
+    { name: 'Graph', path: 'graph' },
+    { name: 'List', path: 'list' },
+    { name: 'Coach', path: 'coach' },
+    { name: 'Match Schedule', path: 'match-schedule' },
+    { name: 'Notes', path: 'notes' },
+    { name: 'Alliance Selection', path: 'alliance-selection' },
+    { name: 'Settings', path: 'settings' }
   ];
 
   constructor() {
-    this._current_icon = this._opened ? "angle-left" : "angle-right";
+    this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
 
   private _toggleSidebar() {
     this._opened = !this._opened;
-    this._current_icon = this._opened ? "angle-left" : "angle-right";
+    this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
 }

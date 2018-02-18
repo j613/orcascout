@@ -1,4 +1,5 @@
-export class Page {
+export interface Page {
     name: string;
     path: string;
+    title?: string;
 }

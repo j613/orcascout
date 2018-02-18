@@ -5,9 +5,12 @@
       <div class="sidebar">
         <ul>
           <li *ngFor="let page of pages">
-            {{ page.name }}
+            <a routerLink="{{ page.path }}" routerLinkActive="active">{{ page.name }}</a>
           </li>
         </ul>
+          Special Thanks To:<br/>
+          Emerson<br/>
+          Thats it.
       </div>
     </ng-sidebar>
   
@@ -15,13 +18,13 @@
     <div ng-sidebar-content>
       <div class="main-content">
           <div class="toggle-button" (click)="_toggleSidebar()">
-            <fa name="{{ _current_icon }}" size="4x"></fa>
+            <fa [name]="_current_icon" size="4x"></fa>
           </div>
   
           <div class="page-content">
-            <!-- 
-            Each individual page's content will go here.
-            -->
+            <h2>Page Title Placeholder</h2>
+            <hr>
+            <router-outlet></router-outlet>
           </div>
   
       </div>
