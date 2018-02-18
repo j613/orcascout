@@ -1,0 +1,9 @@
+users
+id	username	password_hash	email	user_level(admin, regular, guest)
+
+teams
+id		team_name(nickname)	team_number 	image	 notes		drivetrain_style(optional)
+	
+matches
+id		regional_id		team_number		match_number	game_stats(java Object iostreams)
+

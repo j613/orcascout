@@ -1,0 +1,32 @@
+// @background-blue: rgb(30, 144, 255);
+// @background-dark-blue: darken(@background-blue, 20%);
+@background-blue: rgb(0, 128, 255);
+@background-dark-blue: rgb(255, 166, 0);
+
+.sidebar {
+    height: 100vh;
+    background: @background-dark-blue;
+    border-right: 1px solid white;
+    color: white;
+}
+
+.main-content {
+    height: 100vh;
+    background: @background-blue;
+}
+
+ul {
+    li {
+        padding: 10px;
+        font-size: 20px;
+        border-bottom: 1px solid white;
+    }
+    margin: 0;
+    padding: 0;
+}
+
+.toggle-button {
+    position: relative;
+    padding: 0px 15px 0px 15px;
+    width: 30px;
+}
