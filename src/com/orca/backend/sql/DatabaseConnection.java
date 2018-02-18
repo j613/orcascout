@@ -28,10 +28,10 @@ public class DatabaseConnection {
     public boolean connect(){
         try {
             connection = DriverManager.getConnection(hostname, username, password);
-            return false;
+            return true;
         } catch (SQLException ex) {
             ex.printStackTrace();
-            return true;
+            return false;
         }
     }
     public boolean isConnected(){

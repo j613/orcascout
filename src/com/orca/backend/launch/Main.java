@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.orca.backend.server.Server;
 
-public class Main {
+public enum Main {;
 	public static void main(String... args) throws IOException {
 		Server s = new Server(new OrcascoutHandler(),294);
 		s.start();

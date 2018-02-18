@@ -54,8 +54,7 @@ public class ClientHandler extends Thread {
                             break;
                         }
                         if (HTTPParser.isFinished()) {
-                            logln("LLLLLL");
-                            logln(HTTPParser.getActualPostData());
+                            //logln(HTTPParser.getActualPostData());
                             break;
                         }
                         inputBuffer = new StringBuffer(1024);

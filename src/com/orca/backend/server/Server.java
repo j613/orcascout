@@ -54,7 +54,7 @@ public class Server extends Thread {
             ServerSocket server = new ServerSocket(serverPort);
             while (isRunning) {
                 Socket connection = server.accept();
-                connection.setSoTimeout(60000);
+                //connection.setSoTimeout(60000);
                 ClientHandler chandle = new ClientHandler(connection, this);
                 System.out.println("Accepted connection from: " + connection.getInetAddress());
                 execService.submit(chandle);
