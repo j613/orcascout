@@ -1,0 +1,28 @@
+<app-header [title]="title"></app-header>
+<div>
+    <form #pitForm="ngForm">
+        <div class="form-group">
+            <label for="team-name">Team Name</label>
+            <input type="text" id="team-name" required [(ngModel)]="team.name" name="name">
+        </div>
+        <div class="form-group">
+            <label for="team-number">Team Number</label>
+            <input type="text" id="team-number" required [(ngModel)]="team.number" name="number">
+        </div>
+        <div class="form-group">
+            <label for="team-photo">Team Photo</label>
+            <input type="file" id="team-photo" required [(ngModel)]="team.photo" name="photo">
+        </div>
+        <div class="form-group">
+            <label for="comments">Comments</label>
+            <textarea id="comments" required [(ngModel)]="team.comments" name="comments"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="comments">Drivetrain</label>
+            <select id="drivetrain" required [(ngModel)]="team.drivetrain" name="drivetrain">
+                <option *ngFor="let train of drivetrains" value="{{ train }}">{{ train }}</option>
+            </select>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+</div>

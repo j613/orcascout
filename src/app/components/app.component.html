@@ -1,7 +1,7 @@
 <ng-sidebar-container style="height: 100vh;">
 
     <!-- A sidebar -->
-    <ng-sidebar [(opened)]="_opened" mode="push">
+    <ng-sidebar [(opened)]="_opened" mode="slide">
       <div class="sidebar">
         <ul>
           <li *ngFor="let page of pages">
@@ -22,8 +22,6 @@
           </div>
   
           <div class="page-content">
-            <h2>Page Title Placeholder</h2>
-            <hr>
             <router-outlet></router-outlet>
           </div>
   

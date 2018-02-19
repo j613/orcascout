@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Page } from './../classes/page';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,7 @@ export class AppComponent {
     { name: 'Settings', path: 'settings' }
   ];
 
-  constructor() {
+  constructor(private router: Router) {
     this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
 
