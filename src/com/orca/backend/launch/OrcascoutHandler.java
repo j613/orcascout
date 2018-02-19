@@ -2,6 +2,7 @@ package com.orca.backend.launch;
 
 import com.orca.backend.server.HTTPInput;
 import com.orca.backend.server.InputHandler;
+import com.orca.backend.server.PostData;
 import com.orca.backend.server.ResponseFile;
 import com.orca.backend.sql.DatabaseConnection;
 import java.io.BufferedWriter;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class OrcascoutHandler implements InputHandler {
@@ -62,15 +64,13 @@ public class OrcascoutHandler implements InputHandler {
      * @return return false if the POST request cant be processed
      */
     private boolean handlePostSubmit(HTTPInput in) {
-        System.out.println("DSAFSDFS");
         if (!in.getRequestedFile().toLowerCase().matches("\\/submit(match|user|team)")) {
             return false;
         }
-        System.out.println("DDDDDD");
         if (in.getRequestedFile().equalsIgnoreCase("/submituser")) {
-            System.out.println(in.getActualPostData());
+            return true;//dataHandler.addNewUser(in.getActualPostData()[0].getPostData());
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class OrcascoutHandler implements InputHandler {
         ResponseFile sendFile;
         String respMessage = "200 OK";
         System.out.println("requested File: " + in.getRequestedFile());
-
+        System.out.println("Error Code: "+in.getErrorCode());
         if (in.getErrorCode() == 4) {
             respMessage = "400 Bad Request";
             sendFile = getCachedFile("/errorFiles/400error.html");
@@ -96,7 +96,6 @@ public class OrcascoutHandler implements InputHandler {
                 sendFile = getCachedFile("/errorFiles/404error.html");
                 respMessage = "404 Not Found";
             } else if (in.getRequestedFile().toLowerCase().startsWith("/submit")) {
-                System.out.println("SSDDAD");
                 respMessage = handlePostSubmit(in) ? "201 Created" : "400 Bad Request";
                 sendFile = null;
             }else if (!memCachedFiles.containsKey(in.getRequestedFile())) {
