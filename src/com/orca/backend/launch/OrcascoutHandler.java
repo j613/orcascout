@@ -2,6 +2,7 @@ package com.orca.backend.launch;
 
 import com.orca.backend.server.HTTPInput;
 import com.orca.backend.server.InputHandler;
+import com.orca.backend.server.LCHashMap;
 import com.orca.backend.server.PostData;
 import com.orca.backend.server.ResponseFile;
 import com.orca.backend.sql.DatabaseConnection;
@@ -16,17 +17,9 @@ import java.util.HashMap;
 
 public class OrcascoutHandler implements InputHandler {
 
-    private final DataHandler dataHandler = new DataHandler();
-    private static final HashMap<String, ResponseFile> memCachedFiles = new HashMap<String, ResponseFile>() {
-        @Override
-        public ResponseFile get(Object key) {
-            if (!(key instanceof String)) {
-                return null;
-            }
-            return super.get(((String) key).replaceAll("\\\\", "/").toLowerCase());
-        }
-
-    };
+    private final DatabaseConnection connection = new DatabaseConnection("jdbc:mysql://localhost/orcascout?useSSL=false", "root", "NONO");
+    private final UserHandler userHandler = new UserHandler(connection);
+    private static final LCHashMap<ResponseFile> memCachedFiles = new LCHashMap<>();
 
     static {
         try {

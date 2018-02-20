@@ -16,6 +16,15 @@ public class JSONObj extends JSONObject{
     public JSONObj(String source) throws JSONException {
         super(source);
     }
+    public static JSONObj getFromString(String g){
+        return new JSONObj(g);
+    }
+    public JSONObj(JSONObj source) throws JSONException {
+        super(source);
+    }
+    public JSONObj(Object source) throws JSONException {
+        this(source.toString());
+    }
     @Override
    public boolean similar(Object other) {
         try {

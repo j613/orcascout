@@ -1,0 +1,12 @@
+{
+    "insertuser": {
+        "username": "ethanf108",
+        "firstname": "Ethan",
+        "lastname": "Ferguson",
+        "password": "password"
+    },
+    "loginuser": {
+        "username": "ethanf108",
+        "password": "password"
+    }
+}

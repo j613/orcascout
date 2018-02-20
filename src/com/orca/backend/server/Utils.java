@@ -1,5 +1,6 @@
 package com.orca.backend.server;
 
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,6 +16,8 @@ import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,11 +25,13 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public final class Utils {
 
     private static final Key KEYPAIR;
-
+    private static final Random rand = new Random();
     static {
         Key t;
         try {
@@ -82,5 +87,10 @@ public final class Utils {
             ex.printStackTrace();
         }
         return null;
+    }
+    public static String generateToken(int size){
+        byte[] byts = new byte[size];
+        rand.nextBytes(byts);
+        return Base64.encode(byts).substring(0,size);
     }
 }
