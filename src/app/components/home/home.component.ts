@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./home.component.less']
 })
 export class HomeComponent {
-  private title: string = "Home";
+  public title: string = "Home";
 
   constructor() { }
 

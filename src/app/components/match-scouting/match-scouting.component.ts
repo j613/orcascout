@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./match-scouting.component.less']
 })
 export class MatchScoutingComponent implements OnInit {
-  private title: string = "Match Scouting";
+  public title: string = "Match Scouting";
 
   constructor() { }
 

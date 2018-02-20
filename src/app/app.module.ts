@@ -3,10 +3,10 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule }   from '@angular/forms';
 
-import { AppComponent } from './components/app.component';
-
 import { SidebarModule} from 'ng-sidebar';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
+
+import { AppComponent } from './components/app.component';
 import { HomeComponent } from './components/home/home.component';
 import { MatchScoutingComponent } from './components/match-scouting/match-scouting.component';
 import { EditMatchScoutingComponent } from './components/edit-match-scouting/edit-match-scouting.component';

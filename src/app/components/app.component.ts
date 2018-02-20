@@ -8,10 +8,10 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.less']
 })
 export class AppComponent {
-  private _opened: boolean = true
-  private _show_backdrop: boolean = true;
-  private _current_icon: string;
-  private pages: Page[] = [
+  public _opened: boolean = true
+  public _show_backdrop: boolean = true;
+  public _current_icon: string;
+  public pages: Page[] = [
     { name: 'Home', path: '', title: 'asd' },
     { name: 'Match Scouting', path: 'match-scouting' },
     { name: 'Edit Match Scouting', path: 'edit-match-scouting' },
@@ -29,7 +29,7 @@ export class AppComponent {
     this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
 
-  private _toggleSidebar() {
+  public _toggleSidebar() {
     this._opened = !this._opened;
     this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
