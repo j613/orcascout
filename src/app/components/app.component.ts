@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Page } from './../classes/page';
 import { Router } from '@angular/router';
+import { BackendUpdateService } from './../services/backend-update.service';
 
 @Component({
   selector: 'app-root',
@@ -8,7 +9,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.less']
 })
 export class AppComponent {
-  public _opened: boolean = true
+  public _opened: boolean = false;
   public _show_backdrop: boolean = true;
   public _current_icon: string;
   public pages: Page[] = [
@@ -25,7 +26,7 @@ export class AppComponent {
     { name: 'Settings', path: 'settings' }
   ];
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private backend_update: BackendUpdateService) {
     this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
 

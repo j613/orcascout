@@ -1,17 +1,19 @@
 <app-header [title]="title"></app-header>
 <div>
-    <form #pitForm="ngForm">
+    <form #pitForm="ngForm" (ngSubmit)="submitPit(); pitForm.reset();">
         <div class="form-group">
             <label for="team-name">Team Name</label>
             <input type="text" id="team-name" required [(ngModel)]="team.name" name="name">
         </div>
         <div class="form-group">
-            <label for="team-number">Team Number</label>
-            <input type="text" id="team-number" required [(ngModel)]="team.number" name="number">
+            <label for="team-number">Team #</label>
+            <input type="text" id="team-number" required [(ngModel)]="team.number" pattern="[0-9]+" name="number" #teamnum="ngModel">
+            <div *ngIf="teamnum.touched && teamnum.invalid" class="warning">Needs to be a number</div>
         </div>
         <div class="form-group">
             <label for="team-photo">Team Photo</label>
-            <input type="file" id="team-photo" required [(ngModel)]="team.photo" name="photo">
+            <input type="file" id="team-photo" required (change)="updatePhotos($event)" name="photo"><br>
+            <img *ngIf="team.photo" [src]="team.photo">
         </div>
         <div class="form-group">
             <label for="comments">Comments</label>
@@ -23,6 +25,8 @@
                 <option *ngFor="let train of drivetrains" value="{{ train }}">{{ train }}</option>
             </select>
         </div>
-        <button type="submit">Submit</button>
+        <div class="form-group">
+            <button type="submit" [disabled]="!pitForm.valid">Submit</button>
+        </div>
     </form>
 </div>

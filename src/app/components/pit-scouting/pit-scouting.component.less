@@ -1,12 +1,40 @@
 .form-group {
     label {
+        position: relative;
         display: inline-block;
         width: 25%;
         text-align: right;
     }
-    input, textarea, select {
+    input, select, #r {
+        position: relative;
+        display: inline-block;
         width: 70%;
+        height: 50px;
+        font-size: 25px;
     }
-    width: 500px;
+    .warning {
+        position: relative;
+        margin-left: 25%;
+        width: 70%;
+        font-size: 25px;
+        color: red;
+    }
+    textarea {
+        #r();
+        font-size: 16px;
+    }
+    img {
+        padding-left: 25%;
+        max-height: 200px;
+        max-width: 200px;
+    }
+    button {
+        margin-left: 50%;
+        margin-top: 25px;
+        transform: translateX(-50%);
+        height: 50px;
+        width: 200px;
+    }
+    width: 100%;
     padding-bottom: 5px;
 }

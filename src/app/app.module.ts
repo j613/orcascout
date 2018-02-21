@@ -6,6 +6,8 @@ import { FormsModule }   from '@angular/forms';
 import { SidebarModule} from 'ng-sidebar';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
+import { BackendUpdateService } from './services/backend-update.service';
+
 import { AppComponent } from './components/app.component';
 import { HomeComponent } from './components/home/home.component';
 import { MatchScoutingComponent } from './components/match-scouting/match-scouting.component';
@@ -39,7 +41,9 @@ const appRoutes: Routes = [
     ),
     FormsModule
   ],
-  providers: [],
+  providers: [
+    BackendUpdateService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

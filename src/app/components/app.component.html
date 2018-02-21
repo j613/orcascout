@@ -8,9 +8,9 @@
             <a routerLink="{{ page.path }}" routerLinkActive="active">{{ page.name }}</a>
           </li>
         </ul>
-          Special Thanks To:<br/>
-          Emerson<br/>
-          Thats it.
+        <span *ngIf="backend_update.backlog.length >= 0">
+          There are {{ backend_update.backlog.length }} offline records stored.
+        </span>
       </div>
     </ng-sidebar>
   
