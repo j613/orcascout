@@ -47,7 +47,7 @@ public interface InputHandler {
      * @return true if should close socket
      * @throws IOException
      */
-    public boolean handleRequest(HTTPInput in, BufferedWriter out) throws IOException;
+    public boolean handleRequest(HTTPInput in, BufferedWriter out);
 
     //public ResponseFile getResponseFile(String fileName) throws IOException;
 }

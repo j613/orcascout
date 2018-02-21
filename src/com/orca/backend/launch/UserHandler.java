@@ -146,7 +146,8 @@ public class UserHandler {
             if (!userExists(obj.getString("username"))) {
                 return false;
             }
-            if(!users.stream().anyMatch(n->n.getToken().equals(token)&&n.getUsername().equals(obj.getString("username")))){
+            if(!users.stream().anyMatch(n->n.getToken().equals(token)&&n.getUsername().equals(obj.getString("username"))
+                    &&n.getUserLevel().equals("admin"))){
                 return false;
             }
             PreparedStatement exec;
@@ -197,7 +198,7 @@ public class UserHandler {
                         break;
                     }
                 }
-                users.add(new User(obj.getString("username"), token));
+                users.add(new User(obj.getString("username"), token, rs.getString("USER_LEVEL")));
                 return token;
             } else {
                 return null;

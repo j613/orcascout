@@ -16,7 +16,7 @@ public class HTTPInput extends HashMap<String, String> {
 
     private boolean inReadRawDataMode = false;
     private String escapeSequence = null; // String that marks the start / end of POST Data
-    private HashMap<String, String> phpArgs = null;
+    private HashMap<String, String> phpArgs = new HashMap<>();
     /*
 	 * List of Error codes:
 	 * 0: no Error
@@ -44,6 +44,9 @@ public class HTTPInput extends HashMap<String, String> {
     }
 
     public String getCookie(String name) {
+        if(!containsKey("Cookies")){
+            return null;
+        }
         String[] cokies = get("Cookies").split(";");
         for (String g : cokies) {
             if(g.split("=")[0].equalsIgnoreCase(name)){
@@ -134,11 +137,11 @@ public class HTTPInput extends HashMap<String, String> {
                         String args[] = filePath.split("\\?");
                         args = args[1].split("&");
                         for (String g : args) {
-                            phpArgs.put(g.split("=")[0], g.split("=")[1]);
+                            phpArgs.put(g.split("\\=")[0], g.split("\\=")[1]);
                         }
                     }
                     put("method", ins[0]);
-                    put("filePath", ins[1]);
+                    put("filePath", ins[1].split("\\?")[0]);
                     put("httpVersion", ins[2].split("\\/")[1]);
                 } else if (s.matches(".+: .+\r?\n")) {
                     String field = s.substring(0, s.indexOf(":"));
@@ -157,6 +160,7 @@ public class HTTPInput extends HashMap<String, String> {
             return 0;
         } catch (Exception ex) {
             error = 5;
+            ex.printStackTrace(System.out);
             return error;
         }
     }

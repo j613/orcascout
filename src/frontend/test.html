@@ -2,12 +2,29 @@
 <html>
     <head>
         <title>Submit Code!</title>
+        <script type="text/javascript">
+            //alert(document.cookie);
+            </script>
     </head>
     <body>
-        <form action="/submituser" enctype="multipart/form-data" method="post">
+        <p>login</p><br/>
+        <form action="/submitUser?method=login" enctype="multipart/form-data" method="post">
             <input type="text" name="FileInput"/>
-            <input type="text" name="f"/>
-            <input type="text" name="e"/>
+            <input type="submit" value="Submit"/>
+        </form>
+        <p>logout</p><br/>
+        <form action="/submitUser?method=logout" enctype="multipart/form-data" method="post">
+            <input type="text" name="FileInput"/>
+            <input type="submit" value="Submit"/>
+        </form>
+        <p>accept</p><br/>
+        <form action="/submitUser?method=approve" enctype="multipart/form-data" method="post">
+            <input type="text" name="FileInput"/>
+            <input type="submit" value="Submit"/>
+        </form>
+        <p>create</p><br/>
+        <form action="/submitUser?method=create" enctype="multipart/form-data" method="post">
+            <input type="text" name="FileInput"/>
             <input type="submit" value="Submit"/>
         </form>
     </body>

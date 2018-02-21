@@ -18,9 +18,11 @@ public class ClientHandler extends Thread {
         this.clientSocket = cs;
         server = s;
     }
-    private synchronized void logln(String g){
-        Server.logln(clientSocket.getInetAddress().toString(),g);
+
+    private synchronized void logln(String g) {
+        Server.logln(clientSocket.getInetAddress().toString(), g);
     }
+
     @Override
     public void run() { //TODO make isClosed calls more clean we dont need three of them
         int inc = 0;
@@ -41,7 +43,7 @@ public class ClientHandler extends Thread {
                 for (; inc >= 0 && !clientSocket.isClosed(); inc = in.read()) {
                     char c = (char) inc;
                     inputSize++;
-                    //System.out.print(c);//+""+inc+" "); // Debug print request
+                    System.out.print(c);//+""+inc+" "); // Debug print request
                     inputBuffer.append(c);
                     if (inputBuffer.length() > 1024 || inputSize > 1024 * 1024) {
                         logln("Request Too Long");
@@ -49,7 +51,7 @@ public class ClientHandler extends Thread {
                         break;
                     }
                     if (c == '\n') {
-                        if (HTTPParser.parseString(inputBuffer.toString())!=0) {
+                        if (HTTPParser.parseString(inputBuffer.toString()) != 0) {
                             logln("Bad request Header");
                             break;
                         }
@@ -69,9 +71,9 @@ public class ClientHandler extends Thread {
                     logln("Intentiaonally Closed");
                 }
             }
-        } catch(SocketTimeoutException e){
+        } catch (SocketTimeoutException e) {
             logln("Socket timed out");
-        }catch (IOException ex) {
+        } catch (IOException ex) {
             logln("IO Error in Thread " + getName());
             logln("inc: " + inc);
             ex.printStackTrace(System.out);
