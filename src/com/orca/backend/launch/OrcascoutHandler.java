@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class OrcascoutHandler implements InputHandler {
 
@@ -56,14 +57,32 @@ public class OrcascoutHandler implements InputHandler {
      * @param in
      * @return return false if the POST request cant be processed
      */
-    private boolean handlePostSubmit(HTTPInput in) {
-        if (!in.getRequestedFile().toLowerCase().matches("\\/submit(match|user|team)")) {
-            return false;
+    private String handleUserSubmit(HTTPInput in) {
+        if (!in.getPhpArgs().containsKey("method")) {
+            return null;
         }
-        if (in.getRequestedFile().equalsIgnoreCase("/submituser")) {
-            return true;//dataHandler.addNewUser(in.getActualPostData()[0].getPostData());
+        String token = in.getCookie("AuthToken");
+        JSONObj obj;
+        switch (in.getPhpArgs().get("method").toLowerCase()) {
+            case "login":
+                obj = new JSONObj(in.getActualPostData()[0]);
+                return userHandler.loginUser(obj);
+            case "logout":
+                if (token == null) {
+                    return null;
+                }
+                return userHandler.logoutUser(token) ? "" : null;
+            case "approve":
+                if (token == null) {
+                    return null;
+                }
+                obj = new JSONObj(in.getActualPostData()[0]);
+                return userHandler.approveUser(obj, token) ? "" : null;
+            case "create":
+                obj = new JSONObj(in.getActualPostData()[0]);
+                return userHandler.addNewUser(obj) ? "" : null;
         }
-        return false;
+        return null;
     }
 
     @Override
@@ -71,7 +90,8 @@ public class OrcascoutHandler implements InputHandler {
         ResponseFile sendFile;
         String respMessage = "200 OK";
         System.out.println("requested File: " + in.getRequestedFile());
-        System.out.println("Error Code: "+in.getErrorCode());
+        System.out.println("Error Code: " + in.getErrorCode());
+        HashSet<String> cookies = new HashSet<>();
         if (in.getErrorCode() == 4) {
             respMessage = "400 Bad Request";
             sendFile = getCachedFile("/errorFiles/400error.html");
@@ -88,10 +108,14 @@ public class OrcascoutHandler implements InputHandler {
             if (in.getRequestedFile().toLowerCase().startsWith("/errorfiles")) {
                 sendFile = getCachedFile("/errorFiles/404error.html");
                 respMessage = "404 Not Found";
-            } else if (in.getRequestedFile().toLowerCase().startsWith("/submit")) {
-                respMessage = handlePostSubmit(in) ? "201 Created" : "400 Bad Request";
+            } else if (in.getRequestedFile().toLowerCase().equalsIgnoreCase("/submitUser")) {
+                String ret = handleUserSubmit(in);
+                if(ret!=null && !ret.isEmpty()){
+                    cookies.add("AuthToken=")
+                }
+                respMessage = ret == null ? "201 Created" : "400 Bad Request";
                 sendFile = null;
-            }else if (!memCachedFiles.containsKey(in.getRequestedFile())) {
+            } else if (!memCachedFiles.containsKey(in.getRequestedFile())) {
                 respMessage = "404 Not Found";
                 System.out.println("File not Found");
                 sendFile = getCachedFile("/errorFiles/404error.html");
@@ -101,7 +125,7 @@ public class OrcascoutHandler implements InputHandler {
         }
 
         System.out.println("SENDING FILE");
-        sendFile(sendFile, respMessage, null, out);
+        sendFile(sendFile, respMessage, null, out, cookies);
         System.out.println("File Sent");
         return in.getOrDefault("Connection", "keep-alive").equals("close") || shouldCloseConnectionErrorCode(in.getErrorCode());
     }

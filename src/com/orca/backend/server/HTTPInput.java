@@ -16,6 +16,7 @@ public class HTTPInput extends HashMap<String, String> {
 
     private boolean inReadRawDataMode = false;
     private String escapeSequence = null; // String that marks the start / end of POST Data
+    private HashMap<String, String> phpArgs = null;
     /*
 	 * List of Error codes:
 	 * 0: no Error
@@ -34,8 +35,22 @@ public class HTTPInput extends HashMap<String, String> {
         return isFinished;
     }
 
+    public HashMap<String, String> getPhpArgs() {
+        return phpArgs;
+    }
+
     public String getRequestedFile() {
         return get("filePath"); //TODO: not important but if the client sends a request with the filePath header, it overwrites the GET/POST FIle
+    }
+
+    public String getCookie(String name) {
+        String[] cokies = get("Cookies").split(";");
+        for (String g : cokies) {
+            if(g.split("=")[0].equalsIgnoreCase(name)){
+                return g.split("=")[1];
+            }
+        }
+        return null;
     }
 
     public void setError(int b) {
@@ -70,8 +85,8 @@ public class HTTPInput extends HashMap<String, String> {
                 String DataType = ret[i].substring(ret[i].indexOf(g), ret[i].indexOf(g) + g.length());
                 ret[i] = ret[i].substring(ret[i].indexOf(g) + g.length()).trim();
                 g = DataType.split("; name=\"")[1];
-                DataType = DataType.substring(DataType.indexOf(g),DataType.length()-1);
-                retl.add(new PostData(ret[i].substring(0,ret[i].length()-2), DataType));
+                DataType = DataType.substring(DataType.indexOf(g), DataType.length() - 1);
+                retl.add(new PostData(ret[i].substring(0, ret[i].length() - 2), DataType));
             }
         } catch (Exception e) {
             return null;
@@ -113,6 +128,14 @@ public class HTTPInput extends HashMap<String, String> {
                     if (ins[0].matches("(PUT|HEAD)")) {
                         error = 4;
                         return error;
+                    }
+                    String filePath = ins[1];
+                    if (filePath.contains("?")) {
+                        String args[] = filePath.split("\\?");
+                        args = args[1].split("&");
+                        for (String g : args) {
+                            phpArgs.put(g.split("=")[0], g.split("=")[1]);
+                        }
                     }
                     put("method", ins[0]);
                     put("filePath", ins[1]);

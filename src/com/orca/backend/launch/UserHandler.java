@@ -102,6 +102,9 @@ public class UserHandler {
             if (userExists(obj.getString("username"))) {
                 return false;
             }
+            if (obj.getString("password").length() > 128 || obj.getString("password").length() < 8) {
+                return false;
+            }
             String passhash = Utils.hashPassword(obj.getString("username"), obj.getString("password"));
             passhash = Base64.encode(passhash.getBytes());
             PreparedStatement newUser = connection.prepareStatement(
@@ -120,7 +123,19 @@ public class UserHandler {
         }
     }
 
-    public boolean approveUser(JSONObj obj) {
+    public boolean logoutUser(String token) {
+        User u = users.stream()
+                .filter(n -> n.getToken().equals(token))
+                .findAny()
+                .orElse(null);
+        if (u != null) {
+            users.remove(u);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean approveUser(JSONObj obj, String token) {
         if (!checkTemplate("UserAcceptTemplate", obj)) {
             return false;
         }
@@ -131,7 +146,10 @@ public class UserHandler {
             if (!userExists(obj.getString("username"))) {
                 return false;
             }
-            PreparedStatement exec = null;
+            if(!users.stream().anyMatch(n->n.getToken().equals(token)&&n.getUsername().equals(obj.getString("username")))){
+                return false;
+            }
+            PreparedStatement exec;
             if (obj.getString("userlevel").equalsIgnoreCase("delete")) {
                 exec = connection.prepareStatement("delete from USERS where USERNAME = ?");
                 exec.setString(1, obj.getString("username"));
@@ -189,9 +207,10 @@ public class UserHandler {
             return null;
         }
     }
+
     //Adds a user based off the JSON in TeamTemplate
     //Only for temp debugging
-    public static void main(String ... args) {
+    public static void main(String... args) {
         UserHandler g = new UserHandler(new DatabaseConnection("jdbc:mysql://localhost/orcascout?useSSL=false", "root", "NONO"));
         System.out.println(g.loginUser(new JSONObj(g.templates.get("TestInsertTemplate").get("loginuser"))));
         System.out.println(g.users);

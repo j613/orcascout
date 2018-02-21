@@ -3,11 +3,12 @@ package com.orca.backend.server;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Set;
 
 public interface InputHandler {
 
     public default void sendFile(ResponseFile file, String responseMessage, HashMap<String, String> args,
-            BufferedWriter outWriter) throws IOException {
+            BufferedWriter outWriter, Set<String> cookies) throws IOException {
 
         outWriter.write("HTTP/1.1 " + responseMessage + "\r\n");
         outWriter.write("Date: " + Utils.getHTTPDate() + "\r\n");
@@ -18,6 +19,11 @@ public interface InputHandler {
         outWriter.write("Content-Encoding: identity\r\n");
         outWriter.write("Server: " + Server.OrcaVersion + "\r\n");
         outWriter.write("Content-Language: en-US\r\n");
+        if(cookies!=null){
+            for(String g : cookies){
+                outWriter.write("Set-Cookie: "+g+"\r\n");
+            }
+        }
         if (args != null) {
             for (String k : args.keySet()) {
                 outWriter.write(k + ": " + args.get(k) + "\r\n");
