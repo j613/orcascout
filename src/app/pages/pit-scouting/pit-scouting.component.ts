@@ -8,16 +8,17 @@ import { PitTeam } from '../../classes/pit-team';
   styleUrls: ['./pit-scouting.component.less']
 })
 export class PitScoutingComponent {
-  public title: string = "Pit Scouting";
-  public drivetrains: string[] = ["Six Wheel", "Eight Wheel", "Four Wheel", "Swerve/Crab", "Mechanum", "Tank Tread", "Other"];
-
+  public title = 'Pit Scouting';
+  public drivetrains: string[] = ['Six Wheel', 'Eight Wheel', 'Four Wheel', 'Swerve/Crab', 'Mechanum', 'Tank Tread', 'Other'];
   public team: PitTeam = {
-    name: "asd",
+    name: 'asd',
     number: 0,
-    photo: "",
-    comments: "d",
-    drivetrain: "Six Wheel"
-  }
+    photo: '',
+    comments: 'd',
+    drivetrain: 'Six Wheel'
+  };
+
+  private fr = new FileReader();
 
   constructor(private backend_update: BackendUpdateService) { }
 
@@ -26,11 +27,10 @@ export class PitScoutingComponent {
   }
 
   public updatePhotos(event) {
-    let fr = new FileReader();
-    fr.onload = () => {
-      this.team.photo = fr.result;
-    }
-    fr.readAsDataURL(event.target.files[0]);
+    this.fr.onload = () => {
+      this.team.photo = this.fr.result;
+    };
+    this.fr.readAsDataURL(event.target.files[0]);
   }
 
 }
