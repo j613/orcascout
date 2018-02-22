@@ -1,19 +1,19 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { FormsModule }   from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 
 import { SidebarModule} from 'ng-sidebar';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 import { BackendUpdateService } from './services/backend-update.service';
 
-import { AppComponent } from './components/app.component';
-import { HomeComponent } from './components/home/home.component';
-import { MatchScoutingComponent } from './components/match-scouting/match-scouting.component';
-import { EditMatchScoutingComponent } from './components/edit-match-scouting/edit-match-scouting.component';
+import { AppComponent } from './pages/app.component';
+import { HomeComponent } from './pages/home/home.component';
+import { MatchScoutingComponent } from './pages/match-scouting/match-scouting.component';
+import { EditMatchScoutingComponent } from './pages/edit-match-scouting/edit-match-scouting.component';
 import { HeaderComponent } from './templates/header/header.component';
-import { PitScoutingComponent } from './components/pit-scouting/pit-scouting.component';
+import { PitScoutingComponent } from './pages/pit-scouting/pit-scouting.component';
 
 const appRoutes: Routes = [
   { path: '', component: HomeComponent },
