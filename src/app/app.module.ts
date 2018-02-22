@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 import { SidebarModule} from 'ng-sidebar';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
@@ -23,7 +24,8 @@ import { PitScoutingComponent } from './pages/pit-scouting/pit-scouting.componen
     SidebarModule.forRoot(),
     AngularFontAwesomeModule,
     FormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
   declarations: [
     AppComponent,

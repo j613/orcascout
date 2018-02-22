@@ -1,16 +1,26 @@
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class BackendUpdateService {
   public is_online = true;
   public backlog: Backlog[] = [];
 
-  constructor() { }
+  private url_endpoint = '';
+
+  constructor(private http: HttpClient) { }
+
+  private getRequest(endpoint: string, data: any): Observable<HttpResponse<Object>> {
+    const headers = new HttpHeaders({});
+    return  this.http.post(this.url_endpoint + endpoint, headers, {observe: 'response'});
+  }
 
   public submitPitScout(data: any): void {
     if (this.is_online) {
-      // make post request to server to submit data
-      console.log(data);
+      this.getRequest('pitscout', data).subscribe((resp) => {
+        console.log(resp);
+      });
     } else {
       this.backlog.push({
         type: 'pitscout',
