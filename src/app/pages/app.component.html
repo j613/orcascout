@@ -3,17 +3,30 @@
     <!-- A sidebar -->
     <ng-sidebar [(opened)]="_opened" mode="slide">
       <div class="sidebar">
-        <ul>
+        <ul *ngIf="auth.isLoggedIn; else loggedout">
           <li *ngFor="let page of pages">
             <a routerLink="{{ page.path }}" routerLinkActive="active">{{ page.name }}</a>
           </li>
         </ul>
+        <ng-template #loggedout>
+        <ul>
+          <li>
+            <a routerLink="home" routerLinkActive="active">Home</a>
+          </li>
+          <li>
+            <a routerLink="login" routerLinkActive="active">Login</a>
+          </li>
+          <li>
+            <a routerLink="register" routerLinkActive="active">Register</a>
+          </li>
+        </ul>
+        </ng-template>
         <span *ngIf="backend_update.backlog.length >= 0">
           There are {{ backend_update.backlog.length }} offline records stored.
         </span>
       </div>
     </ng-sidebar>
-  
+
     <!-- Page content -->
     <div ng-sidebar-content>
       <div class="main-content">

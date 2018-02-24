@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Page } from './../classes/page';
 import { Router } from '@angular/router';
 import { BackendUpdateService } from './../services/backend-update.service';
+import { AuthService } from './../services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +27,7 @@ export class AppComponent {
     { name: 'Settings', path: 'settings' }
   ];
 
-  constructor(private router: Router, private backend_update: BackendUpdateService) {
+  constructor(private router: Router, private backend_update: BackendUpdateService, private auth: AuthService) {
     this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
 

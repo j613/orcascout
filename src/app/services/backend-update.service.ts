@@ -18,9 +18,8 @@ export class BackendUpdateService {
 
   public submitPitScout(data: any): void {
     if (this.is_online) {
-      this.getRequest('pitscout', data).subscribe((resp) => {
-        console.log(resp);
-      });
+      // TODO: Finish implementation of backend.
+      this.getRequest('pitscout', data).subscribe((resp) => {});
     } else {
       this.backlog.push({
         type: 'pitscout',
@@ -31,7 +30,7 @@ export class BackendUpdateService {
 
   public submitMatchScout(data: any): void {
     if (this.is_online) {
-      // post data to submit match endpoint
+      // TODO: Add http call
     } else {
       this.backlog.push({
         type: 'matchscout',
