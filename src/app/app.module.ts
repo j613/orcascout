@@ -20,6 +20,7 @@ import { EditMatchScoutingComponent } from './pages/edit-match-scouting/edit-mat
 import { HeaderComponent } from './templates/header/header.component';
 import { PitScoutingComponent } from './pages/pit-scouting/pit-scouting.component';
 import { AuthService } from './services/auth.service';
+import { LoginComponent } from './pages/login/login.component';
 
 @NgModule({
   imports: [
@@ -36,7 +37,8 @@ import { AuthService } from './services/auth.service';
     MatchScoutingComponent,
     EditMatchScoutingComponent,
     HeaderComponent,
-    PitScoutingComponent
+    PitScoutingComponent,
+    LoginComponent
   ],
   providers: [
     BackendUpdateService,

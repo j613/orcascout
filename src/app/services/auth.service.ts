@@ -11,9 +11,9 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
-  public login(): Observable<boolean> {
+  public login(username: string, password: string): Observable<boolean> {
     // TODO: Replace with actual request to backend server.
-    return Observable.of(true).delay(3000).do((val) => this.isLoggedIn = val);
+    return Observable.of(true).delay(1000).do((val) => this.isLoggedIn = val);
   }
 
 }

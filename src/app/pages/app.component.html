@@ -5,7 +5,7 @@
       <div class="sidebar">
         <ul *ngIf="auth.isLoggedIn; else loggedout">
           <li *ngFor="let page of pages">
-            <a routerLink="{{ page.path }}" routerLinkActive="active">{{ page.name }}</a>
+            <a [routerLink]="page.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ page.name }}</a>
           </li>
         </ul>
         <ng-template #loggedout>

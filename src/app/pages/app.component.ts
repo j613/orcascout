@@ -10,11 +10,11 @@ import { AuthService } from './../services/auth.service';
   styleUrls: ['./app.component.less']
 })
 export class AppComponent {
-  public _opened = false;
+  public _opened = true;
   public _show_backdrop = true;
   public _current_icon: string;
   public pages: Page[] = [
-    { name: 'Home', path: '', title: 'asd' },
+    { name: 'Home', path: ''},
     { name: 'Match Scouting', path: 'match-scouting' },
     { name: 'Edit Match Scouting', path: 'edit-match-scouting' },
     { name: 'Pit Scouting', path: 'pit-scouting' },
@@ -27,7 +27,8 @@ export class AppComponent {
     { name: 'Settings', path: 'settings' }
   ];
 
-  constructor(private router: Router, private backend_update: BackendUpdateService, private auth: AuthService) {
+  // TODO: Implement methods to access backend_update and auth from the HTML instead of making them public
+  constructor(private router: Router, public backend_update: BackendUpdateService, public auth: AuthService) {
     this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
 
