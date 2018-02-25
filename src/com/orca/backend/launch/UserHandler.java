@@ -18,44 +18,84 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONArray;
 
 public class UserHandler {
-
-    private final LCHashMap<JSONObj> templates = new LCHashMap<>();
     private final ArrayList<User> users = new ArrayList<>();
     //TODO: Implement SSL
     private final DatabaseConnection connection;
 
     public UserHandler(DatabaseConnection c) {
         connection = c;
+    }
+    /**
+     * returns a currently logged in user based off of the token
+     * @param token the token
+     * @return the user
+     */
+    private User getUserByToken(String token){
+        return users.stream().filter(n->n.getToken().equals(token)).findAny().orElse(null);
+    }
+    public static JSONObj userToJSON(ResultSet rs, boolean userLevel, boolean passhash) throws SQLException{
+        JSONObj ret = new JSONObj();
+        ret.put("username", rs.getString("USERNAME"));
+        ret.put("firstname",rs.getString("FIRSTNAME"));
+        ret.put("lastname",rs.getString("LASTNAME"));
+        if(userLevel){
+            ret.put("userlevel", rs.getString("USERLEVEL"));
+        }
+        if(passhash){
+            ret.put("passhash", rs.getString("PASSHASH"));
+        }
+        return ret;
+    }
+    public JSONObj getPendingUsers(){
         try {
-            Path p = new File(UserHandler.class.getResource("/com/orca/backend/templates/").toURI()).toPath();
-            Files.walk(p).forEach(n -> {
-                if (!n.toFile().isDirectory()) {
-                    try {
-                        String g = n.getFileName().toString().toLowerCase();
-                        templates.put(g.split("\\.")[0], new JSONObj(new String(Files.readAllBytes(n))));
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            });
-        } catch (IOException e) {
-            System.err.println("Error reading files from disk. abort");
-            e.printStackTrace();
-        } catch (URISyntaxException ex) {
-            ex.printStackTrace();
+            JSONObj ret = new JSONObj();
+            ResultSet rs = connection.executeQuery("select USERNAME, FIRSTNAME, LASTNAME from USERS where PENDING = 1;");
+            while(rs.next()){
+                ret.append("users", userToJSON(rs, false, false));
+            }
+            return ret;
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
+            return null;
         }
-        if (!connection.connect()) {
-            System.out.println("Error connecting to database. abort");
-            System.exit(1);
+    }
+    public JSONObj getMatchesScouted(String token){
+        try {
+            JSONObj ret = new JSONObj();
+            ret.put("matches", new JSONArray());
+            User u = getUserByToken(token);
+            PreparedStatement ps = connection.prepareStatement("select MATCH_NUMBER from MATCHES where SUBMIT_BY = ?");
+            ps.setInt(1, u.getID());
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                ret.append("matches", MatchHandler.matchToJSON(rs, false, false));
+            }
+            return ret;
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
+            return null;
         }
+    }
+    public JSONObj getUserInfo(String token){
+        User us = getUserByToken(token);
+        if(us==null)return null;
+        JSONObj tmp = new JSONObj();
+        tmp.put("username", us.getUsername());
+        tmp.put("firstname", us.getFirstname());
+        tmp.put("lastname", us.getLastname());
+        tmp.put("level", us.getUserLevel());
+        return tmp;
     }
 
     public boolean isValidUserType(String g) {
         return g.equalsIgnoreCase("admin") || g.equalsIgnoreCase("limited") || g.equalsIgnoreCase("regular");
     }
-
+    public boolean isLoggedIn(String token){
+        return this.getUserByToken(token)!=null;
+    }
     public boolean userExists(String username) {
         try {
             PreparedStatement checkUser = connection.prepareStatement("select * from USERS where USERNAME = ?");
@@ -80,12 +120,6 @@ public class UserHandler {
         }
     }
 
-    private boolean checkTemplate(String temp, JSONObj obj) {
-        return templates
-                .get(temp)
-                .similar(obj);
-    }
-
     /**
      * Adds a new user with limited access, in pending stage (have to be
      * approved by admin to access website)
@@ -96,7 +130,7 @@ public class UserHandler {
      */
     public boolean addNewUser(JSONObj obj) {
         try {
-            if (!checkTemplate("UserCreateTemplate", obj)) {
+            if (!JSONObj.checkTemplate("UserCreateTemplate", obj)) {
                 return false;
             }
             if (userExists(obj.getString("username"))) {
@@ -106,7 +140,6 @@ public class UserHandler {
                 return false;
             }
             String passhash = Utils.hashPassword(obj.getString("username"), obj.getString("password"));
-            passhash = Base64.encode(passhash.getBytes());
             PreparedStatement newUser = connection.prepareStatement(
                     "insert into USERS(USERNAME, FIRSTNAME, LASTNAME, PASSWORD_HASH, USER_LEVEL, PENDING)"
                     + " values (?, ?, ?, ?, ?, ?)");
@@ -124,10 +157,7 @@ public class UserHandler {
     }
 
     public boolean logoutUser(String token) {
-        User u = users.stream()
-                .filter(n -> n.getToken().equals(token))
-                .findAny()
-                .orElse(null);
+        User u = getUserByToken(token);
         if (u != null) {
             users.remove(u);
             return true;
@@ -136,7 +166,7 @@ public class UserHandler {
     }
 
     public boolean approveUser(JSONObj obj, String token) {
-        if (!checkTemplate("UserAcceptTemplate", obj)) {
+        if (!JSONObj.checkTemplate("UserAcceptTemplate", obj)) {
             return false;
         }
         try {
@@ -173,7 +203,7 @@ public class UserHandler {
      * @return a token that is given to the client to keep a session
      */
     public String loginUser(JSONObj obj) {
-        if (!checkTemplate("UserLoginTemplate", obj)) {
+        if (!JSONObj.checkTemplate("UserLoginTemplate", obj)) {
             return null;
         }
         try {
@@ -186,10 +216,11 @@ public class UserHandler {
             PreparedStatement exec
                     = connection.prepareStatement("select * from USERS where USERNAME = ? ");
             String passhash = Utils.hashPassword(obj.getString("username"), obj.getString("password"));
-            passhash = Base64.encode(passhash.getBytes());
             exec.setString(1, obj.getString("username"));
+            System.out.println("PP"+passhash);
             ResultSet rs = exec.executeQuery();
             if (rs.next() && rs.getString("PASSWORD_HASH").equals(passhash)) {
+            System.out.println("kjk"+rs.getString("PASSWORD_HASH"));
                 String token;
                 while (true) {
                     token = Utils.generateToken(256);
@@ -198,9 +229,11 @@ public class UserHandler {
                         break;
                     }
                 }
-                users.add(new User(obj.getString("username"), token, rs.getString("USER_LEVEL")));
+                users.add(new User(rs.getInt("ID"),obj.getString("username"), token,
+                        rs.getString("USER_LEVEL"), rs.getString("FIRSTNAME"), rs.getString("LASTNAME")));
                 return token;
             } else {
+            System.out.println("vv"+rs.getString("PASSWORD_HASH"));
                 return null;
             }
         } catch (SQLException ex) {
@@ -213,7 +246,6 @@ public class UserHandler {
     //Only for temp debugging
     public static void main(String... args) {
         UserHandler g = new UserHandler(new DatabaseConnection("jdbc:mysql://localhost/orcascout?useSSL=false", "root", "NONO"));
-        System.out.println(g.loginUser(new JSONObj(g.templates.get("TestInsertTemplate").get("loginuser"))));
-        System.out.println(g.users);
+        System.out.println(g.getPendingUsers().toString());
     }
 }

@@ -3,30 +3,68 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.orca.backend.launch;
 
+import com.orca.backend.server.LCHashMap;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class JSONObj extends JSONObject{
+public class JSONObj extends JSONObject {
+
+    private static final LCHashMap<JSONObj> templates = new LCHashMap<>();
+
+    static {
+        try {
+            Path p = new File(UserHandler.class.getResource("/com/orca/backend/templates/").toURI()).toPath();
+            Files.walk(p).forEach(n -> {
+                if (!n.toFile().isDirectory()) {
+                    try {
+                        String g = n.getFileName().toString().toLowerCase();
+                        templates.put(g.split("\\.")[0], new JSONObj(new String(Files.readAllBytes(n))));
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+        } catch (IOException e) {
+            System.err.println("Error reading files from disk. abort");
+            e.printStackTrace();
+        } catch (URISyntaxException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static boolean checkTemplate(String temp, JSONObj obj) {
+        return templates
+                .get(temp)
+                .similar(obj);
+    }
 
     public JSONObj(String source) throws JSONException {
         super(source);
     }
-    public static JSONObj getFromString(String g){
-        return new JSONObj(g);
+
+    public JSONObj() {
+        super();
     }
+
     public JSONObj(JSONObj source) throws JSONException {
         super(source);
     }
+
     public JSONObj(Object source) throws JSONException {
         this(source.toString());
     }
+
     @Override
-   public boolean similar(Object other) {
+    public boolean similar(Object other) {
         try {
             if (!(other instanceof JSONObject)) {
                 return false;

@@ -12,7 +12,7 @@ public class DatabaseConnection {
 
     static {
         try {
-            Class.forName(driverPath);
+            Class.forName(driverPath); //load Driver class
         } catch (ClassNotFoundException ex) {
             System.err.println("MySQL Driver not Found.");
             ex.printStackTrace();
@@ -52,7 +52,7 @@ public class DatabaseConnection {
     public ResultSet executeQuery(String q, Object ... args) throws SQLException{
         PreparedStatement ps =  connection.prepareStatement(q);
         for(int i = 0; i < args.length; i++){
-            ps.setObject(i, args[i]);
+            ps.setObject(i+1, args[i]);
         }
         return ps.executeQuery();
     }

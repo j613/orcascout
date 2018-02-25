@@ -45,6 +45,13 @@ public class OrcascoutHandler implements InputHandler {
         }
     }
 
+    {
+        if (!connection.connect()) {
+            System.out.println("Error connecting to database. abort");
+            System.exit(1);
+        }
+    }
+
     private ResponseFile getCachedFile(String f) {
         return memCachedFiles.get(f);
     }
@@ -56,9 +63,9 @@ public class OrcascoutHandler implements InputHandler {
     /**
      *
      * @param in
-     * @return return false if the POST request cant be processed
+     * @return return false if the POST/GET request cant be processed
      */
-    private boolean handleUserSubmit(HTTPInput in, BufferedWriter out) throws IOException {
+    private boolean handleUser(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
             return true;
@@ -74,9 +81,9 @@ public class OrcascoutHandler implements InputHandler {
                 if (t != null) {
                     cokies.add("AuthToken=" + t + "; Expires=" + Utils.getHTTPDate(259200000) + ";");
                     sendFile(null, "204 No Content", null, out, cokies); //maybe change to 205?? but it doesnt work tho...
-                System.out.println("User "+obj.getString("username")+" logged in.");
+                    System.out.println("User " + obj.getString("username") + " logged in.");
                 } else {
-                    cokies.add("AuthToken=deleted; Expires="+Utils.getHTTPDate(-1)+";");
+                    cokies.add("AuthToken=deleted; Expires=" + Utils.getHTTPDate(-1) + ";");
                     sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, cokies);
                 }
                 return false;
@@ -89,8 +96,8 @@ public class OrcascoutHandler implements InputHandler {
                 sendFile(null, "204 No Content", null, out, cokies);
                 return false;
             case "approve":
-                if (token == null) {
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "500 Forbidden", null, out, null);
+                if (token == null || !userHandler.isLoggedIn(token)) {
+                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
                     return false;
                 }
                 obj = new JSONObj(in.getActualPostData()[0].getPostData());
@@ -108,17 +115,54 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
                 }
                 return false;
+            case "getinfo":
+                if (token == null || !userHandler.isLoggedIn(token)) {
+                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    return false;
+                }
+                obj = userHandler.getUserInfo(token);
+                sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "200 OK", null, out, null);
+                return false;
+            case "getpending":
+                if (token == null || !userHandler.isLoggedIn(token)) {
+                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    return false;
+                }
+                obj = userHandler.getPendingUsers();
+                sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "200 OK", null, out, null);
+                return false;
+            case "getmatches":
+                if(token==null || !userHandler.isLoggedIn(token)){
+                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    return false;
+                }
+                obj = userHandler.getMatchesScouted(token);
+                sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "200 OK", null, out, null);
+                return false;
         }
         sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
         return false;
     }
-
+    private boolean handleTeam(HTTPInput in, BufferedWriter out) throws IOException{
+         if (!in.getPhpArgs().containsKey("method")) {
+            sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
+            return true;
+        }
+        HashSet<String> cokies = new HashSet<>();
+        String token = in.getCookie("AuthToken");
+        JSONObj obj;
+        switch (in.getPhpArgs().get("method").toLowerCase()) {
+            case "create"
+        }
+        sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+        return false;
+    }
     @Override
     public boolean handleRequest(HTTPInput in, BufferedWriter out) {
         try {
             ResponseFile sendFile;
             String respMessage = "200 OK";
-            System.out.println("requested File: " + in.getRequestedFile());
+            System.out.println("Requested File: " + in.getRequestedFile());
             System.out.println("Error Code: " + in.getErrorCode());
             if (in.getErrorCode() == 4) {
                 respMessage = "400 Bad Request";
@@ -137,7 +181,9 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile = getCachedFile("/errorFiles/404error.html");
                     respMessage = "404 Not Found";
                 } else if (in.getRequestedFile().equalsIgnoreCase("/submitUser")) {
-                    return handleUserSubmit(in, out);
+                    return handleUser(in, out);
+                } else if (in.getRequestedFile().equalsIgnoreCase("/submitTeam")) {
+                    return handleTeam(in, out);
                 } else if (!memCachedFiles.containsKey(in.getRequestedFile())) {
                     respMessage = "404 Not Found";
                     System.out.println("File not Found");

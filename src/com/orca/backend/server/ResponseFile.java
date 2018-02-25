@@ -7,37 +7,52 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ResponseFile {
-	private final String contents, type;
-	public ResponseFile(String contents, String type) {
-		this.contents = contents;
-		this.type = type;
-	}
 
-	public String getContents() {
-		return contents;
-	}
+    private final String contents, type;
 
-	public String getContentType() {
-		return type;
-	}
+    public ResponseFile(String contents, String type) {
+        this.contents = contents;
+        this.type = type;
+    }
 
-	public static String predictContentType(String fileName) {// TODO implement
-		return "text/html; charset=utf-8";
-	}
+    public String getContents() {
+        return contents;
+    }
 
-	public static ResponseFile readFromFile(Path in) throws IOException {
-		return new ResponseFile(new String(Files.readAllBytes(in)), predictContentType(in.getFileName().toString()));
-	}
+    public String getContentType() {
+        return type;
+    }
 
-	public static ResponseFile readFromFile(InputStream in, String type) throws IOException {
-		StringBuffer buff = new StringBuffer(1024 * 1024);
-		int read = 0;
-		while((read = in.read())!=-1){
-			buff.append((char)read);
-		}
-		return new ResponseFile(buff.toString(), type);
-	}
-	public int getFileLength(){
-		return contents.length();
-	}
+    public static String predictContentType(String fileName) {// TODO implement
+        String sd[] = fileName.split("\\.");
+        String fileExt = sd[sd.length - 1];
+        switch (fileExt) {
+            case "html":
+                return "text/html; charset=utf-8";
+            case "js":
+            case "ts":
+                return "text/javascript; charset=utf-8";
+            case "css":
+                return "text/css; charset=utf-8";
+            default:
+                return "text/plain; charset=utf-8";
+        }
+    }
+    public static ResponseFile readFromFile(Path in) throws IOException {
+        return new ResponseFile(new String(Files.readAllBytes(in)), predictContentType(in.getFileName().toString()));
+    }
+
+    public static ResponseFile readFromFile(InputStream in, String type) throws IOException {
+        StringBuffer buff = new StringBuffer(1024 * 1024);
+        int read = 0;
+        while ((read = in.read()) != -1) {
+            buff.append((char) read);
+        }
+        return new ResponseFile(buff.toString(), type);
+    }
+
+    public int getFileLength() {
+        return contents.length();
+    }
+
 }
