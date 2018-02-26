@@ -3,7 +3,6 @@ package com.orca.backend.launch;
 import com.orca.backend.server.HTTPInput;
 import com.orca.backend.server.InputHandler;
 import com.orca.backend.server.LCHashMap;
-import com.orca.backend.server.PostData;
 import com.orca.backend.server.ResponseFile;
 import com.orca.backend.server.Utils;
 import com.orca.backend.sql.DatabaseConnection;
@@ -13,14 +12,18 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class OrcascoutHandler implements InputHandler {
 
     private final DatabaseConnection connection = new DatabaseConnection("jdbc:mysql://localhost/orcascout?useSSL=false", "root", "NONO");
     private final UserHandler userHandler = new UserHandler(connection);
+    private final MatchHandler matchHandler = new MatchHandler(connection);
+    private final TeamHandler teamHandler = new TeamHandler(connection);
     private static final LCHashMap<ResponseFile> memCachedFiles = new LCHashMap<>();
 
     static {
@@ -39,9 +42,9 @@ public class OrcascoutHandler implements InputHandler {
             });
         } catch (IOException e) {
             System.err.println("Error reading files from disk. abort");
-            e.printStackTrace();
+            e.printStackTrace(System.out);
         } catch (URISyntaxException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
         }
     }
 
@@ -97,6 +100,7 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
             case "approve":
                 if (token == null || !userHandler.isLoggedIn(token)) {
+                    System.out.println("Not Logged In");
                     sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
                     return false;
                 }
@@ -132,31 +136,58 @@ public class OrcascoutHandler implements InputHandler {
                 sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "200 OK", null, out, null);
                 return false;
             case "getmatches":
-                if(token==null || !userHandler.isLoggedIn(token)){
+                if (token == null || !userHandler.isLoggedIn(token)) {
                     sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
                     return false;
                 }
                 obj = userHandler.getMatchesScouted(token);
                 sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "200 OK", null, out, null);
                 return false;
+            case "changepassword":
+                if (token == null || !userHandler.isLoggedIn(token)) {
+                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    return false;
+                }
+                obj = new JSONObj(in.getActualPostData()[0].getPostData());
+                if (userHandler.changePassword(token, obj)) {
+                    sendFile(null, "204 No Content", null, out, null);
+                } else {
+                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                }
+                return false;
         }
         sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
         return false;
     }
-    private boolean handleTeam(HTTPInput in, BufferedWriter out) throws IOException{
-         if (!in.getPhpArgs().containsKey("method")) {
+
+    private boolean handleTeam(HTTPInput in, BufferedWriter out) throws IOException {
+        if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
             return true;
         }
         HashSet<String> cokies = new HashSet<>();
         String token = in.getCookie("AuthToken");
+        if (token == null || !userHandler.isLoggedIn(token)) {
+            sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+            return false;
+        }
         JSONObj obj;
         switch (in.getPhpArgs().get("method").toLowerCase()) {
-            case "create"
+            case "create":
+                obj = new JSONObj(in.getActualPostData()[0].getPostData());
+                if (teamHandler.newTeam(obj)) {
+                    sendFile(null, "204 No Content", null, out, null);
+                } else {
+                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                }
+                return false;
+            case "getteams":
+
         }
         sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
         return false;
     }
+
     @Override
     public boolean handleRequest(HTTPInput in, BufferedWriter out) {
         try {

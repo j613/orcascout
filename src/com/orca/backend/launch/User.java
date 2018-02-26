@@ -35,6 +35,11 @@ public class User{
     public int getID() {
         return ID;
     }
+
+    @Override
+    public String toString() {
+        return "User{" + "username=" + username + ", token=" + token + ", userLevel=" + userLevel + ", firstname=" + firstname + ", lastname=" + lastname + ", ID=" + ID + '}';
+    }
     
 /*
     @Override

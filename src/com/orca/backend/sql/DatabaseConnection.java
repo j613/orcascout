@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DatabaseConnection {
 
@@ -24,6 +26,13 @@ public class DatabaseConnection {
         this.hostname = hostname;
         this.username = username;
         this.password = password;
+    }
+    public void close(){
+        try {
+            connection.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
+        }
     }
     public boolean connect(){
         try {

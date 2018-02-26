@@ -94,6 +94,7 @@ public class UserHandler {
         return g.equalsIgnoreCase("admin") || g.equalsIgnoreCase("limited") || g.equalsIgnoreCase("regular");
     }
     public boolean isLoggedIn(String token){
+        System.out.println("LL"+users);
         return this.getUserByToken(token)!=null;
     }
     public boolean userExists(String username) {
@@ -173,11 +174,10 @@ public class UserHandler {
             if (!isValidUserType(obj.getString("userlevel")) && !obj.getString("userlevel").equalsIgnoreCase("delete")) {
                 return false;
             }
-            if (!userExists(obj.getString("username"))) {
+            if (!userExists(obj.getString("username")) || getUserByToken(token)==null) {
                 return false;
             }
-            if(!users.stream().anyMatch(n->n.getToken().equals(token)&&n.getUsername().equals(obj.getString("username"))
-                    &&n.getUserLevel().equals("admin"))){
+            if(!getUserByToken(token).getUserLevel().equalsIgnoreCase("admin")){
                 return false;
             }
             PreparedStatement exec;
@@ -192,6 +192,33 @@ public class UserHandler {
             return !exec.execute();
         } catch (SQLException ex) {
             ex.printStackTrace();
+            return false;
+        }
+    }
+    public boolean changePassword(String token, JSONObj obj){
+        try {
+            if(!JSONObj.checkTemplate("UserChangePassTemplate", obj)){
+                return false;
+            }
+            User u = getUserByToken(token);
+            if(u==null){
+                return false;
+            }
+            PreparedStatement ps = connection.prepareStatement("select PASSWORD_HASH from USERS where USERNAME = ?");
+            ps.setString(1, u.getUsername());
+            ResultSet rs = ps.executeQuery();
+            if(rs.next() && rs.getString("PASSWORD_HASH").equals(
+                    Utils.hashPassword(u.getUsername(), obj.getString("oldpassword")))){
+                ps = connection.prepareStatement("update USERS set PASSWORD_HASH = ? where USERNAME = ?");
+                ps.setString(1, Utils.hashPassword(u.getUsername(), obj.getString("newpassword")));
+                ps.setString(2, u.getUsername());
+                ps.execute();
+                return true;
+            }else{
+                return false;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
             return false;
         }
     }
@@ -217,10 +244,8 @@ public class UserHandler {
                     = connection.prepareStatement("select * from USERS where USERNAME = ? ");
             String passhash = Utils.hashPassword(obj.getString("username"), obj.getString("password"));
             exec.setString(1, obj.getString("username"));
-            System.out.println("PP"+passhash);
             ResultSet rs = exec.executeQuery();
             if (rs.next() && rs.getString("PASSWORD_HASH").equals(passhash)) {
-            System.out.println("kjk"+rs.getString("PASSWORD_HASH"));
                 String token;
                 while (true) {
                     token = Utils.generateToken(256);

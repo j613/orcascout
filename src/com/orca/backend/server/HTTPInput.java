@@ -44,10 +44,10 @@ public class HTTPInput extends HashMap<String, String> {
     }
 
     public String getCookie(String name) {
-        if(!containsKey("Cookies")){
+        if(!containsKey("Cookie")){
             return null;
         }
-        String[] cokies = get("Cookies").split(";");
+        String[] cokies = get("Cookie").split(";");
         for (String g : cokies) {
             if(g.split("=")[0].equalsIgnoreCase(name)){
                 return g.split("=")[1];
@@ -67,7 +67,11 @@ public class HTTPInput extends HashMap<String, String> {
     public String getRawPostData() {
         return postDataBuffer == null ? null : postDataBuffer.toString();
     }
-
+    /**
+     * Warning: Jenkiest code ever plz expect it to break.
+     * gets post data
+     * @return post data
+     */
     public PostData[] getActualPostData() {
         String data = getRawPostData();
         if (data == null) {
