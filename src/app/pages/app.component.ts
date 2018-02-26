@@ -36,4 +36,9 @@ export class AppComponent {
     this._opened = !this._opened;
     this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
+
+  public logout() {
+    // TODO: Should manually logging out clear offline backlog?
+    this.auth.logout();
+  }
 }

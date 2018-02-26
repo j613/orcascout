@@ -8,17 +8,22 @@ export class AuthGuard implements CanActivate, CanLoad {
   constructor(private auth: AuthService, private router: Router) {}
 
   // TODO: Create actual auth checking
+  private canView(): boolean {
+    return this.auth.isLoggedIn;
+  }
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
-    if (this.auth.isLoggedIn) {
+    console.log('CanActivate Called');
+    if (this.canView()) {
       return true;
     }
 
+    console.log('Login not verified, forwarding to login page.');
     this.router.navigate(['login']);
     return false;
   }
 
   canLoad(route: Route) {
-    return true;
+    return this.canView();
   }
 }

@@ -10,23 +10,19 @@ import { PitScoutingComponent } from './pit-scouting/pit-scouting.component';
 import { LoginComponent } from './login/login.component';
 
 const appRoutes: Routes = [
+    { path: '', component: HomeComponent },
+    { path: 'login', component: LoginComponent},
     {
         path: '',
-        children: [
-            { path: '', component: HomeComponent },
-            { path: 'login', component: LoginComponent}
-        ]
-    },
-    {
-        path: '',
+        canLoad: [AuthGuard],
         canActivate: [AuthGuard],
         children: [
             { path: 'match-scouting', component: MatchScoutingComponent },
             { path: 'edit-match-scouting', component: EditMatchScoutingComponent },
-            { path: 'pit-scouting', component: PitScoutingComponent },
-            { path: '**', redirectTo: '' }
+            { path: 'pit-scouting', component: PitScoutingComponent }
         ]
-    }
+    },
+    { path: '**', redirectTo: '' },
   ];
 
 @NgModule({
