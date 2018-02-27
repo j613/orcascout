@@ -267,10 +267,10 @@ public class UserHandler {
         }
     }
 
-    //Adds a user based off the JSON in TeamTemplate
     //Only for temp debugging
-    public static void main(String... args) {
+    public static void main(String... args) throws SQLException {
         UserHandler g = new UserHandler(new DatabaseConnection("jdbc:mysql://localhost/orcascout?useSSL=false", "root", "NONO"));
-        System.out.println(g.getPendingUsers().toString());
+        g.connection.connect();
+        
     }
 }

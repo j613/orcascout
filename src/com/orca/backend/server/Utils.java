@@ -7,6 +7,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
@@ -23,32 +24,7 @@ import javax.crypto.NoSuchPaddingException;
 
 public final class Utils {
 
-    private static final Key KEYPAIR;
     private static final Random rand = new Random();
-
-    static {
-        Key t;
-        try {
-            InputStream keystoreStream = Utils.class.getResourceAsStream("/com/orca/backend/server/KeyStore.jceks");
-            KeyStore keystore = KeyStore.getInstance("JCEKS");
-            keystore.load(keystoreStream, "orcascout".toCharArray());
-            if (!keystore.containsAlias("www.orcascout.com")) {
-                throw new RuntimeException("Alias for key not found");
-            }
-            t = keystore.getKey("www.orcascout.com", "orcascout".toCharArray());
-        } catch (IOException ex) {
-            t = null;
-            System.err.println("Error Reading Key Store");
-            ex.printStackTrace();
-            System.exit(1);
-        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException ex) {
-            t = null;
-            System.err.println("Error Reading Key Store");
-            ex.printStackTrace();
-            System.exit(1);
-        }
-        KEYPAIR = t;
-    }
 
     private Utils() {
     }
@@ -73,17 +49,16 @@ public final class Utils {
     }
 
     public static String hashPassword(String salt, String password) {
-        return encrypt(salt + password);
+        return genHash(salt + password);
     }
 
-    public static String encrypt(String g) {
+    public static String genHash(String g) {
         try {
-            Cipher c = Cipher.getInstance("AES");
-            c.init(Cipher.ENCRYPT_MODE, KEYPAIR);
-            String s = Base64.encode(new String(c.doFinal(g.getBytes())).getBytes());
-            return s;
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException
-                | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            g = Base64.encode(digest.digest(
+                    g.getBytes()));
+            return g;
+        } catch (NoSuchAlgorithmException ex) {
             System.err.println("Error Generating an encryption key");
             ex.printStackTrace();
         }
