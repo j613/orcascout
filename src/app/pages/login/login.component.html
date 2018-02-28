@@ -14,7 +14,7 @@
           {{ message }}
       </div>
       <div class="form-group">
-          <button type="submit" [disabled]="!loginForm.valid">Submit</button>
+          <button type="submit" [disabled]="(!this.backend_update.is_online || loginForm.invalid)">Submit</button>
       </div>
   </form>
 </div>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { BackendUpdateService } from '../../services/backend-update.service';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +16,11 @@ export class LoginComponent implements OnInit {
     password: ''
   };
 
-  constructor(private auth: AuthService, private route: Router) { }
+  constructor(private auth: AuthService, private route: Router, private backend_update: BackendUpdateService) {
+    if (!this.backend_update.is_online) {
+      this.message = 'Currently offline, please go online to login.';
+    }
+   }
 
   ngOnInit() {
   }
