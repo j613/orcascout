@@ -3,11 +3,13 @@ import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { environment } from './../../environments/environment';
 import { AuthService } from './auth.service';
+import { Regional } from '../classes/regional';
 
 @Injectable()
 export class BackendUpdateService {
   public is_online = navigator.onLine;
   public backlog: Backlog[] = [];
+  public regional_id: string;
 
   private url_endpoint = environment.api_endpoint;
 
@@ -18,6 +20,14 @@ export class BackendUpdateService {
       this.publishBacklog();
     });
     window.addEventListener('offline', () => this.is_online = false);
+  }
+
+  public getRegionals(): Regional[] {
+    const regional_list = [
+      { name: 'Regional 1', id: 'reg1' },
+      { name: 'Regional 2', id: 'reg2' }
+    ];
+    return regional_list;
   }
 
   private getRequest(endpoint: string, data: any): Observable<HttpResponse<Object>> {

@@ -25,6 +25,7 @@
         </ul>
         </ng-template>
         Status: <span [style.color]="backend_update.is_online ? 'green' : 'red'">{{ backend_update.is_online ? 'ONLINE' : 'OFFLINE' }}</span><br/>
+        Regional: {{ backend_update.regional_id }}<br/>
         <span *ngIf="backend_update.backlog.length >= 0">
           There are {{ backend_update.backlog.length }} offline records stored.
         </span>
