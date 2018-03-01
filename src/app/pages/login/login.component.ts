@@ -23,7 +23,7 @@ export class LoginComponent implements OnInit {
       this.message = 'Currently offline, please go online to login.';
     }
     // Call backend_update to get regional list
-    this.regional_list = this.backend_update.getRegionals();
+    this.regional_list = this.backend_update.getRegionalList();
    }
 
   ngOnInit() {

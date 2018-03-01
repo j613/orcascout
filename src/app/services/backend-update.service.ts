@@ -9,7 +9,6 @@ import { Regional } from '../classes/regional';
 export class BackendUpdateService {
   public is_online = navigator.onLine;
   public backlog: Backlog[] = [];
-  public regional_id: string;
 
   private url_endpoint = environment.api_endpoint;
 
@@ -22,7 +21,59 @@ export class BackendUpdateService {
     window.addEventListener('offline', () => this.is_online = false);
   }
 
-  public getRegionals(): Regional[] {
+  public getRegionalData(regional_id: string): Observable<Regional> {
+    // TODO: Make request to backend to get data for specific regional.
+    const reg: Regional = {
+      id: 'RegData',
+      name: 'Regional Data',
+      data: {
+        teams: [
+          { name: 'Team 1', number: 1 },
+          { name: 'Team 2', number: 2 },
+          { name: 'Team 3', number: 3 },
+          { name: 'Team 4', number: 4 },
+          { name: 'Team 5', number: 5 },
+          { name: 'Team 6', number: 6 },
+        ],
+        matches: [
+          {
+            match_id: 'q1',
+            red_teams: [
+              { name: 'Team 1', number: 1 },
+              { name: 'Team 2', number: 2 },
+              { name: 'Team 3', number: 3 }
+            ],
+            blue_teams: [
+              { name: 'Team 4', number: 4 },
+              { name: 'Team 5', number: 5 },
+              { name: 'Team 6', number: 6 }
+            ],
+            red_score: 100,
+            blue_score: 10
+          },
+          {
+            match_id: 'q2',
+            red_teams: [
+              { name: 'Team 1', number: 1 },
+              { name: 'Team 2', number: 2 },
+              { name: 'Team 3', number: 3 }
+            ],
+            blue_teams: [
+              { name: 'Team 4', number: 4 },
+              { name: 'Team 5', number: 5 },
+              { name: 'Team 6', number: 6 }
+            ],
+            red_score: 100,
+            blue_score: 10
+          },
+        ]
+      }
+    };
+    return Observable.of(reg);
+  }
+
+  public getRegionalList(): Regional[] {
+    // TODO: Make request to backend to get all regional data.
     const regional_list = [
       { name: 'Regional 1', id: 'reg1' },
       { name: 'Regional 2', id: 'reg2' }

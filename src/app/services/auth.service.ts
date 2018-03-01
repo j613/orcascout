@@ -10,9 +10,11 @@ import 'rxjs/add/operator/mergeMap';
 import { BackendUpdateService } from './backend-update.service';
 import { Router } from '@angular/router';
 import { UtilsService } from './utils.service';
+import { Regional, RegionalData } from '../classes/regional';
 
 interface Session {
   user: User;
+  regional?: Regional;
 }
 
 interface User {
@@ -57,42 +59,51 @@ export class AuthService {
                 firstname: 'Zamboni',
                 lastname: 'Macaroni',
                 level: 'regular',
-              },
+              }
       };
-      localStorage.setItem('session', JSON.stringify(this.session));
+      this.backend_update.getRegionalData(regional_id).subscribe((reg: Regional) => {
+        this.session.regional = reg;
+      });
+      this.saveSession();
       document.cookie = 'AuthToken=SoMeToKeNlMaO; expires=' + new Date(Date.now() + (10 * 60 * 1000)).toUTCString();
       this.isLoggedIn = val;
-      this.backend_update.regional_id = regional_id;
     });
 
-    // // Actual HTTP request when backend is hosted.
-    // return this.utils.craftHttpPost('login', { username: username, password: password }) // Login request
-    //           .mergeMap((res: HttpResponse<null>) => {
-    //             if (res.status === 204) { // If valid login, make request for userinfo
-    //               return this.utils.craftHttpGet('getinfo');
-    //             }
-    //             return Observable.of(false);
-    //           })
-    //           .mergeMap((res: HttpResponse<User>) => {
-    //             if (res.status !== 200) {
-    //               return Observable.of(false);
-    //             }
-    //             this.isLoggedIn = true;
-    //             this.session = {
-    //               user: res.body
-    //             };
-    //             localStorage.setItem('session', JSON.stringify(this.session));
-    //             this.backend_update.regional_id = regional_id;
-    //             return Observable.of(true);
-    //           });
+    // Actual HTTP request when backend is hosted.
+    return this.utils.craftHttpPost('login', { username: username, password: password }) // Login request
+              .mergeMap((res: HttpResponse<null>) => {
+                if (res.status === 204) { // If valid login, make request for userinfo
+                  return this.utils.craftHttpGet('getinfo');
+                }
+                return Observable.of(false);
+              })
+              .mergeMap((res: HttpResponse<User>) => {
+                if (res.status !== 200) {
+                  return Observable.of(false);
+                }
+                this.isLoggedIn = true;
+                this.session = {
+                  user: res.body
+                };
+                this.backend_update.getRegionalData(regional_id).subscribe((reg: Regional) => {
+                  this.session.regional = reg;
+                  this.saveSession();
+                });
+                this.saveSession();
+                return Observable.of(true);
+              });
   }
 
   public logout() {
     this.isLoggedIn = false;
     localStorage.removeItem('session');
     document.cookie = 'AuthToken=; expires=' + new Date(0).toUTCString();
-    // TODO: Make logout request to server to logout.
+    // this.utils.craftHttpGet('logout');
     this.router.navigate(['login']);
+  }
+
+  private saveSession(): void {
+    localStorage.setItem('session', JSON.stringify(this.session));
   }
 
 }
