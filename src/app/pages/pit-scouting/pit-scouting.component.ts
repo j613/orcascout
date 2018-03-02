@@ -11,10 +11,10 @@ export class PitScoutingComponent {
   public title = 'Pit Scouting';
   public drivetrains: string[] = ['Six Wheel', 'Eight Wheel', 'Four Wheel', 'Swerve/Crab', 'Mechanum', 'Tank Tread', 'Other'];
   public team: PitTeam = {
-    name: 'asd',
-    number: 0,
-    photo: '',
-    comments: 'd',
+    name: null,
+    number: null,
+    photo: null,
+    comments: null,
     drivetrain: 'Six Wheel'
   };
 

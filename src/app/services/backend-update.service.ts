@@ -66,6 +66,10 @@ export class BackendUpdateService {
                         console.log('Using cached tba value.');
                         return Observable.of(this.tba_cache_track[endpoint].data);
                       }
+                      if (this.tba_cache_track[endpoint]) {
+                        console.log('Error, using local data');
+                        return Observable.of(this.tba_cache_track[endpoint].data);
+                      }
                       console.log('TBA responded with an error');
                       console.log(res);
                       return Observable.of(false);

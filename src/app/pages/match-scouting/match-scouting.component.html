@@ -1,1 +1,32 @@
 <app-header [title]="title"></app-header>
+
+<div>
+    <form #scoutForm="ngForm" (ngSubmit)="submitMatchScout(); scoutForm.reset();">
+        <div class="form-group">
+            <label for="team-name">Team Name</label>
+            <input type="text" id="team-name" required [(ngModel)]="match_data.team_name" name="name">
+        </div>
+        <div class="form-group">
+            <label for="team-number">Team #</label>
+            <input type="text" id="team-number" required [(ngModel)]="match_data.team_number" pattern="[0-9]+" name="number" #teamnum="ngModel">
+            <div *ngIf="teamnum.touched && teamnum.invalid" class="warning">Needs to be a number</div>
+        </div>
+        <div class="form-group">
+            -- Field Photo with locations n stuff --
+        </div>
+
+        Auto
+        <div class="form-group">
+            <label for="cross-baseline">Crossed Baseline?</label>
+            <input type="checkbox" id="cross-baseline" required [(ngModel)]="match_data.crossed_baseline" name="cross_baseline">
+        </div>
+
+
+        Teleop
+        
+
+        <div class="form-group">
+            <button type="submit" [disabled]="!scoutForm.valid">Submit</button>
+        </div>
+    </form>
+</div>
