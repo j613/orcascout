@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { BackendUpdateService } from '../../services/backend-update.service';
+import { Regional } from '../../classes/regional';
 
 @Component({
   selector: 'app-login',
@@ -11,7 +12,7 @@ import { BackendUpdateService } from '../../services/backend-update.service';
 export class LoginComponent implements OnInit {
   public title = 'Login';
   public message = '';
-  public regional_list;
+  public regional_list: Regional[];
   public login_fields = {
     username: '',
     password: '',
@@ -23,8 +24,8 @@ export class LoginComponent implements OnInit {
       this.message = 'Currently offline, please go online to login.';
     }
     // Call backend_update to get regional list
-    this.regional_list = this.backend_update.getRegionalList();
-   }
+    this.backend_update.getRegionalList().subscribe((regionals) => this.regional_list = regionals);
+  }
 
   ngOnInit() {
   }

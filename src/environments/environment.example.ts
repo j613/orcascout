@@ -8,5 +8,6 @@
 export const environment = {
     production: false,
     api_endpoint: '',
-    tba_key: ''
+    tba_key: '',
+    year: 2018
 };
