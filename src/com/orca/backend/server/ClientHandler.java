@@ -5,16 +5,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 public class ClientHandler extends Thread {
 
-    public static final ThreadGroup ClientHandlerThreadGroup = new ThreadGroup("Orca Client Handler Group");
+    public static final ThreadGroup clientHandlerThreadGroup = new ThreadGroup("Orca Client Handler Group");
     private final Socket clientSocket;
     private final Server server;
 
     public ClientHandler(Socket cs, Server s) {
-        super(ClientHandlerThreadGroup, "Client Handler for " + cs.getInetAddress());
+        super(clientHandlerThreadGroup, "Client Handler for " + cs.getInetAddress());
         this.clientSocket = cs;
         server = s;
     }
@@ -37,7 +38,7 @@ public class ClientHandler extends Thread {
                 long inputSize = 0;
                 StringBuffer inputBuffer = new StringBuffer(1024);
                 HTTPInput HTTPParser = new HTTPInput();
-                logln("SHUTDOWN OUT: " + clientSocket.isOutputShutdown() + " IN: " + clientSocket.isInputShutdown() + "CLOSED: " + clientSocket.isClosed() + "avaliable: " + in.available());
+               // logln("SHUTDOWN OUT: " + clientSocket.isOutputShutdown() + " IN: " + clientSocket.isInputShutdown() + "CLOSED: " + clientSocket.isClosed() + "avaliable: " + in.available());
 
                 inc = in.read();
                 for (; inc >= 0 && !clientSocket.isClosed(); inc = in.read()) {
@@ -74,9 +75,14 @@ public class ClientHandler extends Thread {
         } catch (SocketTimeoutException e) {
             logln("Socket timed out");
         } catch (IOException ex) {
+            
             logln("IO Error in Thread " + getName());
-            logln("inc: " + inc);
+           // logln("inc: " + inc);
+           if(ex instanceof SocketException && ex.getMessage().trim().equalsIgnoreCase("Connection Reset")){
+               logln("Connection reset");
+           }else{
             ex.printStackTrace(System.out);
+           }
             //System.err.flush();
             /*} catch (InterruptedException e) {
 			e.printStackTrace();*/

@@ -1,6 +1,5 @@
 package com.orca.backend.server;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -34,6 +33,17 @@ public class ResponseFile {
                 return "text/javascript; charset=utf-8";
             case "css":
                 return "text/css; charset=utf-8";
+            case "jpeg":
+            case "jpg":
+                return "image/jpeg; charset=utf-8";
+            case "png":
+                return "image/png; charset=utf-8";
+            case "gif":
+                return "image/gif; charset=utf-8";
+            case "bmp":
+                return "image/bmp; charset=utf-8";
+            case "ico":
+                return "image/x-icon; charset=utf-8";
             default:
                 return "text/plain; charset=utf-8";
         }

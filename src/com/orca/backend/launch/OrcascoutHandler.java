@@ -20,10 +20,10 @@ import java.util.logging.Logger;
 
 public class OrcascoutHandler implements InputHandler {
 
-    private final DatabaseConnection connection = new DatabaseConnection("jdbc:mysql://localhost/orcascout?useSSL=false", "root", "NONO");
-    private final UserHandler userHandler = new UserHandler(connection);
-    private final MatchHandler matchHandler = new MatchHandler(connection);
-    private final TeamHandler teamHandler = new TeamHandler(connection);
+    final DatabaseConnection connection = new DatabaseConnection("jdbc:mysql://localhost/orcascout?useSSL=false", "root", "NONO");
+    final UserHandler userHandler = new UserHandler(connection);
+    final MatchHandler matchHandler = new MatchHandler(connection);
+    final PitScoutHandler teamHandler = new PitScoutHandler(connection);
     private static final LCHashMap<ResponseFile> memCachedFiles = new LCHashMap<>();
 
     static {
@@ -87,12 +87,12 @@ public class OrcascoutHandler implements InputHandler {
                     System.out.println("User " + obj.getString("username") + " logged in.");
                 } else {
                     cokies.add("AuthToken=deleted; Expires=" + Utils.getHTTPDate(-1) + ";");
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, cokies);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, cokies);
                 }
                 return false;
             case "logout":
                 if (token == null || !userHandler.logoutUser(token)) {
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                     return false;
                 }
                 cokies.add("AuthToken=deleted; Expires=" + Utils.getHTTPDate(-1) + ";");
@@ -101,14 +101,14 @@ public class OrcascoutHandler implements InputHandler {
             case "approve":
                 if (token == null || !userHandler.isLoggedIn(token)) {
                     System.out.println("Not Logged In");
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                     return false;
                 }
                 obj = new JSONObj(in.getActualPostData()[0].getPostData());
                 if (userHandler.approveUser(obj, token)) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                 }
                 return false;
             case "create":
@@ -116,12 +116,12 @@ public class OrcascoutHandler implements InputHandler {
                 if (userHandler.addNewUser(obj)) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                 }
                 return false;
             case "getinfo":
                 if (token == null || !userHandler.isLoggedIn(token)) {
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                     return false;
                 }
                 obj = userHandler.getUserInfo(token);
@@ -129,7 +129,7 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
             case "getpending":
                 if (token == null || !userHandler.isLoggedIn(token)) {
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                     return false;
                 }
                 obj = userHandler.getPendingUsers();
@@ -137,7 +137,7 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
             case "getmatches":
                 if (token == null || !userHandler.isLoggedIn(token)) {
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                     return false;
                 }
                 obj = userHandler.getMatchesScouted(token);
@@ -145,18 +145,18 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
             case "changepassword":
                 if (token == null || !userHandler.isLoggedIn(token)) {
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                     return false;
                 }
                 obj = new JSONObj(in.getActualPostData()[0].getPostData());
                 if (userHandler.changePassword(token, obj)) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                 }
                 return false;
         }
-        sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+        sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
     }
 
@@ -168,23 +168,24 @@ public class OrcascoutHandler implements InputHandler {
         HashSet<String> cokies = new HashSet<>();
         String token = in.getCookie("AuthToken");
         if (token == null || !userHandler.isLoggedIn(token)) {
-            sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+            sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
             return false;
         }
+        User user = userHandler.getUserByToken(token);
         JSONObj obj;
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "create":
                 obj = new JSONObj(in.getActualPostData()[0].getPostData());
-                if (teamHandler.newTeam(obj)) {
+                if (teamHandler.newTeam(obj, user)) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
-                    sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                 }
                 return false;
             case "getteams":
 
         }
-        sendFile(getCachedFile("/errorFiles/403error.html"), "403 Forbidden", null, out, null);
+        sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
     }
 

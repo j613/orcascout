@@ -1,19 +1,31 @@
 package com.orca.backend.launch;
 
 public class User{
+    public static enum UserLevel{
+        LIMITED,
+        REGULAR,
+        ADMIN;
+    }
     private final String username,
                          token,
-                         userLevel,
                          firstname,
                          lastname;
     private final int ID;
-    public User(int ID, String username, String token, String userLevel, String firstname, String lastname) {
+    private final long loginTime;
+    private final UserLevel userLevel;
+    
+    public User(int ID, String username, String token, UserLevel userLevel, String firstname, String lastname) {
         this.username = username;
         this.token = token;
         this.userLevel = userLevel;
         this.firstname = firstname;
         this.lastname = lastname;
         this.ID = ID;
+        loginTime = System.currentTimeMillis();
+    }
+    
+    public User(int ID, String username, String token, String userLevel, String firstname, String lastname) {
+        this(ID, username, token, UserLevel.valueOf(userLevel.toUpperCase()), firstname, lastname);
     }
 
     public String getFirstname() {
@@ -47,9 +59,11 @@ public class User{
         return "User{" + "Username=" + Username + ", Token=" + Token + '}';
     }*/
 
-    public String getUserLevel() {
+    public UserLevel getUserLevel() {
         return userLevel;
     }
-    
+    public boolean shouldLogout(){
+        return System.currentTimeMillis() - loginTime > 259200000;
+    }
     
 }

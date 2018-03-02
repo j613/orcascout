@@ -1,8 +1,7 @@
 {
-    "token":"",
-    "teamname":"",
-    "image":"",
-    "comments":"",
-    "drivetrain":"",
-    "teamnum":""
+    "teamname": "",
+    "teamnumber": "",
+    "image": "",
+    "notes": "",
+    "drivetrain": ""
 }

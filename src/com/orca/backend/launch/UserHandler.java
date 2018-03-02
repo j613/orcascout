@@ -1,39 +1,31 @@
 package com.orca.backend.launch;
 
-import com.orca.backend.server.LCHashMap;
-import com.orca.backend.server.ResponseFile;
+import com.orca.backend.launch.User.UserLevel;
 import com.orca.backend.server.Utils;
 import com.orca.backend.sql.DatabaseConnection;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-import java.awt.BorderLayout;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.json.JSONArray;
 
 public class UserHandler {
     private final ArrayList<User> users = new ArrayList<>();
     //TODO: Implement SSL
     private final DatabaseConnection connection;
-
     public UserHandler(DatabaseConnection c) {
         connection = c;
+    }
+    void timeoutUsers(){
+        users.removeIf(n->n.shouldLogout());
     }
     /**
      * returns a currently logged in user based off of the token
      * @param token the token
      * @return the user
      */
-    private User getUserByToken(String token){
+    public User getUserByToken(String token){
+        timeoutUsers();
         return users.stream().filter(n->n.getToken().equals(token)).findAny().orElse(null);
     }
     public static JSONObj userToJSON(ResultSet rs, boolean userLevel, boolean passhash) throws SQLException{
@@ -177,7 +169,7 @@ public class UserHandler {
             if (!userExists(obj.getString("username")) || getUserByToken(token)==null) {
                 return false;
             }
-            if(!getUserByToken(token).getUserLevel().equalsIgnoreCase("admin")){
+            if(getUserByToken(token).getUserLevel() != UserLevel.ADMIN){
                 return false;
             }
             PreparedStatement exec;
@@ -258,7 +250,6 @@ public class UserHandler {
                         rs.getString("USER_LEVEL"), rs.getString("FIRSTNAME"), rs.getString("LASTNAME")));
                 return token;
             } else {
-            System.out.println("vv"+rs.getString("PASSWORD_HASH"));
                 return null;
             }
         } catch (SQLException ex) {
