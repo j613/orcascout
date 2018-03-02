@@ -61,9 +61,11 @@ export class AuthService {
                 level: 'regular',
               }
       };
-      this.backend_update.getRegionalData(regional_id).subscribe((reg: Regional) => {
-        this.session.regional = reg;
-      });
+      this.session.regional = {
+        key: regional_id.split('-')[0],
+        name: regional_id.split('-')[1]
+      };
+      this.refreshRegionalData();
       this.saveSession();
       document.cookie = 'AuthToken=SoMeToKeNlMaO; expires=' + new Date(Date.now() + (10 * 60 * 1000)).toUTCString();
       this.isLoggedIn = val;
@@ -85,13 +87,25 @@ export class AuthService {
                 this.session = {
                   user: res.body
                 };
-                this.backend_update.getRegionalData(regional_id).subscribe((reg: Regional) => {
-                  this.session.regional = reg;
+                this.session.regional = {
+                  key: regional_id.split('-')[0],
+                  name: regional_id.split('-')[1]
+                };
+                this.refreshRegionalData();
+                this.backend_update.getRegionalData(this.session.regional.key).subscribe((reg: RegionalData) => {
+                  this.session.regional.data = reg;
                   this.saveSession();
                 });
                 this.saveSession();
                 return Observable.of(true);
               });
+  }
+
+  public refreshRegionalData() {
+    this.backend_update.getRegionalData(this.session.regional.key).subscribe((reg: RegionalData) => {
+      this.session.regional.data = reg;
+      this.saveSession();
+    });
   }
 
   public logout() {

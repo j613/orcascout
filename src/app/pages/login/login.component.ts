@@ -24,7 +24,7 @@ export class LoginComponent implements OnInit {
       this.message = 'Currently offline, please go online to login.';
     }
     // Call backend_update to get regional list
-    this.backend_update.getRegionalList().subscribe((regionals) => this.regional_list = regionals);
+    this.backend_update.getRegionalList().subscribe((regionals: Regional[]) => this.regional_list = regionals);
   }
 
   ngOnInit() {
@@ -33,9 +33,12 @@ export class LoginComponent implements OnInit {
   public login(): void {
     this.message = 'Logging in...';
     // TODO: Implement form to get username and password
-    console.log(this.login_fields.regional_id);
     this.auth.login(this.login_fields.username, this.login_fields.password, this.login_fields.regional_id).subscribe((val) => {
-      this.message = 'Logged In';
+      if (val) {
+        this.message = 'Logged In';
+      } else {
+        this.message = 'Error Logging In';
+      }
       // setTimeout(() => {
       //   this.route.navigate(['']);
       // }, 500);

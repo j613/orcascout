@@ -8,6 +8,7 @@ import { MatchScoutingComponent } from './match-scouting/match-scouting.componen
 import { EditMatchScoutingComponent } from './edit-match-scouting/edit-match-scouting.component';
 import { PitScoutingComponent } from './pit-scouting/pit-scouting.component';
 import { LoginComponent } from './login/login.component';
+import { MatchScheduleComponent } from './match-schedule/match-schedule.component';
 
 const appRoutes: Routes = [
     { path: '', component: HomeComponent },
@@ -19,7 +20,8 @@ const appRoutes: Routes = [
         children: [
             { path: 'match-scouting', component: MatchScoutingComponent },
             { path: 'edit-match-scouting', component: EditMatchScoutingComponent },
-            { path: 'pit-scouting', component: PitScoutingComponent }
+            { path: 'pit-scouting', component: PitScoutingComponent },
+            { path: 'match-schedule', component: MatchScheduleComponent }
         ]
     },
     { path: '**', redirectTo: '' },

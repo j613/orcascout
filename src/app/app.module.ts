@@ -21,6 +21,7 @@ import { HeaderComponent } from './templates/header/header.component';
 import { PitScoutingComponent } from './pages/pit-scouting/pit-scouting.component';
 import { LoginComponent } from './pages/login/login.component';
 import { UtilsService } from './services/utils.service';
+import { MatchScheduleComponent } from './pages/match-schedule/match-schedule.component';
 
 @NgModule({
   imports: [
@@ -38,7 +39,8 @@ import { UtilsService } from './services/utils.service';
     EditMatchScoutingComponent,
     HeaderComponent,
     PitScoutingComponent,
-    LoginComponent
+    LoginComponent,
+    MatchScheduleComponent
   ],
   providers: [
     BackendUpdateService,

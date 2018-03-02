@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { environment } from './../../environments/environment';
 import { AuthService } from './auth.service';
-import { Regional } from '../classes/regional';
+import { Regional, RegionalData } from '../classes/regional';
+import { tap, catchError, map } from 'rxjs/operators';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/observable/forkJoin';
+import { Team } from '../classes/team';
+import { Match } from '../classes/match';
 
 @Injectable()
 export class BackendUpdateService {
@@ -15,7 +21,7 @@ export class BackendUpdateService {
   private tba_cache_track: Object = {};
   // {
   //   endpoint: {
-  //     modified: '',
+  //     modified: ,
   //     data: [] || {},
   //   }
   // }
@@ -35,100 +41,86 @@ export class BackendUpdateService {
    *
    */
 
-  private craftTBARequest(endpoint: string): Observable<Object> {
+  private makeTBARequest<T>(endpoint: string): Observable<T|Boolean> {
     let headers = new HttpHeaders({
       'X-TBA-Auth-Key': this.tba_api_key
     });
     if (this.tba_cache_track[endpoint]) {
       headers = headers.set('If-Modified-Since', this.tba_cache_track[endpoint].modified);
     }
-    console.log(this.tba_cache_track);
+    // console.log(headers);
     return this.http.get('https://www.thebluealliance.com/api/v3/' + endpoint, {headers: headers, observe: 'response'})
-                    .flatMap((res: HttpResponse<string[]>) => {
-                      console.log(res.status);
-                      if (res.status === 304) {
-                        console.log('Using cached tba value.');
-                        return Observable.of(this.tba_cache_track[endpoint].data);
-                      } else if (res.status === 200) {
+                    .mergeMap((res: HttpResponse<T|Boolean>) => {
+                      if (res.status === 200) {
                         this.tba_cache_track[endpoint] = {
                           modified: res.headers.get('last-modified'),
                           data: res.body
                         };
                         return Observable.of(res.body);
-                      } else {
-                        return Observable.of({});
                       }
+                      console.log('TBA responded with non-200');
+                      console.log(res);
+                      return Observable.of(false);
+                    }).catch((res: HttpErrorResponse) => {
+                      if (res.status === 304) {
+                        console.log('Using cached tba value.');
+                        return Observable.of(this.tba_cache_track[endpoint].data);
+                      }
+                      console.log('TBA responded with an error');
+                      console.log(res);
+                      return Observable.of(false);
                     });
   }
 
-  public getRegionalData(regional_id: string): Observable<Regional> {
-    // TODO: Make request to backend to get data for specific regional.
-    const reg: Regional = {
-      id: 'RegData',
-      name: 'Regional Data',
-      data: {
-        teams: [
-          { name: 'Team 1', number: 1 },
-          { name: 'Team 2', number: 2 },
-          { name: 'Team 3', number: 3 },
-          { name: 'Team 4', number: 4 },
-          { name: 'Team 5', number: 5 },
-          { name: 'Team 6', number: 6 },
-        ],
-        matches: [
-          {
-            match_id: 'q1',
-            red_teams: [
-              { name: 'Team 1', number: 1 },
-              { name: 'Team 2', number: 2 },
-              { name: 'Team 3', number: 3 }
-            ],
-            blue_teams: [
-              { name: 'Team 4', number: 4 },
-              { name: 'Team 5', number: 5 },
-              { name: 'Team 6', number: 6 }
-            ],
-            red_score: 100,
-            blue_score: 10
-          },
-          {
-            match_id: 'q2',
-            red_teams: [
-              { name: 'Team 1', number: 1 },
-              { name: 'Team 2', number: 2 },
-              { name: 'Team 3', number: 3 }
-            ],
-            blue_teams: [
-              { name: 'Team 4', number: 4 },
-              { name: 'Team 5', number: 5 },
-              { name: 'Team 6', number: 6 }
-            ],
-            red_score: 100,
-            blue_score: 10
-          },
-        ]
-      }
-    };
-
-    return Observable.of(reg);
-  }
-
-  public getRegionalList(): Observable<Regional[]> {
-    // TODO: Make request to backend to get all regional data.
-    const regional_list = [
-      { name: 'Regional 1', id: 'reg1' },
-      { name: 'Regional 2', id: 'reg2' }
-    ];
-    // this.craftTBARequest('events/' + environment.year + '/keys').subscribe((res) => {
-    this.craftTBARequest('events/' + environment.year + '/keys').subscribe((res) => {
-      console.log(res);
-    }, (err) => {
-      console.log('ERROR');
-      console.log(err);
+  public getRegionalData(regional_id: string): Observable<RegionalData> {
+    // This needs to return an Observable<RegionalData> object that is constructed from 2 http requests:
+    //  /event/{event_key}/teams/simple and /event/{event_key}/matches/simple
+    return Observable.forkJoin(
+      this.makeTBARequest<Team[]>('event/' + regional_id + '/teams/simple'),
+      this.makeTBARequest<Match[]>('event/' + regional_id + '/matches/simple')
+    ).mergeMap((res: [Team[], Match[]]) => {
+      const rd: RegionalData = {
+        teams: res[0],
+        matches: res[1].sort((a, b) => this.sortReg(a, b))
+      };
+      return Observable.of(rd);
     });
-    return Observable.of(regional_list).delay(1000);
   }
 
+  public getRegionalList(): Observable<Regional[]|Boolean> {
+    return this.makeTBARequest<Regional[]>('events/' + environment.year + '/simple')
+                .map((res: Regional[]|Boolean) => {
+                  if (res) {
+                    res = <Regional[]>res;
+                    return res.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0) );
+                  }
+                  return false;
+                });
+  }
+
+  private sortReg(a: Match, b: Match): number {
+    return a.time > b.time ? 1 : b.time > a.time ? -1 : 0;
+    // if (a.comp_level === b.comp_level) { // qm < qf < sf < f
+    //   return a.match_number > b.match_number ? 1 : -1;
+    // }
+    // if (a.comp_level === 'f') { // b will be anything other than f
+    //   return 1;
+    // } else if (b.comp_level === 'f') {
+    //   return -1;
+    // }
+
+    // if (a.comp_level === 'sf') {
+    //   return 1;
+    // } else if (b.comp_level === 'sf') {
+    //   return -1;
+    // }
+
+    // if (a.comp_level === 'qf') {
+    //   return 1;
+    // } else if (b.comp_level === 'qf') {
+    //   return -1;
+    // }
+  }
 
 
 

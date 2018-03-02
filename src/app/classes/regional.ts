@@ -2,7 +2,7 @@ import { Match } from './match';
 import { Team } from './team';
 
 export interface Regional {
-    id: string;
+    key: string;
     name: string;
     data?: RegionalData;
 }

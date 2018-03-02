@@ -1,9 +1,19 @@
 import { Team } from './team';
 
 export interface Match {
-    match_id: string;
-    red_teams: Team[];
-    blue_teams: Team[];
-    red_score: number;
-    blue_score: number;
+    key: string;
+    comp_level: string;
+    match_number: number;
+    alliances: {
+        red: {
+            team_keys: number[],
+            score: number
+        }
+        blue: {
+            team_keys: number[],
+            score: number
+        }
+    };
+    time: number;
 }
+

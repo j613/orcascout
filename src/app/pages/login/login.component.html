@@ -12,8 +12,8 @@
       </div>
       <div class="form-group">
         <label for="regional">Regional</label>
-        <select required [(ngModel)]="login_fields.regional" name="regional" >
-            <option *ngFor="let reg of regional_list" value="{{ reg }}">{{ reg.name }}</option>
+        <select required [(ngModel)]="login_fields.regional_id" name="regional" >
+            <option *ngFor="let reg of regional_list" value="{{ reg.key }}-{{ reg.name }}">{{ reg.name }}</option>
         </select>
     </div>
       <div *ngIf="message" class="form-alert">

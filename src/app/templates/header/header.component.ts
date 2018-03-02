@@ -4,9 +4,7 @@ import { Component, OnInit, Input } from '@angular/core';
   selector: 'app-header',
   styleUrls: ['./header.component.less'],
   template: `
-  <h2>
-    <b>{{ title }}</b>
-  </h2>
+  <div class="title"><b>{{ title }}</b></div>
   <hr>
   `
 })
