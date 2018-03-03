@@ -10,42 +10,49 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 
 public class UserHandler {
+
     private final ArrayList<User> users = new ArrayList<>();
     //TODO: Implement SSL
     private final DatabaseConnection connection;
+
     public UserHandler(DatabaseConnection c) {
         connection = c;
     }
-    void timeoutUsers(){
-        users.removeIf(n->n.shouldLogout());
+
+    void timeoutUsers() {
+        users.removeIf(n -> n.shouldLogout());
     }
+
     /**
      * returns a currently logged in user based off of the token
+     *
      * @param token the token
      * @return the user
      */
-    public User getUserByToken(String token){
+    public User getUserByToken(String token) {
         timeoutUsers();
-        return users.stream().filter(n->n.getToken().equals(token)).findAny().orElse(null);
+        return users.stream().filter(n -> n.getToken().equals(token)).findAny().orElse(null);
     }
-    public static JSONObj userToJSON(ResultSet rs, boolean userLevel, boolean passhash) throws SQLException{
+
+    public static JSONObj userToJSON(ResultSet rs, boolean userLevel, boolean passhash) throws SQLException {
         JSONObj ret = new JSONObj();
         ret.put("username", rs.getString("USERNAME"));
-        ret.put("firstname",rs.getString("FIRSTNAME"));
-        ret.put("lastname",rs.getString("LASTNAME"));
-        if(userLevel){
+        ret.put("firstname", rs.getString("FIRSTNAME"));
+        ret.put("lastname", rs.getString("LASTNAME"));
+        if (userLevel) {
             ret.put("userlevel", rs.getString("USERLEVEL"));
         }
-        if(passhash){
+        if (passhash) {
             ret.put("passhash", rs.getString("PASSHASH"));
         }
         return ret;
     }
-    public JSONObj getPendingUsers(){
+
+    public JSONObj getPendingUsers() {
         try {
             JSONObj ret = new JSONObj();
             ResultSet rs = connection.executeQuery("select USERNAME, FIRSTNAME, LASTNAME from USERS where PENDING = 1;");
-            while(rs.next()){
+            while (rs.next()) {
                 ret.append("users", userToJSON(rs, false, false));
             }
             return ret;
@@ -54,7 +61,8 @@ public class UserHandler {
             return null;
         }
     }
-    public JSONObj getMatchesScouted(String token){
+
+    public JSONObj getMatchesScouted(String token) {
         try {
             JSONObj ret = new JSONObj();
             ret.put("matches", new JSONArray());
@@ -62,7 +70,7 @@ public class UserHandler {
             PreparedStatement ps = connection.prepareStatement("select MATCH_NUMBER from MATCHES where SUBMIT_BY = ?");
             ps.setInt(1, u.getID());
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 ret.append("matches", MatchHandler.matchToJSON(rs, false, false));
             }
             return ret;
@@ -71,9 +79,12 @@ public class UserHandler {
             return null;
         }
     }
-    public JSONObj getUserInfo(String token){
+
+    public JSONObj getUserInfo(String token) {
         User us = getUserByToken(token);
-        if(us==null)return null;
+        if (us == null) {
+            return null;
+        }
         JSONObj tmp = new JSONObj();
         tmp.put("username", us.getUsername());
         tmp.put("firstname", us.getFirstname());
@@ -85,10 +96,12 @@ public class UserHandler {
     public boolean isValidUserType(String g) {
         return g.equalsIgnoreCase("admin") || g.equalsIgnoreCase("limited") || g.equalsIgnoreCase("regular");
     }
-    public boolean isLoggedIn(String token){
-        System.out.println("LL"+users);
-        return this.getUserByToken(token)!=null;
+
+    public boolean isLoggedIn(String token) {
+        System.out.println("LL" + users);
+        return this.getUserByToken(token) != null;
     }
+
     public boolean userExists(String username) {
         try {
             PreparedStatement checkUser = connection.prepareStatement("select * from USERS where USERNAME = ?");
@@ -132,16 +145,18 @@ public class UserHandler {
             if (obj.getString("password").length() > 128 || obj.getString("password").length() < 8) {
                 return false;
             }
-            String passhash = Utils.hashPassword(obj.getString("username"), obj.getString("password"));
+            final String passwordSalt = Utils.genSalt();
+            String passhash = Utils.hashPassword(passwordSalt, obj.getString("password"));
             PreparedStatement newUser = connection.prepareStatement(
-                    "insert into USERS(USERNAME, FIRSTNAME, LASTNAME, PASSWORD_HASH, USER_LEVEL, PENDING)"
-                    + " values (?, ?, ?, ?, ?, ?)");
+                    "insert into USERS(USERNAME, FIRSTNAME, LASTNAME, PASSWORD_HASH, USER_LEVEL, PENDING, PASSWORD_SALT)"
+                    + " values (?, ?, ?, ?, ?, ?, ?)");
             newUser.setString(1, obj.getString("username"));
             newUser.setString(2, obj.getString("firstname"));
             newUser.setString(3, obj.getString("lastname"));
             newUser.setString(4, passhash);
             newUser.setString(5, "limited");
             newUser.setInt(6, 1);
+            newUser.setString(7, passwordSalt);
             return !newUser.execute();
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -166,10 +181,10 @@ public class UserHandler {
             if (!isValidUserType(obj.getString("userlevel")) && !obj.getString("userlevel").equalsIgnoreCase("delete")) {
                 return false;
             }
-            if (!userExists(obj.getString("username")) || getUserByToken(token)==null) {
+            if (!userExists(obj.getString("username")) || getUserByToken(token) == null) {
                 return false;
             }
-            if(getUserByToken(token).getUserLevel() != UserLevel.ADMIN){
+            if (getUserByToken(token).getUserLevel() != UserLevel.ADMIN) {
                 return false;
             }
             PreparedStatement exec;
@@ -187,26 +202,30 @@ public class UserHandler {
             return false;
         }
     }
-    public boolean changePassword(String token, JSONObj obj){
+
+    public boolean changePassword(String token, JSONObj obj) {
         try {
-            if(!JSONObj.checkTemplate("UserChangePassTemplate", obj)){
+            if (!JSONObj.checkTemplate("UserChangePassTemplate", obj)) {
                 return false;
             }
             User u = getUserByToken(token);
-            if(u==null){
+            if (u == null) {
                 return false;
             }
-            PreparedStatement ps = connection.prepareStatement("select PASSWORD_HASH from USERS where USERNAME = ?");
+            PreparedStatement ps = connection.prepareStatement("select PASSWORD_HASH, "
+                    + "PASSWORD_SALT from USERS where USERNAME = ?");
             ps.setString(1, u.getUsername());
             ResultSet rs = ps.executeQuery();
-            if(rs.next() && rs.getString("PASSWORD_HASH").equals(
-                    Utils.hashPassword(u.getUsername(), obj.getString("oldpassword")))){
-                ps = connection.prepareStatement("update USERS set PASSWORD_HASH = ? where USERNAME = ?");
-                ps.setString(1, Utils.hashPassword(u.getUsername(), obj.getString("newpassword")));
-                ps.setString(2, u.getUsername());
+            if (rs.next() && rs.getString("PASSWORD_HASH").equals(
+                    Utils.hashPassword(rs.getString("PASSWORD_SALT"), obj.getString("oldpassword")))) {
+                ps = connection.prepareStatement("update USERS set PASSWORD_HASH = ?, PASSWORD_SALT = ? where USERNAME = ?");
+                final String passwordSalt = Utils.genSalt();
+                ps.setString(1, Utils.hashPassword(passwordSalt, obj.getString("newpassword")));
+                ps.setString(2, passwordSalt);
+                ps.setString(3, u.getUsername());
                 ps.execute();
                 return true;
-            }else{
+            } else {
                 return false;
             }
         } catch (SQLException ex) {
@@ -234,10 +253,13 @@ public class UserHandler {
             }
             PreparedStatement exec
                     = connection.prepareStatement("select * from USERS where USERNAME = ? ");
-            String passhash = Utils.hashPassword(obj.getString("username"), obj.getString("password"));
             exec.setString(1, obj.getString("username"));
             ResultSet rs = exec.executeQuery();
-            if (rs.next() && rs.getString("PASSWORD_HASH").equals(passhash)) {
+            if(!rs.next()){
+                return null;
+            }
+            String passhash = Utils.hashPassword(rs.getString("PASSWORD_SALT"), obj.getString("password"));
+            if (rs.getString("PASSWORD_HASH").equals(passhash)) {
                 String token;
                 while (true) {
                     token = Utils.generateToken(256);
@@ -246,7 +268,7 @@ public class UserHandler {
                         break;
                     }
                 }
-                users.add(new User(rs.getInt("ID"),obj.getString("username"), token,
+                users.add(new User(rs.getInt("ID"), obj.getString("username"), token,
                         rs.getString("USER_LEVEL"), rs.getString("FIRSTNAME"), rs.getString("LASTNAME")));
                 return token;
             } else {
@@ -262,6 +284,6 @@ public class UserHandler {
     public static void main(String... args) throws SQLException {
         UserHandler g = new UserHandler(new DatabaseConnection("jdbc:mysql://localhost/orcascout?useSSL=false", "root", "NONO"));
         g.connection.connect();
-        
+
     }
 }

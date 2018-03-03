@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -173,17 +174,20 @@ public class OrcascoutHandler implements InputHandler {
         }
         User user = userHandler.getUserByToken(token);
         JSONObj obj;
+        HashMap<String, String> args = new HashMap<>();
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "create":
                 obj = new JSONObj(in.getActualPostData()[0].getPostData());
-                if (teamHandler.newTeam(obj, user)) {
+                int exec = teamHandler.newTeam(obj, user);
+                if (exec == 0) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
-                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
+                    args.put("ErrorCode", ""+exec);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                 }
                 return false;
             case "getteams":
-
+                
         }
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;

@@ -21,6 +21,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import org.mindrot.jbcrypt.BCrypt;
 
 public final class Utils {
 
@@ -49,20 +50,10 @@ public final class Utils {
     }
 
     public static String hashPassword(String salt, String password) {
-        return genHash(salt + password);
+        return BCrypt.hashpw(password, salt);
     }
-
-    public static String genHash(String g) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            g = Base64.encode(digest.digest(
-                    g.getBytes()));
-            return g;
-        } catch (NoSuchAlgorithmException ex) {
-            System.err.println("Error Generating an encryption key");
-            ex.printStackTrace();
-        }
-        return null;
+    public static String genSalt() {
+        return BCrypt.gensalt();
     }
 
     public static String generateToken(int size) {
