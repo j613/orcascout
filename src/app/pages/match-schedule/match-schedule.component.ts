@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { BackendUpdateService } from '../../services/backend-update.service';
 
@@ -7,7 +7,8 @@ import { BackendUpdateService } from '../../services/backend-update.service';
   templateUrl: './match-schedule.component.html',
   styleUrls: ['./match-schedule.component.less']
 })
-export class MatchScheduleComponent implements OnInit {
+export class MatchScheduleComponent implements OnInit, OnDestroy {
+  private checker;
   public title = 'Match Schedule';
 
   constructor(public auth: AuthService) {
@@ -15,6 +16,13 @@ export class MatchScheduleComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.checker = setInterval(() => {
+      this.refreshSchedule();
+    }, 10000);
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.checker);
   }
 
   private refreshSchedule() {
