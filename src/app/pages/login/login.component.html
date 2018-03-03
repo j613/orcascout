@@ -1,26 +1,32 @@
 <app-header [title]="title"></app-header>
 
-<div>
-  <form #loginForm="ngForm" (ngSubmit)="login(); loginForm.reset();">
-      <div class="form-group">
-          <label for="username">Username</label>
-          <input type="text" id="username" required [(ngModel)]="login_fields.username" name="username">
-      </div>
-      <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" required [(ngModel)]="login_fields.password" name="password">
-      </div>
-      <div class="form-group">
-        <label for="regional">Regional</label>
-        <select required [(ngModel)]="login_fields.regional_id" name="regional" >
-            <option *ngFor="let reg of regional_list" value="{{ reg.key }}-{{ reg.name }}">{{ reg.name }}</option>
-        </select>
-    </div>
-      <div *ngIf="message" class="form-alert">
-          {{ message }}
-      </div>
-      <div class="form-group">
-          <button type="submit" [disabled]="(!this.backend_update.is_online || loginForm.invalid)">Submit</button>
-      </div>
-  </form>
+<div class="offset-sm-2 col-sm-8">
+    <form #loginForm="ngForm" (ngSubmit)="login(); loginForm.reset();">
+        <div class="form-group row">
+            <label for="username" class="col-sm-1 col-form-label">Username</label>
+            <div class="col-sm-11">
+                <input type="text" id="username" class="form-control" required [(ngModel)]="login_fields.username" name="username">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="password" class="col-sm-1 col-form-label">Password</label>
+            <div class="col-sm-11">
+                <input type="password" id="password" class="form-control" required [(ngModel)]="login_fields.password" name="password">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="regional" class="col-sm-1 col-form-label">Regional</label>
+            <div class="col-sm-11">
+                <select required [(ngModel)]="login_fields.regional_id" class="custom-select" name="regional" >
+                    <option *ngFor="let reg of regional_list" value="{{ reg.key }}-{{ reg.name }}">{{ reg.name }}</option>
+                </select>
+            </div>
+        </div>
+        <div *ngIf="message" class="alert alert-primary" role="alert">
+            {{ message }}
+        </div>
+        <div class="col-sm-12 text-center">
+            <button type="submit" class="btn btn-primary " [disabled]="(!this.backend_update.is_online || loginForm.invalid)">Submit</button>
+        </div>
+    </form>
 </div>

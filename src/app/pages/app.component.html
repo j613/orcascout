@@ -1,7 +1,7 @@
 <ng-sidebar-container style="height: 100vh;">
 
     <!-- A sidebar -->
-    <ng-sidebar [(opened)]="_opened" mode="slide">
+    <ng-sidebar [(opened)]="_opened" mode="slide" closeOnClickOutside="true" (onOpened)="_toggleSidebar(true)" (onClosed)="_toggleSidebar(false)">
       <div class="sidebar">
         <ul *ngIf="auth.isLoggedIn; else loggedout">
           <li *ngFor="let page of pages">

@@ -10,7 +10,7 @@ import { AuthService } from './../services/auth.service';
   styleUrls: ['./app.component.less']
 })
 export class AppComponent {
-  public _opened = true;
+  public _opened = false;
   public _show_backdrop = true;
   public _current_icon: string;
   public pages: Page[] = [
@@ -32,8 +32,8 @@ export class AppComponent {
     this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
 
-  public _toggleSidebar() {
-    this._opened = !this._opened;
+  public _toggleSidebar(o: boolean = !this._opened) {
+    this._opened = o;
     this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
 

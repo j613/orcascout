@@ -19,8 +19,8 @@ export class MatchScoutingComponent implements OnInit {
     ],
     auto: {
       crossed_baseline: null,
-      switch: null,
-      scale: null,
+      switch: 0,
+      scale: 0,
       comments: null
     },
     teleop: {
@@ -43,4 +43,7 @@ export class MatchScoutingComponent implements OnInit {
     console.log(this.match_data);
   }
 
+  public inc(element) {
+    element++;
+  }
 }

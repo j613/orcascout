@@ -67,7 +67,7 @@ export class AuthService {
       };
       this.refreshRegionalData();
       this.saveSession();
-      document.cookie = 'AuthToken=SoMeToKeNlMaO; expires=' + new Date(Date.now() + (10 * 60 * 1000)).toUTCString();
+      document.cookie = 'AuthToken=SoMeToKeNlMaO; expires=' + new Date(Date.now() + (30 * 60 * 1000)).toUTCString();
       this.isLoggedIn = val;
     });
 
