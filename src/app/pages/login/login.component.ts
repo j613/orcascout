@@ -31,18 +31,16 @@ export class LoginComponent implements OnInit {
   }
 
   public login(): void {
-    console.log(this.login_fields);
     this.message = 'Logging in...';
-    // TODO: Implement form to get username and password
     this.auth.login(this.login_fields.username, this.login_fields.password, this.login_fields.regional_id).subscribe((val) => {
       if (val) {
         this.message = 'Logged In';
       } else {
         this.message = 'Error Logging In';
       }
-      // setTimeout(() => {
-      //   this.route.navigate(['']);
-      // }, 500);
+      setTimeout(() => {
+        this.route.navigate(['']);
+      }, 500);
     });
   }
 

@@ -24,11 +24,11 @@ export class MatchScoutingComponent implements OnInit {
       comments: null
     },
     teleop: {
-      teams_switch: null,
-      scale: null,
-      opponents_switch: null,
-      cube_exchange: null,
-      climb: null,
+      teams_switch: 0,
+      scale: 0,
+      opponents_switch: 0,
+      cube_exchange: 0,
+      climb: 'noclimb',
       comments: null,
       penalties: null
     },
@@ -41,9 +41,5 @@ export class MatchScoutingComponent implements OnInit {
 
   public submitMatchScout() {
     console.log(this.match_data);
-  }
-
-  public inc(element) {
-    element++;
   }
 }

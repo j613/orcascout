@@ -26,7 +26,7 @@
             <textarea id="comments" class="form-control" [(ngModel)]="team.comments" name="comments"></textarea>
         </div>
         <div class="form-group">
-            <label for="comments" class="col-form-label">Drivetrain</label>
+            <label for="drivetrain" class="col-form-label">Drivetrain</label>
             <select id="drivetrain" class="custom-select" required [(ngModel)]="team.drivetrain" name="drivetrain">
                 <option *ngFor="let train of drivetrains" value="{{ train }}">{{ train }}</option>
             </select>
