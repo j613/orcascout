@@ -10,8 +10,7 @@
             </div>
             <div class="form-group col-sm-6">
                 <label for="team-number" class="col-form-label">Team Number</label>
-                <input type="text" id="team-number" class="form-control" required [(ngModel)]="team.number" pattern="[0-9]+" name="number" #teamnum="ngModel">
-                <div *ngIf="teamnum.touched && teamnum.invalid" class="alert alert-danger col-sm-12">Team number needs to be a number</div>
+                <input type="number" id="team-number" class="form-control" required [(ngModel)]="team.number" name="number" #teamnum="ngModel">
             </div>
         </div>
         <div class="form-group">

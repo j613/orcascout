@@ -19,15 +19,14 @@ export class LoginComponent implements OnInit {
     regional_id: ''
   };
 
-  constructor(private auth: AuthService, private route: Router, private backend_update: BackendUpdateService) {
+  constructor(private auth: AuthService, private route: Router, public backend_update: BackendUpdateService) { }
+
+  ngOnInit() {
     if (!this.backend_update.is_online) {
       this.message = 'Currently offline, please go online to login.';
     }
     // Call backend_update to get regional list
     this.backend_update.getRegionalList().subscribe((regionals: Regional[]) => this.regional_list = regionals);
-  }
-
-  ngOnInit() {
   }
 
   public login(): void {

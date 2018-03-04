@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Page } from './../classes/page';
 import { Router } from '@angular/router';
 import { BackendUpdateService } from './../services/backend-update.service';
@@ -9,7 +9,7 @@ import { AuthService } from './../services/auth.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.less']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   public _opened = false;
   public _show_backdrop = true;
   public _current_icon: string;
@@ -28,7 +28,9 @@ export class AppComponent {
   ];
 
   // TODO: Implement methods to access backend_update and auth from the HTML instead of making them public
-  constructor(private router: Router, public backend_update: BackendUpdateService, public auth: AuthService) {
+  constructor(private router: Router, public backend_update: BackendUpdateService, public auth: AuthService) { }
+
+  ngOnInit() {
     this._current_icon = this._opened ? 'angle-left' : 'angle-right';
   }
 

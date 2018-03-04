@@ -53,52 +53,52 @@ export class AuthService {
     }
 
     // TODO: Replace with actual request to backend server (below).
-    // return Observable.of(true).delay(1000).do((val) => {
-    //   this.session = {
-    //     user: { username: username,
-    //             firstname: 'Zamboni',
-    //             lastname: 'Macaroni',
-    //             level: 'regular',
-    //           }
-    //   };
-    //   this.session.regional = {
-    //     key: regional_id.split('-')[0],
-    //     name: regional_id.split('-')[1]
-    //   };
-    //   this.refreshRegionalData();
-    //   this.saveSession();
-    //   document.cookie = 'AuthToken=SoMeToKeNlMaO; expires=' + new Date(Date.now() + (30 * 60 * 1000)).toUTCString();
-    //   this.isLoggedIn = val;
-    // });
+    return Observable.of(true).delay(1000).do((val) => {
+      this.session = {
+        user: { username: username,
+                firstname: 'Zamboni',
+                lastname: 'Macaroni',
+                level: 'regular',
+              }
+      };
+      this.session.regional = {
+        key: regional_id.split('-')[0],
+        name: regional_id.split('-')[1]
+      };
+      this.refreshRegionalData();
+      this.saveSession();
+      document.cookie = 'AuthToken=SoMeToKeNlMaO; expires=' + new Date(Date.now() + (30 * 60 * 1000)).toUTCString();
+      this.isLoggedIn = val;
+    });
 
     // Actual HTTP request when backend is hosted.
-    return this.utils.craftHttpPost('login', { username: username, password: password }) // Login request
-              .mergeMap((res: HttpResponse<null>) => {
-                if (res.status === 204) { // If valid login, make request for userinfo
-                  return this.utils.craftHttpGet('getinfo');
-                }
-                return Observable.of(false);
-              })
-              .mergeMap((res: HttpResponse<User>) => {
-                if (res.status !== 200) {
-                  return Observable.of(false);
-                }
-                this.isLoggedIn = true;
-                this.session = {
-                  user: res.body
-                };
-                this.session.regional = {
-                  key: regional_id.split('-')[0],
-                  name: regional_id.split('-')[1]
-                };
-                this.refreshRegionalData();
-                this.backend_update.getRegionalData(this.session.regional.key).subscribe((reg: RegionalData) => {
-                  this.session.regional.data = reg;
-                  this.saveSession();
-                });
-                this.saveSession();
-                return Observable.of(true);
-              });
+    // return this.utils.craftHttpPost('login', { username: username, password: password }) // Login request
+    //           .mergeMap((res: HttpResponse<null>) => {
+    //             if (res.status === 204) { // If valid login, make request for userinfo
+    //               return this.utils.craftHttpGet('getinfo');
+    //             }
+    //             return Observable.of(false);
+    //           })
+    //           .mergeMap((res: HttpResponse<User>) => {
+    //             if (res.status !== 200) {
+    //               return Observable.of(false);
+    //             }
+    //             this.isLoggedIn = true;
+    //             this.session = {
+    //               user: res.body
+    //             };
+    //             this.session.regional = {
+    //               key: regional_id.split('-')[0],
+    //               name: regional_id.split('-')[1]
+    //             };
+    //             this.refreshRegionalData();
+    //             this.backend_update.getRegionalData(this.session.regional.key).subscribe((reg: RegionalData) => {
+    //               this.session.regional.data = reg;
+    //               this.saveSession();
+    //             });
+    //             this.saveSession();
+    //             return Observable.of(true);
+    //           });
   }
 
   public refreshRegionalData() {

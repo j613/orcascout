@@ -11,11 +11,10 @@ export class MatchScheduleComponent implements OnInit, OnDestroy {
   private checker;
   public title = 'Match Schedule';
 
-  constructor(public auth: AuthService) {
-    this.auth.refreshRegionalData();
-  }
+  constructor(public auth: AuthService) { }
 
   ngOnInit() {
+    this.auth.refreshRegionalData();
     this.checker = setInterval(() => {
       this.refreshSchedule();
     }, 10000);
@@ -25,7 +24,7 @@ export class MatchScheduleComponent implements OnInit, OnDestroy {
     clearInterval(this.checker);
   }
 
-  private refreshSchedule() {
+  public refreshSchedule() {
     this.auth.refreshRegionalData();
   }
 
