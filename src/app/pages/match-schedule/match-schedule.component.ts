@@ -17,7 +17,7 @@ export class MatchScheduleComponent implements OnInit, OnDestroy {
     this.auth.refreshRegionalData();
     this.checker = setInterval(() => {
       this.refreshSchedule();
-    }, 10000);
+    }, 30000);
   }
 
   ngOnDestroy() {

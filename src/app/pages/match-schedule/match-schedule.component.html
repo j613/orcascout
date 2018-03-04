@@ -16,13 +16,9 @@
     </tr>
     <tr *ngFor="let match of auth.session.regional.data.matches">
         <td>{{ match.match_number }} ({{ match.comp_level | uppercase }})</td>
-        <td class="red">{{ match.alliances.red.team_keys[0].substr(3) }}</td>
-        <td class="red">{{ match.alliances.red.team_keys[1].substr(3) }}</td>
-        <td class="red">{{ match.alliances.red.team_keys[2].substr(3) }}</td>
-        <td class="red">{{ match.alliances.red.score }}</td>
-        <td class="blue">{{ match.alliances.blue.team_keys[0].substr(3) }}</td>
-        <td class="blue">{{ match.alliances.blue.team_keys[1].substr(3) }}</td>
-        <td class="blue">{{ match.alliances.blue.team_keys[2].substr(3) }}</td>
-        <td class="blue">{{ match.alliances.blue.score }}</td>
+        <td class="red" *ngFor="let team of match.alliances.red.team_keys" [class.winner]="match.alliances.red.score > match.alliances.blue.score">{{ team.substr(3) }}</td>
+        <td class="red" [class.winner]="match.alliances.red.score > match.alliances.blue.score">{{ match.alliances.red.score === -1 ? "" : match.alliances.red.score }}</td>
+        <td class="blue" *ngFor="let team of match.alliances.blue.team_keys" [class.winner]="match.alliances.blue.score > match.alliances.red.score">{{ team.substr(3) }}</td>
+        <td class="blue" [class.winner]="match.alliances.blue.score > match.alliances.red.score">{{ match.alliances.blue.score === -1 ? "" : match.alliances.blue.score }}</td>
     </tr>
 </table>
