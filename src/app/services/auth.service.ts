@@ -53,23 +53,23 @@ export class AuthService {
     }
 
     // TODO: Replace with actual request to backend server (below).
-    return Observable.of(true).delay(1000).do((val) => {
-      this.session = {
-        user: { username: username,
-                firstname: 'Zamboni',
-                lastname: 'Macaroni',
-                level: 'regular',
-              }
-      };
-      this.session.regional = {
-        key: regional_id.split('-')[0],
-        name: regional_id.split('-')[1]
-      };
-      this.refreshRegionalData();
-      this.saveSession();
-      document.cookie = 'AuthToken=SoMeToKeNlMaO; expires=' + new Date(Date.now() + (30 * 60 * 1000)).toUTCString();
-      this.isLoggedIn = val;
-    });
+    // return Observable.of(true).delay(1000).do((val) => {
+    //   this.session = {
+    //     user: { username: username,
+    //             firstname: 'Zamboni',
+    //             lastname: 'Macaroni',
+    //             level: 'regular',
+    //           }
+    //   };
+    //   this.session.regional = {
+    //     key: regional_id.split('-')[0],
+    //     name: regional_id.split('-')[1]
+    //   };
+    //   this.refreshRegionalData();
+    //   this.saveSession();
+    //   document.cookie = 'AuthToken=SoMeToKeNlMaO; expires=' + new Date(Date.now() + (30 * 60 * 1000)).toUTCString();
+    //   this.isLoggedIn = val;
+    // });
 
     // Actual HTTP request when backend is hosted.
     return this.utils.craftHttpPost('login', { username: username, password: password }) // Login request
