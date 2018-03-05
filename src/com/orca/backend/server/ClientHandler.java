@@ -44,14 +44,21 @@ public class ClientHandler extends Thread {
                 for (; inc >= 0 && !clientSocket.isClosed(); inc = in.read()) {
                     char c = (char) inc;
                     inputSize++;
-                    //System.out.print(c);//+""+inc+" "); // Debug print request
+                    System.out.print(c);//+""+inc+" "); // Debug print request
                     inputBuffer.append(c);
                     if (inputBuffer.length() > 1024 || inputSize > 1024 * 1024) {
                         logln("Request Too Long");
                         HTTPParser.setError(1);
                         break;
                     }
-                    if (c == '\n') {
+                     if(HTTPParser.inPostMode()){
+                        HTTPParser.parseString(inputBuffer.toString());
+                        if (HTTPParser.isFinished()) {
+                            //logln(HTTPParser.getActualPostData());
+                            break;
+                        }
+                        inputBuffer = new StringBuffer(1024);
+                    }else if (c == '\n') {
                         if (HTTPParser.parseString(inputBuffer.toString()) != 0) {
                             logln("Bad request Header");
                             break;

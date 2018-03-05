@@ -29,7 +29,7 @@ public class OrcascoutHandler implements InputHandler {
 
     static {
         try {
-            Path p = new File(OrcascoutHandler.class.getResource("/frontend/").toURI()).toPath();
+            Path p = new File(OrcascoutHandler.class.getResource("/frontend/").toURI()).toPath();//TODO CHANGE WHEN JARRING
             Files.walk(p).forEach(n -> {
                 if (!n.toFile().isDirectory()) {
                     try {
@@ -45,7 +45,7 @@ public class OrcascoutHandler implements InputHandler {
             System.err.println("Error reading files from disk. abort");
             e.printStackTrace(System.out);
         } catch (URISyntaxException ex) {
-            ex.printStackTrace(System.out);
+            Logger.getLogger(OrcascoutHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -161,7 +161,7 @@ public class OrcascoutHandler implements InputHandler {
         return false;
     }
 
-    private boolean handleTeam(HTTPInput in, BufferedWriter out) throws IOException {
+    private boolean handlePitScout(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
             return true;
@@ -217,9 +217,17 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile = getCachedFile("/errorFiles/404error.html");
                     respMessage = "404 Not Found";
                 } else if (in.getRequestedFile().equalsIgnoreCase("/submitUser")) {
+                    if(in.get("method").equalsIgnoreCase("OPTIONS")){
+                        HashMap<String, String> l = new HashMap<>();
+                        l.put("Access-Control-Allow-Origin","*");
+                        l.put("Access-Control-Allow-Methods","POST");
+                        l.put("Access-Control-Allow-Headers","*");
+                        sendFile(null, "200 OK", l,out,null);
+                        return true;
+                    }
                     return handleUser(in, out);
                 } else if (in.getRequestedFile().equalsIgnoreCase("/submitTeam")) {
-                    return handleTeam(in, out);
+                    return handlePitScout(in, out);
                 } else if (!memCachedFiles.containsKey(in.getRequestedFile())) {
                     respMessage = "404 Not Found";
                     System.out.println("File not Found");

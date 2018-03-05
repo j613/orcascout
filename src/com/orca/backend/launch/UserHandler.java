@@ -275,7 +275,7 @@ public class UserHandler {
                 return null;
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
             return null;
         }
     }

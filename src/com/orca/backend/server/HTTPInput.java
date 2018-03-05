@@ -59,7 +59,9 @@ public class HTTPInput extends HashMap<String, String> {
     public void setError(int b) {
         error = b;
     }
-
+    public boolean inPostMode(){
+        return inReadRawDataMode;
+    }
     public int getErrorCode() {
         return error;
     }
@@ -80,6 +82,9 @@ public class HTTPInput extends HashMap<String, String> {
         if (!containsKey("Content-Type")) {
             return null;
         }
+        if(get("Content-Type").toLowerCase().startsWith("application/json")){
+            return new PostData[]{new PostData(getRawPostData(),"json")};
+        }
         String WKBound = get("Content-Type").split("boundary=")[1];
         String[] ret = data.split(WKBound);
         ArrayList<PostData> retl = new ArrayList<>();
@@ -96,6 +101,7 @@ public class HTTPInput extends HashMap<String, String> {
                 retl.add(new PostData(ret[i].substring(0, ret[i].length() - 2), DataType));
             }
         } catch (Exception e) {
+            e.printStackTrace(System.out);
             return null;
         }
         return retl.toArray(new PostData[retl.size()]);
@@ -125,12 +131,11 @@ public class HTTPInput extends HashMap<String, String> {
                 }
                 postDataBuffer.append(s);
                 if (postDataBuffer.length() == clength) {
-                    //System.out.println("Length exceeded Content-Length");
+                    System.out.println("Length exceeded Content-Length");
                     isFinished = true;
-
                 }
             } else {
-                if (s.matches("(POST|PUT|GET|HEAD) [^ ]+ HTTP\\/(1\\.1|2|1)\r?\n")) {
+                if (s.matches("(POST|PUT|GET|HEAD|OPTIONS) [^ ]+ HTTP\\/(1\\.1|2|1)\r?\n")) {
                     String[] ins = s.split(" ");
                     if (ins[0].matches("(PUT|HEAD)")) {
                         error = 4;
