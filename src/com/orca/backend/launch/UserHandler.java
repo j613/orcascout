@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONArray;
 
 public class UserHandler {
@@ -59,6 +61,26 @@ public class UserHandler {
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
             return null;
+        }
+    }
+
+    /**
+     * sets the current Competition / Regional ID of a logged in user
+     * @param token the token of the logged in user
+     * @param compid the competition id to set for the user
+     * @return error code
+     * Error codes: 
+     * 0: No Error
+     * 1: Comp ID doesn't exist
+     * 2: SQL Error
+     */
+    public int setCompIDByToken(String token, String compid) {
+        try {
+            PreparedStatement ps = connection.prepareStatement("select * from COMPETITIONS where COMP_ID = ?");
+            return ps.executeQuery().next()?1:0;
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
+            return 2;
         }
     }
 
@@ -255,7 +277,7 @@ public class UserHandler {
                     = connection.prepareStatement("select * from USERS where USERNAME = ? ");
             exec.setString(1, obj.getString("username"));
             ResultSet rs = exec.executeQuery();
-            if(!rs.next()){
+            if (!rs.next()) {
                 return null;
             }
             String passhash = Utils.hashPassword(rs.getString("PASSWORD_SALT"), obj.getString("password"));

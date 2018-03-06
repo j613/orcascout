@@ -12,12 +12,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class OrcascoutHandler implements InputHandler {
 
@@ -37,7 +33,7 @@ public class OrcascoutHandler implements InputHandler {
                         g = g.substring(g.indexOf("frontend") + 8).replaceAll("\\\\", "/").toLowerCase();
                         memCachedFiles.put(g, ResponseFile.readFromFile(n));
                     } catch (IOException ex) {
-                        ex.printStackTrace();
+                        ex.printStackTrace(System.out);
                     }
                 }
             });
@@ -45,7 +41,7 @@ public class OrcascoutHandler implements InputHandler {
             System.err.println("Error reading files from disk. abort");
             e.printStackTrace(System.out);
         } catch (URISyntaxException ex) {
-            Logger.getLogger(OrcascoutHandler.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace(System.out);
         }
     }
 
@@ -74,13 +70,16 @@ public class OrcascoutHandler implements InputHandler {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
             return true;
         }
+
         HashSet<String> cokies = new HashSet<>();
+        HashMap<String, String> args = new HashMap<>();
         String token = in.getCookie("AuthToken");
         JSONObj obj;
+        int exec = 0;
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "login":
                 //System.out.println("LL"+in.getActualPostData()[0]);
-                obj = new JSONObj(in.getActualPostData()[0].getPostData());
+                obj = new JSONObj(in.getRawPostData());
                 String t = userHandler.loginUser(obj);
                 if (t != null) {
                     cokies.add("AuthToken=" + t + "; Expires=" + Utils.getHTTPDate(259200000) + ";");
@@ -105,7 +104,7 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                     return false;
                 }
-                obj = new JSONObj(in.getActualPostData()[0].getPostData());
+                obj = new JSONObj(in.getRawPostData());
                 if (userHandler.approveUser(obj, token)) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
@@ -113,7 +112,7 @@ public class OrcascoutHandler implements InputHandler {
                 }
                 return false;
             case "create":
-                obj = new JSONObj(in.getActualPostData()[0].getPostData());
+                obj = new JSONObj(in.getRawPostData());
                 if (userHandler.addNewUser(obj)) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
@@ -149,16 +148,61 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                     return false;
                 }
-                obj = new JSONObj(in.getActualPostData()[0].getPostData());
+                obj = new JSONObj(in.getRawPostData());
                 if (userHandler.changePassword(token, obj)) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                 }
                 return false;
+            case "setcomp":
+                if (token == null || !userHandler.isLoggedIn(token)) {
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
+                    return false;
+                }
+                obj = new JSONObj(in.getRawPostData());
+                exec = userHandler.setCompIDByToken(token, obj.getString("comp_id"));
+                if (exec == 0) {
+                    sendFile(null, "204 No Content", null, out, null);
+                } else {
+                    args.put("X-Error-Code", "" + exec);
+                    sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", args, out, null);
+                }
+                return false;
         }
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
+    }
+
+    public boolean handleUserOptions(HTTPInput in, BufferedWriter out) throws IOException {
+        if (!in.getPhpArgs().containsKey("method")) {
+            sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
+            return true;
+        }
+        HashMap<String, String> args = new HashMap<>();
+        args.put("Access-Control-Allow-Origin", "*");
+        args.put("Access-Control-Allow-Headers", "*");
+        switch (in.getPhpArgs().get("method").toLowerCase()) {
+            case "login":
+            case "changepassword":
+            case "logout":
+            case "create":
+            case "approve":
+            case "setcomp":
+                args.put("Access-Control-Allow-Methods", "POST");
+                sendFile(null, "200 OK", args, out, null);
+                return false; //TODO: MAYBE CHANGE CUZ CLOSE CONNECTION?
+            case "getinfo":
+            case "getmatches":
+            case "getpits":
+            case "getpending":
+                args.put("Access-Control-Allow-Methods", "GET");
+                sendFile(null, "200 OK", args, out, null);
+                return false;
+            default:
+                sendFile(memCachedFiles.get("/400error.html"), "400 Bad Request", null, out, null);
+                return false;
+        }
     }
 
     private boolean handlePitScout(HTTPInput in, BufferedWriter out) throws IOException {
@@ -175,22 +219,54 @@ public class OrcascoutHandler implements InputHandler {
         User user = userHandler.getUserByToken(token);
         JSONObj obj;
         HashMap<String, String> args = new HashMap<>();
+        int exec;
+        String execs;
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "create":
-                obj = new JSONObj(in.getActualPostData()[0].getPostData());
-                int exec = teamHandler.newTeam(obj, user);
+                obj = new JSONObj(in.getRawPostData());
+                exec = teamHandler.newTeam(obj, user);
                 if (exec == 0) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
-                    args.put("ErrorCode", ""+exec);
+                    args.put("X-Error-Code", "" + exec);
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                 }
                 return false;
             case "getteams":
-                
+                execs = teamHandler.getTeams();
+                if (execs.matches("\\d+")) {
+                    args.put("X-Error-Code", execs);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
+                } else {
+                    sendFile(new ResponseFile(execs, "text/plain; charset=utf-8"), "204 No Content", null, out, null);
+                }
+                return false;
         }
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
+    }
+
+    public boolean handlePitOptions(HTTPInput in, BufferedWriter out) throws IOException {
+        if (!in.getPhpArgs().containsKey("method")) {
+            sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
+            return true;
+        }
+        HashMap<String, String> args = new HashMap<>();
+        args.put("Access-Control-Allow-Origin", "*");
+        args.put("Access-Control-Allow-Headers", "*");
+        switch (in.getPhpArgs().get("method").toLowerCase()) {
+            case "create":
+                args.put("Access-Control-Allow-Methods", "POST");
+                sendFile(null, "200 OK", args, out, null);
+                return false; //TODO: MAYBE CHANGE CUZ CLOSE CONNECTION?
+            case "getteams":
+                args.put("Access-Control-Allow-Methods", "GET");
+                sendFile(null, "200 OK", args, out, null);
+                return false;
+            default:
+                sendFile(memCachedFiles.get("/400error.html"), "400 Bad Request", null, out, null);
+                return false;
+        }
     }
 
     @Override
@@ -217,17 +293,22 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile = getCachedFile("/errorFiles/404error.html");
                     respMessage = "404 Not Found";
                 } else if (in.getRequestedFile().equalsIgnoreCase("/submitUser")) {
-                    if(in.get("method").equalsIgnoreCase("OPTIONS")){
-                        HashMap<String, String> l = new HashMap<>();
-                        l.put("Access-Control-Allow-Origin","*");
-                        l.put("Access-Control-Allow-Methods","POST");
-                        l.put("Access-Control-Allow-Headers","*");
-                        sendFile(null, "200 OK", l,out,null);
-                        return true;
+                    if (in.get("method").equalsIgnoreCase("OPTIONS")) {
+                        return handleUserOptions(in, out);
                     }
                     return handleUser(in, out);
-                } else if (in.getRequestedFile().equalsIgnoreCase("/submitTeam")) {
+                } else if (in.getRequestedFile().equalsIgnoreCase("/submitPit")) {
+                    if (in.get("method").equalsIgnoreCase("OPTIONS")) {
+                        return handlePitOptions(in, out);
+                    }
                     return handlePitScout(in, out);
+                } else if (in.getRequestedFile().equalsIgnoreCase("/submitMatch")) {
+                    if (in.get("method").equalsIgnoreCase("OPTIONS")) {
+                        //return handleMatchOptions(in, out); //TODO Implement
+                    }
+                    //return handleMatchScout(in, out);//TODO Implement
+                    sendFile(getCachedFile("/errorFiles/404.html"), "404 Not Found", null, out, null);
+                    return false;
                 } else if (!memCachedFiles.containsKey(in.getRequestedFile())) {
                     respMessage = "404 Not Found";
                     System.out.println("File not Found");

@@ -70,42 +70,12 @@ public class HTTPInput extends HashMap<String, String> {
         return postDataBuffer == null ? null : postDataBuffer.toString();
     }
     /**
+     * TODO: implement
      * Warning: Jenkiest code ever plz expect it to break.
      * gets post data
      * @return post data
      */
-    public PostData[] getActualPostData() {
-        String data = getRawPostData();
-        if (data == null) {
-            return null;
-        }
-        if (!containsKey("Content-Type")) {
-            return null;
-        }
-        if(get("Content-Type").toLowerCase().startsWith("application/json")){
-            return new PostData[]{new PostData(getRawPostData(),"json")};
-        }
-        String WKBound = get("Content-Type").split("boundary=")[1];
-        String[] ret = data.split(WKBound);
-        ArrayList<PostData> retl = new ArrayList<>();
-        try {
-            for (int i = 0; i < ret.length; i++) {
-                if (ret[i].startsWith("-")) {
-                    continue;
-                }
-                String g = ret[i].split("(\r?)\n(\r?)\n")[0];
-                String DataType = ret[i].substring(ret[i].indexOf(g), ret[i].indexOf(g) + g.length());
-                ret[i] = ret[i].substring(ret[i].indexOf(g) + g.length()).trim();
-                g = DataType.split("; name=\"")[1];
-                DataType = DataType.substring(DataType.indexOf(g), DataType.length() - 1);
-                retl.add(new PostData(ret[i].substring(0, ret[i].length() - 2), DataType));
-            }
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
-            return null;
-        }
-        return retl.toArray(new PostData[retl.size()]);
-    }
+    //public PostData[] getActualPostData() {}
 
     /**
      *

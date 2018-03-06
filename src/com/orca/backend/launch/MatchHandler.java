@@ -10,7 +10,7 @@ public class MatchHandler {
     public MatchHandler(DatabaseConnection c) {
         connection = c;
     }
-    public boolean submitNewMatch(JSONObj obj){
+    public boolean submitNewMatch(JSONObj obj){//TODO Implement
         return false;
     }
     public static JSONObj matchToJSON(ResultSet rs, boolean gameStats, boolean submitBy) throws SQLException{

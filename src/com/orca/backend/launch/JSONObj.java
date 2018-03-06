@@ -6,6 +6,7 @@
 package com.orca.backend.launch;
 
 import com.orca.backend.server.LCHashMap;
+import com.orca.backend.server.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -35,9 +36,9 @@ public class JSONObj extends JSONObject {
             });
         } catch (IOException e) {
             System.err.println("Error reading files from disk. abort");
-            e.printStackTrace();
+            e.printStackTrace(System.out);
         } catch (URISyntaxException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
         }
     }
 
@@ -98,5 +99,12 @@ public class JSONObj extends JSONObject {
         } catch (Throwable exception) {
             return false;
         }
+    }
+    public static JSONObj JSONForError(int ecode, Throwable t){
+        JSONObj j = new JSONObj();
+        j.put("errorcode", ecode);
+        //TODO: Add option for sending exception messages in Config file
+        j.put("exception", Utils.exceptionStackTraceToString(t));
+        return j;
     }
 }

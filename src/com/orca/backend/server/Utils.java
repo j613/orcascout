@@ -52,6 +52,7 @@ public final class Utils {
     public static String hashPassword(String salt, String password) {
         return BCrypt.hashpw(password, salt);
     }
+
     public static String genSalt() {
         return BCrypt.gensalt();
     }
@@ -60,5 +61,20 @@ public final class Utils {
         byte[] byts = new byte[size];
         rand.nextBytes(byts);
         return Base64.encode(byts).substring(0, size);
+    }
+
+    public static String exceptionStackTraceToString(Throwable t) {
+        StringBuilder buff = new StringBuilder(1024);
+        buff.append("Exception in thread \"")
+                .append(Thread.currentThread().getName())
+                .append("\" ")
+                .append(t.getClass().getName())
+                .append(": ")
+                .append(t.getMessage() == null ? "" : t.getMessage());
+        for (StackTraceElement s : t.getStackTrace()) {
+            buff.append("        at ")
+                    .append(s.toString());
+        }
+        return buff.toString();
     }
 }
