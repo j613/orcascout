@@ -1,7 +1,8 @@
 export interface PitTeam {
-    name: string;
-    number: number;
-    photo: string;
-    comments: string;
+    teamname: string;
+    teamnumber: number;
+    image: string;
+    notes: string;
     drivetrain: string;
+    regional: string;
 }

@@ -67,11 +67,11 @@ export class AuthService {
     // });
 
     // Actual HTTP request when backend is hosted.
-    return this.utils.craftHttpPost('login', { username: username, password: password }) // Login request
+    return this.utils.craftHttpPostUser('login', { username: username, password: password }) // Login request
               // TODO: the 2 template parameters are 'input' and 'expected return' types.
               .mergeMap<any, any>((res: HttpResponse<null>) => {
                 if (res.status === 204) { // If valid login, make request for userinfo
-                  return this.utils.craftHttpGet('getinfo');
+                  return this.utils.craftHttpGetUser('getinfo');
                 }
                 return Observable.of(false);
               })
@@ -108,7 +108,7 @@ export class AuthService {
       username: username,
       password: password
     };
-    return this.utils.craftHttpPost('create', user_data)
+    return this.utils.craftHttpPostUser('create', user_data)
                   .mergeMap((res: HttpResponse<null>) => {
                     if (res.status === 204) {
                       return Observable.of(true);
@@ -127,7 +127,7 @@ export class AuthService {
   }
 
   public logout() {
-    this.utils.craftHttpGet('logout').subscribe((val) => {
+    this.utils.craftHttpGetUser('logout').subscribe((val) => {
       console.log('User Logged Out');
     });
 

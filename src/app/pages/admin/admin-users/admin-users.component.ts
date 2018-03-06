@@ -30,7 +30,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   public denyUser(username: string) {
-    this.backend_update.dentPendingUser(username).subscribe((res: boolean) => {
+    this.backend_update.denyPendingUser(username).subscribe((res: boolean) => {
       console.log(res);
     });
     this.pending_users = this.pending_users.filter(user => user.username !== username);

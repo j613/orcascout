@@ -1,28 +1,28 @@
 <app-header [title]="title"></app-header>
 
 <div class="col-sm-10 offset-sm-1">
-    <form #pitForm="ngForm" (ngSubmit)="submitPit(); pitForm.reset();">
+    <form #pitForm="ngForm" (ngSubmit)="submitPit();">
         
         <div class="row">
             <div class="form-group col-sm-6">
                 <label for="team-name" class="col-form-label">Team Name</label>
-                <input type="text" id="team-name" class="form-control" required [(ngModel)]="team.name" name="name">
+                <input type="text" id="team-name" class="form-control" required [(ngModel)]="team.teamname" name="name">
             </div>
             <div class="form-group col-sm-6">
                 <label for="team-number" class="col-form-label">Team Number</label>
-                <input type="number" id="team-number" class="form-control" required [(ngModel)]="team.number" name="number" #teamnum="ngModel">
+                <input type="number" id="team-number" class="form-control" required [(ngModel)]="team.teamnumber" name="number" #teamnum="ngModel">
             </div>
         </div>
         <div class="form-group">
             <label for="team-photo" class="col-form-label">Team Photo</label>
-            <input type="file" id="team-photo" required (change)="updatePhotos($event)" name="photo"><br>
+            <input type="file" id="team-photo" required (change)="updatePhotos($event)" name="image"><br>
         </div>
-        <div *ngIf="team.photo" class="col-sm-12">
-            <img [src]="team.photo" />
+        <div *ngIf="team.image" class="col-sm-12">
+            <img [src]="team.image" />
         </div>
         <div class="form-group">
             <label for="comments" class="col-form-label">Comments</label>
-            <textarea id="comments" class="form-control" [(ngModel)]="team.comments" name="comments"></textarea>
+            <textarea id="comments" class="form-control" [(ngModel)]="team.notes" name="comments"></textarea>
         </div>
         <div class="form-group">
             <label for="drivetrain" class="col-form-label">Drivetrain</label>

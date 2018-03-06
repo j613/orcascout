@@ -3,7 +3,7 @@
     <!-- A sidebar -->
     <ng-sidebar [(opened)]="_opened" mode="slide" closeOnClickOutside="true" (onOpened)="_toggleSidebar(true)" (onClosed)="_toggleSidebar(false)">
       <div class="sidebar">
-        <ul *ngIf="auth.isLoggedIn; else loggedout">
+        <ul *ngIf="auth.isLoggedIn && auth.session.user.level.toLowerCase() !== 'limited'; else loggedout">
           <li *ngFor="let page of pages">
             <a [routerLink]="page.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ page.name }}</a>
           </li>

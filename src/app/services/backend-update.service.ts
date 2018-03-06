@@ -12,6 +12,7 @@ import { Team } from '../classes/team';
 import { Match } from '../classes/match';
 import { UtilsService } from './utils.service';
 import { User } from '../classes/user';
+import { PitTeam } from '../classes/pit-team';
 
 @Injectable()
 export class BackendUpdateService {
@@ -119,7 +120,7 @@ export class BackendUpdateService {
    */
 
   public getPendingUsers(): Observable<User[]> {
-    return this.utils.craftHttpGet('getpending')
+    return this.utils.craftHttpGetUser('getpending')
                     .mergeMap((res: HttpResponse<any>) => {
                       return Observable.of(res.body.users);
                     });
@@ -130,7 +131,7 @@ export class BackendUpdateService {
       username: username,
       userlevel: rank
     };
-    return this.utils.craftHttpPost('approve', data)
+    return this.utils.craftHttpPostUser('approve', data)
                     .mergeMap((res: HttpResponse<null>) => {
                       if (res.status === 204) {
                         return Observable.of(true);
@@ -139,12 +140,12 @@ export class BackendUpdateService {
                     });
   }
 
-  public dentPendingUser(username: string): Observable<boolean> {
+  public denyPendingUser(username: string): Observable<boolean> {
     const data = {
       username: username,
       userlevel: 'delete'
     };
-    return this.utils.craftHttpPost('approve', data)
+    return this.utils.craftHttpPostUser('approve', data)
                   .mergeMap((res: HttpResponse<null>) => {
                     if (res.status === 204) {
                       return Observable.of(true);
@@ -153,10 +154,23 @@ export class BackendUpdateService {
                   });
   }
 
-  public submitPitScout(data: any): void {
+  public submitPitScout(data: PitTeam): void {
     if (this.is_online) {
       // TODO: Finish implementation of backend.
-      this.utils.craftHttpPost('pitscout', data).subscribe((resp) => {});
+      this.utils.craftHttpPostPit('pitscout', data).mergeMap((res: HttpResponse<Object>) => {
+        if (res.status === 204) {
+          return Observable.of(true);
+        }
+        return Observable.of(false);
+      }).catch((res: HttpErrorResponse) => {
+        return Observable.of(false);
+      }).subscribe((val: boolean) => {
+        if (val) {
+          console.log('Submitted Success');
+        } else {
+          console.log('Submit Failed.');
+        }
+      });
     } else {
       this.addToBacklog({
         type: 'pitscout',
