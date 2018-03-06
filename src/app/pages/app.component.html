@@ -7,6 +7,9 @@
           <li *ngFor="let page of pages">
             <a [routerLink]="page.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ page.name }}</a>
           </li>
+          <li *ngIf="auth.session.user.level.toLowerCase() === 'admin'">
+            <a routerLink="admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Admin</a>
+          </li>
           <li>
             <a (click)="logout()">Logout - {{ auth.session.user.username }}</a>
           </li>

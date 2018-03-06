@@ -1,0 +1,18 @@
+<div class="col-sm-12">
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Username</th>
+      <th>Accept/Deny</th>
+    </tr>
+    <tr *ngFor="let user of pending_users">
+      <td>{{ user.firstname + " " + user.lastname }}</td>
+      <td>{{ user.username }}</td>
+      <td>
+        <button type="button" class="btn btn-success" (click)="acceptUser(user.username, 'regular')">Accept</button>
+        <button type="button" class="btn btn-success" (click)="acceptUser(user.username, 'admin')">Accept as Admin</button>
+        <button type="button" class="btn btn-danger" (click)="denyUser(user.username)">Deny</button>
+      </td>
+    </tr>
+  </table>
+</div>

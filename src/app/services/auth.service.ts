@@ -7,21 +7,16 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/finally';
 import { BackendUpdateService } from './backend-update.service';
 import { Router } from '@angular/router';
 import { UtilsService } from './utils.service';
 import { Regional, RegionalData } from '../classes/regional';
+import { User } from '../classes/user';
 
 interface Session {
   user: User;
   regional?: Regional;
-}
-
-interface User {
-  username: string;
-  firstname: string;
-  lastname: string;
-  level: string;
 }
 
 @Injectable()
@@ -48,57 +43,80 @@ export class AuthService {
   }
 
   public login(username: string, password: string, regional_id: string): Observable<boolean> {
-    if (this.isLoggedIn && this.session) {
-      return Observable.of(true);
-    }
+    // if (this.isLoggedIn && this.session) {
+    //   return Observable.of(true);
+    // }
 
     // TODO: Replace with actual request to backend server (below).
-    return Observable.of(true).delay(1000).do((val) => {
-      this.session = {
-        user: { username: username,
-                firstname: 'Zamboni',
-                lastname: 'Macaroni',
-                level: 'regular',
-              }
-      };
-      this.session.regional = {
-        key: regional_id.split('-')[0],
-        name: regional_id.split('-')[1]
-      };
-      this.refreshRegionalData();
-      this.saveSession();
-      document.cookie = 'AuthToken=SoMeToKeNlMaO; expires=' + new Date(Date.now() + (30 * 60 * 1000)).toUTCString();
-      this.isLoggedIn = val;
-    });
+    // return Observable.of(true).delay(1000).do((val) => {
+    //   this.session = {
+    //     user: { username: username,
+    //             firstname: 'Zamboni',
+    //             lastname: 'Macaroni',
+    //             level: 'regular',
+    //           }
+    //   };
+    //   this.session.regional = {
+    //     key: regional_id.split('-')[0],
+    //     name: regional_id.split('-')[1]
+    //   };
+    //   this.refreshRegionalData();
+    //   this.saveSession();
+    //   document.cookie = 'AuthToken=SoMeToKeNlMaO; expires=' + new Date(Date.now() + (30 * 60 * 1000)).toUTCString();
+    //   this.isLoggedIn = val;
+    // });
 
     // Actual HTTP request when backend is hosted.
-    // return this.utils.craftHttpPost('login', { username: username, password: password }) // Login request
-    //           .mergeMap((res: HttpResponse<null>) => {
-    //             if (res.status === 204) { // If valid login, make request for userinfo
-    //               return this.utils.craftHttpGet('getinfo');
-    //             }
-    //             return Observable.of(false);
-    //           })
-    //           .mergeMap((res: HttpResponse<User>) => {
-    //             if (res.status !== 200) {
-    //               return Observable.of(false);
-    //             }
-    //             this.isLoggedIn = true;
-    //             this.session = {
-    //               user: res.body
-    //             };
-    //             this.session.regional = {
-    //               key: regional_id.split('-')[0],
-    //               name: regional_id.split('-')[1]
-    //             };
-    //             this.refreshRegionalData();
-    //             this.backend_update.getRegionalData(this.session.regional.key).subscribe((reg: RegionalData) => {
-    //               this.session.regional.data = reg;
-    //               this.saveSession();
-    //             });
-    //             this.saveSession();
-    //             return Observable.of(true);
-    //           });
+    return this.utils.craftHttpPost('login', { username: username, password: password }) // Login request
+              // TODO: the 2 template parameters are 'input' and 'expected return' types.
+              .mergeMap<any, any>((res: HttpResponse<null>) => {
+                if (res.status === 204) { // If valid login, make request for userinfo
+                  return this.utils.craftHttpGet('getinfo');
+                }
+                return Observable.of(false);
+              })
+              .mergeMap((res: HttpResponse<User>|Boolean) => {
+                if (!res) {
+                  return Observable.of(false);
+                }
+                res = <HttpResponse<User>>res;
+                if (res.status !== 200) {
+                  return Observable.of(false);
+                }
+                this.isLoggedIn = true;
+                this.session = {
+                  user: res.body
+                };
+                this.session.regional = {
+                  key: regional_id.split('-')[0],
+                  name: regional_id.split('-')[1]
+                };
+                this.refreshRegionalData();
+                this.backend_update.getRegionalData(this.session.regional.key).subscribe((reg: RegionalData) => {
+                  this.session.regional.data = reg;
+                  this.saveSession();
+                });
+                this.saveSession();
+                return Observable.of(true);
+              });
+  }
+
+  public register(firstname: string, lastname: string, username: string, password: string): Observable<boolean> {
+    const user_data = {
+      firstname: firstname,
+      lastname: lastname,
+      username: username,
+      password: password
+    };
+    return this.utils.craftHttpPost('create', user_data)
+                  .mergeMap((res: HttpResponse<null>) => {
+                    if (res.status === 204) {
+                      return Observable.of(true);
+                    }
+                    return Observable.of(false);
+                  }).catch(() => {
+                    return Observable.of(false);
+                  });
   }
 
   public refreshRegionalData() {
@@ -109,10 +127,12 @@ export class AuthService {
   }
 
   public logout() {
+    this.utils.craftHttpGet('logout').subscribe((val) => {
+      console.log('User Logged Out');
+    });
+
     this.isLoggedIn = false;
     localStorage.removeItem('session');
-    document.cookie = 'AuthToken=; expires=' + new Date(0).toUTCString();
-    // this.utils.craftHttpGet('logout');
     this.router.navigate(['login']);
   }
 

@@ -9,10 +9,13 @@ import { EditMatchScoutingComponent } from './edit-match-scouting/edit-match-sco
 import { PitScoutingComponent } from './pit-scouting/pit-scouting.component';
 import { LoginComponent } from './login/login.component';
 import { MatchScheduleComponent } from './match-schedule/match-schedule.component';
+import { RegisterComponent } from './register/register.component';
+import { AdminComponent } from './admin/admin.component';
 
 const appRoutes: Routes = [
     { path: '', component: HomeComponent },
     { path: 'login', component: LoginComponent},
+    { path: 'register', component: RegisterComponent},
     {
         path: '',
         canLoad: [AuthGuard],
@@ -29,9 +32,7 @@ const appRoutes: Routes = [
 
 @NgModule({
     imports: [
-        RouterModule.forRoot(
-            appRoutes
-        )
+        RouterModule.forRoot(appRoutes)
     ],
     exports: [
         RouterModule

@@ -10,6 +10,8 @@ import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/observable/forkJoin';
 import { Team } from '../classes/team';
 import { Match } from '../classes/match';
+import { UtilsService } from './utils.service';
+import { User } from '../classes/user';
 
 @Injectable()
 export class BackendUpdateService {
@@ -27,7 +29,7 @@ export class BackendUpdateService {
   // }
 
   // TODO: All backlog functions need some serious testing both online and specifically offline.
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private utils: UtilsService) {
     window.addEventListener('online', () => {
       this.is_online = true;
       this.publishBacklog();
@@ -104,26 +106,6 @@ export class BackendUpdateService {
 
   private sortReg(a: Match, b: Match): number {
     return a.time > b.time ? 1 : b.time > a.time ? -1 : 0;
-    // if (a.comp_level === b.comp_level) { // qm < qf < sf < f
-    //   return a.match_number > b.match_number ? 1 : -1;
-    // }
-    // if (a.comp_level === 'f') { // b will be anything other than f
-    //   return 1;
-    // } else if (b.comp_level === 'f') {
-    //   return -1;
-    // }
-
-    // if (a.comp_level === 'sf') {
-    //   return 1;
-    // } else if (b.comp_level === 'sf') {
-    //   return -1;
-    // }
-
-    // if (a.comp_level === 'qf') {
-    //   return 1;
-    // } else if (b.comp_level === 'qf') {
-    //   return -1;
-    // }
   }
 
 
@@ -136,15 +118,45 @@ export class BackendUpdateService {
    *
    */
 
-  private craftBackendRequest(endpoint: string, data: any): Observable<HttpResponse<Object>> {
-    const headers = new HttpHeaders({});
-    return this.http.post(this.url_endpoint + endpoint, headers, {observe: 'response'});
+  public getPendingUsers(): Observable<User[]> {
+    return this.utils.craftHttpGet('getpending')
+                    .mergeMap((res: HttpResponse<any>) => {
+                      return Observable.of(res.body.users);
+                    });
+  }
+
+  public acceptPendingUser(username: string, rank: string): Observable<boolean> {
+    const data = {
+      username: username,
+      userlevel: rank
+    };
+    return this.utils.craftHttpPost('approve', data)
+                    .mergeMap((res: HttpResponse<null>) => {
+                      if (res.status === 204) {
+                        return Observable.of(true);
+                      }
+                      return Observable.of(false);
+                    });
+  }
+
+  public dentPendingUser(username: string): Observable<boolean> {
+    const data = {
+      username: username,
+      userlevel: 'delete'
+    };
+    return this.utils.craftHttpPost('approve', data)
+                  .mergeMap((res: HttpResponse<null>) => {
+                    if (res.status === 204) {
+                      return Observable.of(true);
+                    }
+                    return Observable.of(false);
+                  });
   }
 
   public submitPitScout(data: any): void {
     if (this.is_online) {
       // TODO: Finish implementation of backend.
-      this.craftBackendRequest('pitscout', data).subscribe((resp) => {});
+      this.utils.craftHttpPost('pitscout', data).subscribe((resp) => {});
     } else {
       this.addToBacklog({
         type: 'pitscout',
@@ -186,6 +198,15 @@ export class BackendUpdateService {
       this.updateLocalStorage();
     }
   }
+
+
+
+
+
+
+
+
+
 
   private updateLocalStorage(): void {
     localStorage.setItem('offline-backlog', JSON.stringify(this.backlog));

@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 // Modules
 import { SidebarModule } from 'ng-sidebar';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { AdminRoutingModule } from './pages/admin/admin-routing.module';
 import { AppRoutingModule } from './pages/app-routing.module';
 // Services
 import { BackendUpdateService } from './services/backend-update.service';
@@ -22,6 +23,9 @@ import { PitScoutingComponent } from './pages/pit-scouting/pit-scouting.componen
 import { LoginComponent } from './pages/login/login.component';
 import { UtilsService } from './services/utils.service';
 import { MatchScheduleComponent } from './pages/match-schedule/match-schedule.component';
+import { RegisterComponent } from './pages/register/register.component';
+import { AdminComponent } from './pages/admin/admin.component';
+import { AdminUsersComponent } from './pages/admin/admin-users/admin-users.component';
 
 @NgModule({
   imports: [
@@ -29,6 +33,7 @@ import { MatchScheduleComponent } from './pages/match-schedule/match-schedule.co
     SidebarModule.forRoot(),
     AngularFontAwesomeModule,
     FormsModule,
+    AdminRoutingModule,
     AppRoutingModule,
     HttpClientModule
   ],
@@ -40,7 +45,10 @@ import { MatchScheduleComponent } from './pages/match-schedule/match-schedule.co
     HeaderComponent,
     PitScoutingComponent,
     LoginComponent,
-    MatchScheduleComponent
+    MatchScheduleComponent,
+    RegisterComponent,
+    AdminComponent,
+    AdminUsersComponent
   ],
   providers: [
     BackendUpdateService,

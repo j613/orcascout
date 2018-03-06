@@ -1,0 +1,32 @@
+<app-header [title]="title"></app-header>
+
+<div class="offset-sm-2 col-sm-8">
+    <div *ngIf="message" class="alert alert-danger" role="alert">
+        {{ message }}
+    </div>
+    <form #registerForm="ngForm" (ngSubmit)="register(); registerForm.reset();">
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label for="firstname" class="col-form-label">First Name</label>
+                <input type="text" id="firstname" class="form-control" required [(ngModel)]="register_fields.firstname" name="firstname" >
+            </div>
+            <div class="form-group col-sm-6">
+              <label for="lastname" class="col-form-label">Last Name</label>
+              <input type="text" id="lastname" class="form-control" required [(ngModel)]="register_fields.lastname" name="lastname" >
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label for="username" class="col-form-label">Username</label>
+                <input type="text" id="username" class="form-control" required [(ngModel)]="register_fields.username" name="username">
+            </div>
+            <div class="form-group col-sm-6">
+                <label for="password" class="col-form-label">Password</label>
+                <input type="password" id="password" class="form-control" required minlength="8" [(ngModel)]="register_fields.password" name="password">
+            </div>
+        </div>
+        <div class="col-sm-12 text-center">
+            <button type="submit" class="btn btn-primary" [disabled]="!registerForm.valid">Submit</button>
+        </div>
+    </form>
+</div>
