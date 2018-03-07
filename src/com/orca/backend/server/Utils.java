@@ -1,26 +1,12 @@
 package com.orca.backend.server;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import org.mindrot.jbcrypt.BCrypt;
 
 public final class Utils {
@@ -36,10 +22,7 @@ public final class Utils {
      * @return the date time in HTTP format
      */
     public static String getHTTPDate() {
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return dateFormat.format(calendar.getTime());
+        return getHTTPDate(0);
     }
 
     public static String getHTTPDate(long millisAdd) {
@@ -47,6 +30,15 @@ public final class Utils {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         return dateFormat.format(new Date(calendar.getTimeInMillis() + millisAdd));
+    }
+
+    /**
+     * Get This!
+     *
+     * @return This!
+     */
+    public Utils getThis() {
+        return this;
     }
 
     public static String hashPassword(String salt, String password) {

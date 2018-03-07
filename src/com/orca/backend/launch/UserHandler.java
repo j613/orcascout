@@ -7,8 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.json.JSONArray;
 
 public class UserHandler {
@@ -181,7 +179,7 @@ public class UserHandler {
             newUser.setString(7, passwordSalt);
             return !newUser.execute();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
             return false;
         }
     }
@@ -220,7 +218,7 @@ public class UserHandler {
             }
             return !exec.execute();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
             return false;
         }
     }

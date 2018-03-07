@@ -15,7 +15,6 @@ import java.util.HashMap;
 public class HTTPInput extends HashMap<String, String> {
 
     private boolean inReadRawDataMode = false;
-    private String escapeSequence = null; // String that marks the start / end of POST Data
     private HashMap<String, String> phpArgs = new HashMap<>();
     /*
 	 * List of Error codes:
@@ -69,6 +68,7 @@ public class HTTPInput extends HashMap<String, String> {
     public String getRawPostData() {
         return postDataBuffer == null ? null : postDataBuffer.toString();
     }
+    
     /**
      * TODO: implement
      * Warning: Jenkiest code ever plz expect it to break.

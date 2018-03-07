@@ -29,6 +29,9 @@ public class User {
     public User(int ID, String username, String token, String userLevel, String firstname, String lastname) {
         this(ID, username, token, UserLevel.valueOf(userLevel.toUpperCase()), firstname, lastname);
     }
+    public static long userTimeoutMillis(){
+        return Integer.parseInt(Prefs.getString("user_expire_time","259200000"));
+    }
 
     public String getFirstname() {
         return firstname;
@@ -65,7 +68,7 @@ public class User {
     }
 
     public boolean shouldLogout() {
-        return System.currentTimeMillis() - loginTime > 259200000;
+        return System.currentTimeMillis() - loginTime > userTimeoutMillis();
     }
 
     public String getCurrentRegionalId() {
