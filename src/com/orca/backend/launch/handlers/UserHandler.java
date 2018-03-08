@@ -1,5 +1,8 @@
-package com.orca.backend.launch;
+package com.orca.backend.launch.handlers;
 
+import com.orca.backend.launch.JSONObj;
+import com.orca.backend.launch.OrcascoutHandler;
+import com.orca.backend.launch.User;
 import com.orca.backend.launch.User.UserLevel;
 import com.orca.backend.server.Utils;
 import com.orca.backend.sql.DatabaseConnection;
@@ -12,7 +15,6 @@ import org.json.JSONArray;
 public class UserHandler {
 
     private final ArrayList<User> users = new ArrayList<>();
-    //TODO: Implement SSL
     private final DatabaseConnection connection;
 
     public UserHandler(DatabaseConnection c) {
@@ -71,14 +73,17 @@ public class UserHandler {
      * 0: No Error
      * 1: Comp ID doesn't exist
      * 2: SQL Error
+     * 3: user doesn't exist
      */
     public int setCompIDByToken(String token, String compid) {
-        try {
-            PreparedStatement ps = connection.prepareStatement("select * from COMPETITIONS where COMP_ID = ?");
-            return ps.executeQuery().next()?1:0;
-        } catch (SQLException ex) {
-            ex.printStackTrace(System.out);
-            return 2;
+        int exec = OrcascoutHandler.compHandler.compExists(compid);
+        if(exec==0){
+            User u = getUserByToken(token);
+            if(u==null)return 3;
+            u.setCurrentRegionalId(compid);
+            return 0;
+        }else{
+            return exec;
         }
     }
 

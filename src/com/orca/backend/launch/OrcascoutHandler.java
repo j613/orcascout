@@ -1,5 +1,9 @@
 package com.orca.backend.launch;
 
+import com.orca.backend.launch.handlers.CompetitionHandler;
+import com.orca.backend.launch.handlers.MatchHandler;
+import com.orca.backend.launch.handlers.PitScoutHandler;
+import com.orca.backend.launch.handlers.UserHandler;
 import com.orca.backend.server.HTTPInput;
 import com.orca.backend.server.InputHandler;
 import com.orca.backend.server.LCHashMap;
@@ -17,9 +21,9 @@ import java.util.HashSet;
 
 public class OrcascoutHandler implements InputHandler {
     
-    final DatabaseConnection connection;
+    private static final DatabaseConnection connection;
     
-    {
+    static{
         String SqlUrl = "jdbc:mysql://" + Prefs.getString("sql_url", "localhost") + ":"
                 + Prefs.getInt("sql_port", 2206) + "/"
                 + Prefs.getString("sql_database", "orcascout") + "?"
@@ -30,9 +34,10 @@ public class OrcascoutHandler implements InputHandler {
             System.exit(1);
         }
     }
-    final UserHandler userHandler = new UserHandler(connection);
-    final MatchHandler matchHandler = new MatchHandler(connection);
-    final PitScoutHandler teamHandler = new PitScoutHandler(connection);
+    public static final UserHandler userHandler = new UserHandler(connection);
+    public static final MatchHandler matchHandler = new MatchHandler(connection);
+    public static final PitScoutHandler teamHandler = new PitScoutHandler(connection);
+    public static final CompetitionHandler compHandler = new CompetitionHandler(connection);
     private static final LCHashMap<ResponseFile> memCachedFiles = new LCHashMap<>();
     
     static {

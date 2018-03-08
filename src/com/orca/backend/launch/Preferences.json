@@ -1,10 +1,10 @@
 {
-    "host_port":"80",
+    "host_port":80,
     "host_bind_ip":"0.0.0.0",
     "host_connection_backlog":50,
-    "server_name":"Orca/NaN",
-    "server_threadpool_size":0,
     "host_domain":"localhost",
+    "server_name":"Orca/NaN",
+    "server_threadpool_size":10,
     "server_socket_timeout":0,
     "user_expire_time":259200000,
     "sql_url":"localhost",

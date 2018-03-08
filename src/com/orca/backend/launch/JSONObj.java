@@ -23,7 +23,7 @@ public class JSONObj extends JSONObject {
 
     static {
         try {
-            Path p = new File(UserHandler.class.getResource("/com/orca/backend/templates/").toURI()).toPath();
+            Path p = new File(JSONObj.class.getResource("/com/orca/backend/templates/").toURI()).toPath();
             Files.walk(p).forEach(n -> {
                 if (!n.toFile().isDirectory()) {
                     try {
