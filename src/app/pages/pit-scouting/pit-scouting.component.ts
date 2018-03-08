@@ -16,8 +16,7 @@ export class PitScoutingComponent {
     teamnumber: null,
     image: null,
     notes: null,
-    drivetrain: 'Six Wheel',
-    regional: this.auth.session.regional.key
+    drivetrain: 'Six Wheel'
   };
 
   private fr = new FileReader();

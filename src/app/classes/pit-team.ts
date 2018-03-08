@@ -4,5 +4,4 @@ export interface PitTeam {
     image: string;
     notes: string;
     drivetrain: string;
-    regional: string;
 }

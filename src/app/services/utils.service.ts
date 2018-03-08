@@ -30,7 +30,7 @@ export class UtilsService {
   }
 
   public craftHttpPostPit(endpoint: string, data: Object) {
-    return this.http.post(this.url_endpoint + 'submitTeam?method=' + endpoint, data, {observe: 'response', withCredentials: true});
+    return this.http.post(this.url_endpoint + 'submitPit?method=' + endpoint, data, {observe: 'response', withCredentials: true});
   }
 
   public craftHttpPostUser(endpoint: string, data: Object): Observable<HttpResponse<Object>> {

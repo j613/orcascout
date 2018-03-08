@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
@@ -92,12 +92,15 @@ export class AuthService {
                   name: regional_id.split('-')[1]
                 };
                 this.refreshRegionalData();
-                this.backend_update.getRegionalData(this.session.regional.key).subscribe((reg: RegionalData) => {
-                  this.session.regional.data = reg;
-                  this.saveSession();
-                });
                 this.saveSession();
                 return Observable.of(true);
+              }).catch((res: HttpErrorResponse) => {
+                if (res.status === 401) {
+                  console.log('Error logging in.');
+                  this.logout();
+                  return Observable.of(false);
+                }
+                return Observable.of(false);
               });
   }
 
@@ -114,16 +117,52 @@ export class AuthService {
                       return Observable.of(true);
                     }
                     return Observable.of(false);
-                  }).catch(() => {
+                  }).catch((res: HttpErrorResponse) => {
+                    if (res.status === 401) {
+                      return Observable.of(false);
+                    }
                     return Observable.of(false);
                   });
   }
 
+  private setRegionalBackend() {
+    this.utils.craftHttpPostUser('setcomp', {comp_id: this.session.regional.key})
+              .mergeMap((res: HttpResponse<null>) => {
+                if (res.status === 204) {
+                  return Observable.of(true);
+                } else {
+                  return Observable.of(false);
+                }
+              }).catch((res: HttpErrorResponse) => {
+                if (res.status === 400) {
+                  switch (res.headers.get('X-Error-Code')) {
+                    case '1':
+                      console.log('Competition doesnt exist in DB');
+                      break;
+                    case '2':
+                      console.log('SQL Error');
+                      break;
+                  }
+                }
+                // TODO: Uncomment below line when set competition endpoint is made
+                // this.logout();
+                return Observable.of(false);
+              }).subscribe((res: boolean) => {
+                if (res) {
+                  console.log('Set regional in the backend.');
+                } else {
+                  console.log('Error setting backend regional');
+                }
+              });
+  }
+
   public refreshRegionalData() {
-    this.backend_update.getRegionalData(this.session.regional.key).subscribe((reg: RegionalData) => {
-      this.session.regional.data = reg;
-      this.saveSession();
-    });
+    this.backend_update.getRegionalData(this.session.regional.key)
+                      .subscribe((reg: RegionalData) => {
+                        this.session.regional.data = reg;
+                        this.setRegionalBackend();
+                        this.saveSession();
+                      });
   }
 
   public logout() {

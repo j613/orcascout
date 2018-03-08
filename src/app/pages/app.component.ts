@@ -10,21 +10,21 @@ import { AuthService } from './../services/auth.service';
   styleUrls: ['./app.component.less']
 })
 export class AppComponent implements OnInit {
-  public _opened = false;
+  public _opened = true;
   public _show_backdrop = true;
   public _current_icon: string;
   public pages: Page[] = [
-    { name: 'Home', path: ''},
-    { name: 'Match Scouting', path: 'match-scouting' },
-    { name: 'Edit Match Scouting', path: 'edit-match-scouting' },
-    { name: 'Pit Scouting', path: 'pit-scouting' },
-    { name: 'Graph', path: 'graph' },
-    { name: 'List', path: 'list' },
-    { name: 'Coach', path: 'coach' },
-    { name: 'Match Schedule', path: 'match-schedule' },
-    { name: 'Notes', path: 'notes' },
-    { name: 'Alliance Selection', path: 'alliance-selection' },
-    { name: 'Settings', path: 'settings' }
+    { name: 'Home', path: '', hide_ltd: false },
+    { name: 'Match Scouting', path: 'match-scouting', hide_ltd: true },
+    { name: 'Edit Match Scouting', path: 'edit-match-scouting', hide_ltd: true },
+    { name: 'Pit Scouting', path: 'pit-scouting', hide_ltd: true },
+    { name: 'Graph', path: 'graph', hide_ltd: true },
+    { name: 'List', path: 'list', hide_ltd: true },
+    { name: 'Coach', path: 'coach', hide_ltd: true },
+    { name: 'Match Schedule', path: 'match-schedule', hide_ltd: true },
+    { name: 'Notes', path: 'notes', hide_ltd: true },
+    { name: 'Alliance Selection', path: 'alliance-selection', hide_ltd: true },
+    { name: 'Settings', path: 'settings', hide_ltd: false }
   ];
 
   // TODO: Implement methods to access backend_update and auth from the HTML instead of making them public
@@ -37,6 +37,13 @@ export class AppComponent implements OnInit {
   public _toggleSidebar(o: boolean = !this._opened) {
     this._opened = o;
     this._current_icon = this._opened ? 'angle-left' : 'angle-right';
+  }
+
+  public getPages() {
+    if (this.auth.session.user.level.toLowerCase() === 'limited') {
+      return this.pages.filter((page) => !page.hide_ltd);
+    }
+    return this.pages;
   }
 
   public logout() {

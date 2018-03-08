@@ -156,8 +156,7 @@ export class BackendUpdateService {
 
   public submitPitScout(data: PitTeam): void {
     if (this.is_online) {
-      // TODO: Finish implementation of backend.
-      this.utils.craftHttpPostPit('pitscout', data).mergeMap((res: HttpResponse<Object>) => {
+      this.utils.craftHttpPostPit('create', data).mergeMap((res: HttpResponse<Object>) => {
         if (res.status === 204) {
           return Observable.of(true);
         }

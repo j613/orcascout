@@ -1,9 +1,11 @@
 <app-header [title]="title"></app-header>
 
 <div class="col-sm-12 text-center">
-    <a routerLink="./users"><button type="button" class="btn btn-primary">Pending Users</button></a>
-    <a routerLink="./other"><button type="button" class="btn btn-primary">I Dunno</button></a>
-    <a routerLink="./users"><button type="button" class="btn btn-primary">I Really Dunno</button></a>
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <a routerLink="./users" routerLinkActive="active" class="btn btn-primary" role="button">Pending Users</a>
+        <a routerLink="./other" routerLinkActive="active" class="btn btn-primary" role="button">I Dunno</a>
+        <a routerLink="./other" routerLinkActive="active" class="btn btn-primary" role="button">I Really Dunno</a>
+    </div>
 </div>
 <br>
 <router-outlet></router-outlet>

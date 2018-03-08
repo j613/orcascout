@@ -14,8 +14,12 @@ export class AuthGuard implements CanActivate, CanLoad {
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
     console.log('CanActivate Called');
+
     if (this.canView()) {
       return true;
+    } else if (this.auth.session.user.level.toLowerCase() === 'limited') {
+      this.router.navigate(['limited']);
+      return false;
     }
 
     console.log('Login not verified, forwarding to login page.');
@@ -24,6 +28,6 @@ export class AuthGuard implements CanActivate, CanLoad {
   }
 
   canLoad(route: Route) {
-    return this.canView();
+    return this.canView() && this.auth.session.user.level.toLowerCase() !== 'limited';
   }
 }

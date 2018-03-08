@@ -1,5 +1,5 @@
 export interface Page {
     name: string;
     path: string;
-    title?: string;
+    hide_ltd: boolean;
 }
