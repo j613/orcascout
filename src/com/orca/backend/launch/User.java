@@ -30,7 +30,7 @@ public class User {
         this(ID, username, token, UserLevel.valueOf(userLevel.toUpperCase()), firstname, lastname);
     }
     public static long userTimeoutMillis(){
-        return Integer.parseInt(Prefs.getString("user_expire_time","259200000"));
+        return Prefs.getInt("user_expire_time", 259200000);
     }
 
     public String getFirstname() {

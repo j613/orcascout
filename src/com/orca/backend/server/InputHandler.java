@@ -6,6 +6,8 @@ import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Set;
 
+import com.orca.backend.launch.Prefs;
+
 public interface InputHandler {
 
     public default void sendFile(ResponseFile file, String responseMessage, HashMap<String, String> args,
@@ -13,7 +15,11 @@ public interface InputHandler {
         //outWriter = new BufferedWriter(new OutputStreamWriter(System.out));
         outWriter.write("HTTP/1.1 " + responseMessage + "\r\n");
         outWriter.write("Date: " + Utils.getHTTPDate() + "\r\n");
-            outWriter.write("Content-Length: " + (file==null?0:file.getFileLength()) + "\r\n");
+        outWriter.write("Content-Length: " + (file==null?0:file.getFileLength()) + "\r\n");
+        outWriter.write("Access-Control-Allow-Origin: " + Prefs.getString("host_domain", "localhost") + "\r\n");
+        outWriter.write("Access-Control-Expose-Headers: X-Error-Code\r\n");
+        outWriter.write("Access-Control-Allow-Headers: Content-Type\r\n");
+        outWriter.write("Access-Control-Allow-Credentials: true\r\n");
         if (file != null) {
             outWriter.write("Content-Type: " + file.getContentType() + "\r\n");
             outWriter.write("Content-Encoding: identity\r\n");

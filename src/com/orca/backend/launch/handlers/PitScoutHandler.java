@@ -58,8 +58,8 @@ public class PitScoutHandler {
             return 5;
         }
         try {
-            PreparedStatement ps = connection.prepareStatement("select * from PITS where TEAM_NUMBER = ?, REGIONAL_ID = ?");
-            ps.setString(1, obj.getString("teamnumber"));
+            PreparedStatement ps = connection.prepareStatement("select * from PITS where TEAM_NUMBER = ? and REGIONAL_ID = ?");
+            ps.setInt(1, obj.getInt("teamnumber"));
             ps.setString(2, u.getCurrentRegionalId());
             if(ps.executeQuery().next()){
                 return 4;
@@ -68,7 +68,7 @@ public class PitScoutHandler {
                     + "(TEAM_NAME, TEAM_NUMBER, REGIONAL_ID, IMAGE, NOTES, SUBMIT_BY, DRIVETRAIN_STYLE)"
                     + " values(?,?,?,?,?,?,?)");
             ps.setString(1, obj.getString("teamname"));
-            ps.setString(2, obj.getString("teamnumber"));
+            ps.setInt(2, obj.getInt("teamnumber"));
             ps.setString(3, u.getCurrentRegionalId());
             ps.setString(4, obj.getString("image"));
             ps.setString(5, obj.getString("notes"));
