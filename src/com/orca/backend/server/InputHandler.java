@@ -46,7 +46,6 @@ public interface InputHandler {
      * @param in
      * @param out
      * @return true if should close socket
-     * @throws IOException
      */
     public boolean handleRequest(HTTPInput in, BufferedWriter out);
 

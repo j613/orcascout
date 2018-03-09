@@ -20,12 +20,10 @@ public class Prefs {
             JSONObj prefsObj = new JSONObj(new String(
                     Files.readAllBytes(new File(Prefs.class.getResource("/com/orca/backend/launch/Preferences.json")
                             .toURI()).toPath())));
-            for (String k : prefsObj.keySet()) {
+            prefsObj.keySet().forEach(k -> {
                 prefs.put(k.toLowerCase(), prefsObj.get(k));
-            }
-        } catch (URISyntaxException ex) {
-            ex.printStackTrace(System.out);
-        } catch (IOException ex) {
+            });
+        } catch (URISyntaxException | IOException ex) {
             ex.printStackTrace(System.out);
         }
     }

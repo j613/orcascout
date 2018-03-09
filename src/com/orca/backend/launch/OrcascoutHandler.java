@@ -20,10 +20,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class OrcascoutHandler implements InputHandler {
-    
+
     private static final DatabaseConnection connection;
-    
-    static{
+
+    static {
         String SqlUrl = "jdbc:mysql://" + Prefs.getString("sql_url", "localhost") + ":"
                 + Prefs.getInt("sql_port", 2206) + "/"
                 + Prefs.getString("sql_database", "orcascout") + "?"
@@ -39,7 +39,7 @@ public class OrcascoutHandler implements InputHandler {
     public static final PitScoutHandler teamHandler = new PitScoutHandler(connection);
     public static final CompetitionHandler compHandler = new CompetitionHandler(connection);
     private static final LCHashMap<ResponseFile> memCachedFiles = new LCHashMap<>();
-    
+
     static {
         try {
             Path p = new File(OrcascoutHandler.class.getResource("/frontend/").toURI()).toPath();//TODO CHANGE WHEN JARRING
@@ -61,11 +61,11 @@ public class OrcascoutHandler implements InputHandler {
             ex.printStackTrace(System.out);
         }
     }
-    
+
     private ResponseFile getCachedFile(String f) {
         return memCachedFiles.get(f);
     }
-    
+
     private boolean shouldCloseConnectionErrorCode(int code) {
         return code > 0;
     }
@@ -80,7 +80,7 @@ public class OrcascoutHandler implements InputHandler {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
             return true;
         }
-        
+
         HashSet<String> cokies = new HashSet<>();
         HashMap<String, String> args = new HashMap<>();
         String token = in.getCookie("AuthToken");
@@ -183,15 +183,15 @@ public class OrcascoutHandler implements InputHandler {
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
     }
-    
+
     public boolean handleUserOptions(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
             return true;
         }
         HashMap<String, String> args = new HashMap<>();
-        args.put("Access-Control-Allow-Origin", "*");
-        args.put("Access-Control-Expose-Headers", "X-Error-Code");
+        args.put("Access-Control-Allow-Origin", Prefs.getString("host_domain") + ", *");
+        args.put("Access-Control-Expose-Headers", "X-Error-Code, Content-Length, Cookie, Origin");
         args.put("Access-Control-Allow-Credentials", "true");
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "login":
@@ -215,7 +215,7 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
         }
     }
-    
+
     private boolean handlePitScout(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
@@ -256,15 +256,15 @@ public class OrcascoutHandler implements InputHandler {
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
     }
-    
+
     public boolean handlePitOptions(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
             return true;
         }
         HashMap<String, String> args = new HashMap<>();
-        args.put("Access-Control-Allow-Origin", "*");
-        args.put("Access-Control-Expose-Headers", "X-Error-Code");
+        args.put("Access-Control-Allow-Origin", Prefs.getString("host_domain") + ", *");
+        args.put("Access-Control-Expose-Headers", "X-Error-Code, Content-Length, Cookie, Origin");
         args.put("Access-Control-Allow-Credentials", "true");
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "create":
@@ -280,7 +280,63 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
         }
     }
-    
+
+    private boolean handleComp(HTTPInput in, BufferedWriter out) throws IOException {
+        if (!in.getPhpArgs().containsKey("method")) {
+            sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
+            return true;
+        }
+        HashSet<String> cokies = new HashSet<>();
+        String token = in.getCookie("AuthToken");
+        if (token == null || !userHandler.isLoggedIn(token)) {
+            sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
+            return false;
+        }
+        User user = userHandler.getUserByToken(token);
+        JSONObj obj;
+        HashMap<String, String> args = new HashMap<>();
+        int exec;
+        String execs;
+        switch (in.getPhpArgs().get("method").toLowerCase()) {
+            case "getcomps":
+                obj = compHandler.getComps();
+                exec = obj.optInt("error", 0);
+                if(exec!=0){
+                    args.put("X-Error-Code", "" + exec);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
+                }else{
+                    sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "204 No Content", null, out, null);
+                }
+                return false;
+        }
+        sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
+        return false;
+    }
+
+    public boolean handleCompOptions(HTTPInput in, BufferedWriter out) throws IOException {
+        if (!in.getPhpArgs().containsKey("method")) {
+            sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
+            return true;
+        }
+        HashMap<String, String> args = new HashMap<>();
+        args.put("Access-Control-Allow-Origin", Prefs.getString("host_domain") + ", *");
+        args.put("Access-Control-Expose-Headers", "X-Error-Code, Content-Length, Cookie, Origin");
+        args.put("Access-Control-Allow-Credentials", "true");
+        switch (in.getPhpArgs().get("method").toLowerCase()) {
+            case "CHANGELATER":
+                args.put("Access-Control-Allow-Methods", "POST");
+                sendFile(null, "200 OK", args, out, null);
+                return false; //TODO: MAYBE CHANGE CUZ CLOSE CONNECTION?
+            case "getcomps":
+                args.put("Access-Control-Allow-Methods", "GET");
+                sendFile(null, "200 OK", args, out, null);
+                return false;
+            default:
+                sendFile(memCachedFiles.get("/400error.html"), "400 Bad Request", null, out, null);
+                return false;
+        }
+    }
+
     @Override
     public boolean handleRequest(HTTPInput in, BufferedWriter out) {
         try {
@@ -309,6 +365,11 @@ public class OrcascoutHandler implements InputHandler {
                         return handleUserOptions(in, out);
                     }
                     return handleUser(in, out);
+                } else if (in.getRequestedFile().equalsIgnoreCase("/submitComp")) {
+                    if (in.get("method").equalsIgnoreCase("OPTIONS")) {
+                        return handleCompOptions(in, out);
+                    }
+                    return handleComp(in, out);
                 } else if (in.getRequestedFile().equalsIgnoreCase("/submitPit")) {
                     if (in.get("method").equalsIgnoreCase("OPTIONS")) {
                         return handlePitOptions(in, out);
@@ -329,7 +390,7 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile = getCachedFile(in.getRequestedFile());
                 }
             }
-            
+
             System.out.println("SENDING FILE");
             sendFile(sendFile, respMessage, null, out, null);
             System.out.println("File Sent");

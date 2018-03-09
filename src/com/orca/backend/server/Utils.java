@@ -1,5 +1,6 @@
 package com.orca.backend.server;
 
+import com.orca.backend.launch.JSONObj;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -68,5 +69,8 @@ public final class Utils {
                     .append(s.toString());
         }
         return buff.toString();
+    }
+    public static JSONObj errorJson(int errorCode){
+        return new JSONObj("{\"error\":"+errorCode+"}");
     }
 }

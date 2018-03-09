@@ -12,5 +12,7 @@
     "sql_database":"orcascout",
     "sql_args":"useSSL=false",
     "sql_username":"root",
-    "sql_password":"NONO"
+    "sql_password":"NONO",
+    
+    "debug_send_access_endpoint_all_requests":true
 }
