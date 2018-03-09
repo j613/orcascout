@@ -295,13 +295,22 @@ public class OrcascoutHandler implements InputHandler {
             case "getcomps":
                 obj = compHandler.getComps();
                 exec = obj.optInt("error", 0);
-                if(exec!=0){
+                if (exec != 0) {
                     args.put("X-Error-Code", "" + exec);
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
-                }else{
+                } else {
                     sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "204 No Content", null, out, null);
                 }
                 return false;
+            case "register":
+                obj = new JSONObj(in.getRawPostData());
+                exec = compHandler.registerComp(obj, user);
+                if (exec != 0) {
+                    args.put("X-Error-Code", "" + exec);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
+                } else {
+                    sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "204 No Content", null, out, null);
+                }
         }
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
@@ -314,7 +323,7 @@ public class OrcascoutHandler implements InputHandler {
         }
         HashMap<String, String> args = new HashMap<>();
         switch (in.getPhpArgs().get("method").toLowerCase()) {
-            case "CHANGELATER":
+            case "register":
                 args.put("Access-Control-Allow-Methods", "POST");
                 sendFile(null, "200 OK", args, out, null);
                 return false; //TODO: MAYBE CHANGE CUZ CLOSE CONNECTION?

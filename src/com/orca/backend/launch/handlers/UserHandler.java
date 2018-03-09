@@ -66,23 +66,22 @@ public class UserHandler {
 
     /**
      * sets the current Competition / Regional ID of a logged in user
+     *
      * @param token the token of the logged in user
      * @param compid the competition id to set for the user
-     * @return error code
-     * Error codes: 
-     * 0: No Error
-     * 1: Comp ID doesn't exist
-     * 2: SQL Error
-     * 3: user doesn't exist
+     * @return error code Error codes: 0: No Error 1: Comp ID doesn't exist 2:
+     * SQL Error 3: user doesn't exist
      */
     public int setCompIDByToken(String token, String compid) {
         int exec = OrcascoutHandler.compHandler.compExists(compid);
-        if(exec==0){
+        if (exec == 0) {
             User u = getUserByToken(token);
-            if(u==null)return 3;
+            if (u == null) {
+                return 3;
+            }
             u.setCurrentRegionalId(compid);
             return 0;
-        }else{
+        } else {
             return exec;
         }
     }
