@@ -33,6 +33,14 @@ export class UtilsService {
     return this.http.post(this.url_endpoint + 'submitPit?method=' + endpoint, data, {observe: 'response', withCredentials: true});
   }
 
+  public craftHttpPostComp(endpoint: string, data: Object) {
+    return this.http.post(this.url_endpoint + 'submitComp?method=' + endpoint, data, {observe: 'response', withCredentials: true});
+  }
+
+  public craftHttpGetComp(endpoint: string) {
+    return this.http.get(this.url_endpoint + 'submitComp?method=' + endpoint, {observe: 'response', withCredentials: true});
+  }
+
   public craftHttpPostUser(endpoint: string, data: Object): Observable<HttpResponse<Object>> {
     return this.http.post(this.url_endpoint + 'submitUser?method=' + endpoint, data, {observe: 'response', withCredentials: true});
   }

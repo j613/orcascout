@@ -94,15 +94,15 @@ export class BackendUpdateService {
     });
   }
 
-  public getRegionalList(): Observable<Regional[]|Boolean> {
+  public getRegionalListTBA(): Observable<Regional[]|Boolean> {
     return this.makeTBARequest<Regional[]>('events/' + environment.year + '/simple')
-                .map((res: Regional[]|Boolean) => {
-                  if (res) {
-                    res = <Regional[]>res;
-                    return res.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0) );
-                  }
-                  return false;
-                });
+            .map((res: Regional[]|Boolean) => {
+              if (res) {
+                res = <Regional[]>res;
+                return res.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0) );
+              }
+              return false;
+            });
   }
 
   private sortReg(a: Match, b: Match): number {
@@ -119,6 +119,40 @@ export class BackendUpdateService {
    *
    */
 
+
+  public getRegionalList(): Observable<Regional[]|Boolean> {
+    return this.utils.craftHttpGetComp('getcomps')
+                    .mergeMap((res: HttpResponse<any>) => {
+                      if (res.body.hasOwnProperty('competitions')) {
+                        res.body.competitions.map((comp) => {
+                          comp.key = comp.comp_id;
+                          comp.name = comp.nickname;
+                          delete comp.comp_id;
+                          delete comp.nickname;
+                        });
+                        return Observable.of(<Regional[]>res.body.competitions);
+                      }
+                    }).catch((res: HttpErrorResponse) => {
+                      return Observable.of(false);
+                    });
+  }
+
+  public addRegional(key: string, name: string): Observable<Boolean> {
+    const data = {
+      nickname: name,
+      comp_id: key
+    };
+    return this.utils.craftHttpPostComp('register', data)
+                    .mergeMap((res: HttpResponse<null>) => {
+                      if (res.status === 204) {
+                        return Observable.of(true);
+                      }
+                    }).catch((res: HttpErrorResponse) => {
+                      return Observable.of(false);
+                    });
+  }
+
+  // TODO: Catch Errors.
   public getPendingUsers(): Observable<User[]> {
     return this.utils.craftHttpGetUser('getpending')
                     .mergeMap((res: HttpResponse<any>) => {
@@ -126,6 +160,7 @@ export class BackendUpdateService {
                     });
   }
 
+  // TODO: Catch Errors.
   public acceptPendingUser(username: string, rank: string): Observable<boolean> {
     const data = {
       username: username,
@@ -140,6 +175,7 @@ export class BackendUpdateService {
                     });
   }
 
+  // TODO: Catch Errors.
   public denyPendingUser(username: string): Observable<boolean> {
     const data = {
       username: username,

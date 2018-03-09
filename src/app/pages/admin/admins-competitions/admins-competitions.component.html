@@ -8,7 +8,27 @@
     <tr *ngFor="let comp of comp_list">
       <td>{{ comp.name }}</td>
       <td>{{ comp.key }}</td>
-      <td></td>
+      <td>
+        
+      </td>
     </tr>
   </table>
+</div>
+
+<br><br><br>
+
+<div class="col-sm-12">
+  <h2>Add a Competition</h2>
+  <hr>
+  <form #addCompForm="ngForm" (ngSubmit)="addCompetition(); addCompForm.reset();">
+    <div class="form-group col-sm-12">
+      <label for="regionals" class="col-form-label">Competitions</label>
+      <select required [(ngModel)]="regional_add_selected" class="custom-select" name="regional">
+        <option *ngFor="let reg of comp_list_tba" value="{{ reg.key }}-{{ reg.name }}">{{ reg.name }}</option>
+      </select>
+    </div>
+    <div class="col-sm-12 text-center">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </form>
 </div>
