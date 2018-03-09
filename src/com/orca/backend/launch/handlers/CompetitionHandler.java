@@ -35,6 +35,7 @@ public class CompetitionHandler {
     public int compExists(String compID) {
         try {
             PreparedStatement ps = connection.prepareStatement("select * from COMPETITIONS where COMP_ID = ?");
+            ps.setString(1, compID);
             return ps.executeQuery().next() ? 0 : 1;
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
