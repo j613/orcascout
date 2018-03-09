@@ -26,6 +26,7 @@ import { MatchScheduleComponent } from './pages/match-schedule/match-schedule.co
 import { RegisterComponent } from './pages/register/register.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { AdminUsersComponent } from './pages/admin/admin-users/admin-users.component';
+import { AdminCompetitionsComponent } from './pages/admin/admins-competitions/admins-competitions.component';
 
 @NgModule({
   imports: [
@@ -48,7 +49,8 @@ import { AdminUsersComponent } from './pages/admin/admin-users/admin-users.compo
     MatchScheduleComponent,
     RegisterComponent,
     AdminComponent,
-    AdminUsersComponent
+    AdminUsersComponent,
+    AdminCompetitionsComponent
   ],
   providers: [
     BackendUpdateService,
