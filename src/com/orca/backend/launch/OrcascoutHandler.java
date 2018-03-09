@@ -313,9 +313,6 @@ public class OrcascoutHandler implements InputHandler {
             return true;
         }
         HashMap<String, String> args = new HashMap<>();
-        args.put("Access-Control-Allow-Origin", Prefs.getString("host_domain") + ", *");
-        args.put("Access-Control-Expose-Headers", "X-Error-Code, Content-Length, Cookie, Origin");
-        args.put("Access-Control-Allow-Credentials", "true");
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "CHANGELATER":
                 args.put("Access-Control-Allow-Methods", "POST");
