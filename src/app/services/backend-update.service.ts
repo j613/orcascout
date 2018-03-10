@@ -13,6 +13,7 @@ import { Match } from '../classes/match';
 import { UtilsService } from './utils.service';
 import { User } from '../classes/user';
 import { PitTeam } from '../classes/pit-team';
+import { NotificationsService } from './notifications.service';
 
 @Injectable()
 export class BackendUpdateService {
@@ -30,7 +31,7 @@ export class BackendUpdateService {
   // }
 
   // TODO: All backlog functions need some serious testing both online and specifically offline.
-  constructor(private http: HttpClient, private utils: UtilsService) {
+  constructor(private http: HttpClient, private utils: UtilsService, private notif: NotificationsService) {
     window.addEventListener('online', () => {
       this.is_online = true;
       this.publishBacklog();
@@ -145,6 +146,7 @@ export class BackendUpdateService {
     return this.utils.craftHttpPostComp('register', data)
                     .mergeMap((res: HttpResponse<null>) => {
                       if (res.status === 204) {
+                        this.notif.addNotification('Competition ' + name + ' added.', 1);
                         return Observable.of(true);
                       }
                     }).catch((res: HttpErrorResponse) => {
@@ -152,15 +154,16 @@ export class BackendUpdateService {
                     });
   }
 
-  // TODO: Catch Errors.
-  public getPendingUsers(): Observable<User[]> {
+  public getPendingUsers(): Observable<User[]|Boolean> {
     return this.utils.craftHttpGetUser('getpending')
                     .mergeMap((res: HttpResponse<any>) => {
                       return Observable.of(res.body.users);
+                    }).catch((res: HttpErrorResponse) => {
+                      this.notif.addNotification('Error fetching pending users', 3);
+                      return Observable.of(false);
                     });
   }
 
-  // TODO: Catch Errors.
   public acceptPendingUser(username: string, rank: string): Observable<boolean> {
     const data = {
       username: username,
@@ -169,13 +172,15 @@ export class BackendUpdateService {
     return this.utils.craftHttpPostUser('approve', data)
                     .mergeMap((res: HttpResponse<null>) => {
                       if (res.status === 204) {
+                        this.notif.addNotification('User ' + username + ' was accepted as ' + rank + '.', 1);
                         return Observable.of(true);
                       }
+                      return Observable.of(false);
+                    }).catch((res: HttpErrorResponse) => {
                       return Observable.of(false);
                     });
   }
 
-  // TODO: Catch Errors.
   public denyPendingUser(username: string): Observable<boolean> {
     const data = {
       username: username,
@@ -187,30 +192,36 @@ export class BackendUpdateService {
                       return Observable.of(true);
                     }
                     return Observable.of(false);
+                  }).catch((res: HttpErrorResponse) => {
+                    return Observable.of(false);
                   });
   }
 
   public submitPitScout(data: PitTeam): void {
     if (this.is_online) {
-      this.utils.craftHttpPostPit('create', data).mergeMap((res: HttpResponse<Object>) => {
-        if (res.status === 204) {
-          return Observable.of(true);
-        }
-        return Observable.of(false);
-      }).catch((res: HttpErrorResponse) => {
-        return Observable.of(false);
-      }).subscribe((val: boolean) => {
-        if (val) {
-          console.log('Submitted Success');
-        } else {
-          console.log('Submit Failed.');
-        }
-      });
+      this.utils.craftHttpPostPit('create', data)
+                .mergeMap((res: HttpResponse<Object>) => {
+                  if (res.status === 204) {
+                    this.notif.addNotification('Pit Scout for team ' + data.teamnumber + ' submitted.', 1);
+                    return Observable.of(true);
+                  }
+                  return Observable.of(false);
+                }).catch((res: HttpErrorResponse) => {
+                  return Observable.of(false);
+                }).subscribe((val: boolean) => {
+                  if (val) {
+                    console.log('Submitted Success');
+                  } else {
+                    console.log('Submit Failed.');
+                  }
+                });
     } else {
-      this.addToBacklog({
+      const ps = {
         type: 'pitscout',
-        data: data
-      });
+        data: Object.assign({}, data) // This copies the data.  If you dont all backlog items will have the reference to the same variable.
+      };
+      this.addToBacklog(ps);
+      console.log(this.backlog);
     }
   }
 

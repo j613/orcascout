@@ -172,6 +172,7 @@ export class AuthService {
 
     this.isLoggedIn = false;
     localStorage.removeItem('session');
+    localStorage.removeItem('offline-backlog');
     this.router.navigate(['login']);
   }
 

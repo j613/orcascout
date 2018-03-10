@@ -17,8 +17,10 @@ export class AdminUsersComponent implements OnInit {
   }
 
   private updatePendingUsers() {
-    this.backend_update.getPendingUsers().subscribe((val: User[]) => {
-      this.pending_users = val;
+    this.backend_update.getPendingUsers().subscribe((val: User[]|Boolean) => {
+      if (val) {
+        this.pending_users = <User[]>val;
+      }
     });
   }
 
