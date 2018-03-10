@@ -10,7 +10,7 @@ import { AuthService } from './../services/auth.service';
   styleUrls: ['./app.component.less']
 })
 export class AppComponent implements OnInit {
-  public _opened = true;
+  public _opened = false;
   public _show_backdrop = true;
   public _current_icon: string;
   public pages: Page[] = [

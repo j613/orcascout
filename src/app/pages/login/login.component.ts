@@ -3,6 +3,7 @@ import { AuthService } from '../../services/auth.service';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { BackendUpdateService } from '../../services/backend-update.service';
 import { Regional } from '../../classes/regional';
+import { NotificationsService } from '../../services/notifications.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,7 @@ export class LoginComponent implements OnInit {
     regional_id: ''
   };
 
-  constructor(private auth: AuthService, private route: Router, private act_route: ActivatedRoute, public backend_update: BackendUpdateService) { }
+  constructor(private auth: AuthService, private route: Router, private act_route: ActivatedRoute, public backend_update: BackendUpdateService, private notif: NotificationsService) { }
 
   ngOnInit() {
     this.act_route.queryParamMap.subscribe((params: Params) => {
@@ -35,16 +36,20 @@ export class LoginComponent implements OnInit {
   }
 
   public login(): void {
-    this.message = 'Logging in...';
+    // this.message = 'Logging in...';
+    this.notif.addNotification('Logging in...', 0);
     this.auth.login(this.login_fields.username, this.login_fields.password, this.login_fields.regional_id).subscribe((val) => {
       if (val) {
-        this.message = 'Logged In';
-      } else {
-        this.message = 'Error Logging In';
-      }
-      setTimeout(() => {
+        // this.message = 'Logged In';
+        this.notif.addNotification('Logged In!', 1);
         this.route.navigate(['']);
-      }, 500);
+      } else {
+        // this.message = 'Error Logging In';
+        this.notif.addNotification('Error Logging In.', 3);
+      }
+      // setTimeout(() => {
+      //   this.route.navigate(['']);
+      // }, 500);
     });
   }
 

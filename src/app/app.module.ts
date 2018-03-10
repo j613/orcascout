@@ -11,6 +11,7 @@ import { AppRoutingModule } from './pages/app-routing.module';
 // Services
 import { BackendUpdateService } from './services/backend-update.service';
 import { AuthService } from './services/auth.service';
+import { NotificationsService } from './services/notifications.service';
 // Guards
 import { AuthGuard } from './guards/auth-guard.guard';
 // Components
@@ -27,6 +28,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { AdminUsersComponent } from './pages/admin/admin-users/admin-users.component';
 import { AdminCompetitionsComponent } from './pages/admin/admins-competitions/admins-competitions.component';
+import { NotificationsComponent } from './pages/notifications/notifications.component';
 
 @NgModule({
   imports: [
@@ -50,13 +52,15 @@ import { AdminCompetitionsComponent } from './pages/admin/admins-competitions/ad
     RegisterComponent,
     AdminComponent,
     AdminUsersComponent,
-    AdminCompetitionsComponent
+    AdminCompetitionsComponent,
+    NotificationsComponent
   ],
   providers: [
     BackendUpdateService,
     UtilsService,
     AuthService,
-    AuthGuard
+    AuthGuard,
+    NotificationsService
   ],
   bootstrap: [AppComponent]
 })

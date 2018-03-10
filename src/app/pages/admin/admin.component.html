@@ -1,11 +1,11 @@
 <app-header [title]="title"></app-header>
 
 <div class="col-sm-12 text-center">
-    <div class="btn-group" role="group" aria-label="Basic example">
-        <a routerLink="./users" routerLinkActive="active" class="btn btn-primary" role="button">Pending Users</a>
-        <a routerLink="./competitions" routerLinkActive="active" class="btn btn-primary" role="button">Competitions</a>
-        <a routerLink="./other" routerLinkActive="active" class="btn btn-primary" role="button">I Really Dunno</a>
-    </div>
+    <nav class="nav nav-pills nav-fill asd">
+        <a routerLink="./users" routerLinkActive="active" class="nav-item nav-link" role="button">Pending Users</a>
+        <a routerLink="./competitions" routerLinkActive="active" class="nav-item nav-link" role="button">Competitions</a>
+        <a routerLink="./other" routerLinkActive="active" class="nav-item nav-link" role="button">I Really Dunno</a>
+    </nav>
 </div>
 <br>
 <router-outlet></router-outlet>

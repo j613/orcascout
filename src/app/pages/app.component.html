@@ -1,55 +1,57 @@
 <ng-sidebar-container style="height: 100vh;">
 
-    <!-- A sidebar -->
-    <ng-sidebar [(opened)]="_opened" mode="slide" closeOnClickOutside="true" (onOpened)="_toggleSidebar(true)" (onClosed)="_toggleSidebar(false)">
-      <div class="sidebar">
-        <ul *ngIf="auth.isLoggedIn; else loggedout">
-          <li *ngFor="let page of getPages()">
-            <a [routerLink]="page.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ page.name }}</a>
-          </li>
-          <li *ngIf="auth.session.user.level.toLowerCase() === 'admin'">
-            <a routerLink="admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Admin</a>
-          </li>
-          <li>
-            <a (click)="logout()">Logout - {{ auth.session.user.username }}</a>
-          </li>
-        </ul>
-        <ng-template #loggedout>
-        <ul>
-          <li>
-            <a routerLink="home" routerLinkActive="active">Home</a>
-          </li>
-          <li>
-            <a routerLink="login" routerLinkActive="active">Login</a>
-          </li>
-          <li>
-            <a routerLink="register" routerLinkActive="active">Register</a>
-          </li>
-        </ul>
-        </ng-template>
-        <span *ngIf="auth.session && auth.session.user.level.toLowerCase() === 'limited'" class="limitedusr">You're account is limited! Please wait to be accepted by an admin.<br></span>
-        Status: <span [style.color]="backend_update.is_online ? 'green' : 'red'">{{ backend_update.is_online ? 'ONLINE' : 'OFFLINE' }}</span><br>
-        <span *ngIf="auth.isLoggedIn">
-          Regional: {{ auth.session.regional.name }}<br>
-          <span *ngIf="backend_update.backlog.length >= 0">
-            There are {{ backend_update.backlog.length }} offline records stored.
-          </span>
+  <!-- A sidebar -->
+  <ng-sidebar [(opened)]="_opened" mode="slide" closeOnClickOutside="true" (onOpened)="_toggleSidebar(true)" (onClosed)="_toggleSidebar(false)">
+    <div class="sidebar">
+      <ul *ngIf="auth.isLoggedIn; else loggedout">
+        <li *ngFor="let page of getPages()">
+          <a [routerLink]="page.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ page.name }}</a>
+        </li>
+        <li *ngIf="auth.session.user.level.toLowerCase() === 'admin'">
+          <a routerLink="admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Admin</a>
+        </li>
+        <li>
+          <a (click)="logout()">Logout - {{ auth.session.user.username }}</a>
+        </li>
+      </ul>
+      <ng-template #loggedout>
+      <ul>
+        <li>
+          <a routerLink="home" routerLinkActive="active">Home</a>
+        </li>
+        <li>
+          <a routerLink="login" routerLinkActive="active">Login</a>
+        </li>
+        <li>
+          <a routerLink="register" routerLinkActive="active">Register</a>
+        </li>
+      </ul>
+      </ng-template>
+      <span *ngIf="auth.session && auth.session.user.level.toLowerCase() === 'limited'" class="limitedusr">You're account is limited! Please wait to be accepted by an admin.<br></span>
+      Status: <span [style.color]="backend_update.is_online ? 'green' : 'red'">{{ backend_update.is_online ? 'ONLINE' : 'OFFLINE' }}</span><br>
+      <span *ngIf="auth.isLoggedIn">
+        Regional: {{ auth.session.regional.name }}<br>
+        <span *ngIf="backend_update.backlog.length >= 0">
+          There are {{ backend_update.backlog.length }} offline records stored.
         </span>
-      </div>
-    </ng-sidebar>
-
-    <!-- Page content -->
-    <div ng-sidebar-content>
-      <div class="main-content">
-          <div class="toggle-button" (click)="_toggleSidebar()">
-            <fa [name]="_current_icon" size="4x"></fa>
-          </div>
-  
-          <div class="page-content">
-            <router-outlet></router-outlet>
-          </div>
-  
-      </div>
+      </span>
     </div>
-  
-  </ng-sidebar-container>
+  </ng-sidebar>
+
+  <!-- Page content -->
+  <div ng-sidebar-content>
+    <div class="main-content">
+        <div class="toggle-button" (click)="_toggleSidebar()">
+          <fa [name]="_current_icon" size="4x"></fa>
+        </div>
+
+        <div class="page-content">
+          <router-outlet></router-outlet>
+        </div>
+
+    </div>
+    
+    <app-notifications></app-notifications>
+  </div>
+
+</ng-sidebar-container>
