@@ -149,6 +149,7 @@ export class AuthService {
     this.isLoggedIn = false;
     localStorage.removeItem('session');
     localStorage.removeItem('offline-backlog');
+    localStorage.removeItem('team_data');
     this.router.navigate(['login']);
   }
 

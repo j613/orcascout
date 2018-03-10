@@ -36,20 +36,14 @@ export class LoginComponent implements OnInit {
   }
 
   public login(): void {
-    // this.message = 'Logging in...';
     this.notif.addNotification('Logging in...', 0);
     this.auth.login(this.login_fields.username, this.login_fields.password, this.login_fields.regional_id).subscribe((val) => {
       if (val) {
-        // this.message = 'Logged In';
         this.notif.addNotification('Logged In!', 1);
         this.route.navigate(['']);
       } else {
-        // this.message = 'Error Logging In';
         this.notif.addNotification('Error Logging In.', 3);
       }
-      // setTimeout(() => {
-      //   this.route.navigate(['']);
-      // }, 500);
     });
   }
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpHeaders, HttpErrorResponse, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { environment } from './../../environments/environment';
 import { AuthService } from './auth.service';
@@ -19,6 +19,7 @@ import { NotificationsService } from './notifications.service';
 export class BackendUpdateService {
   public is_online = navigator.onLine;
   public backlog: Backlog[] = [];
+  public team_data: PitTeam[];
 
   private url_endpoint = environment.api_endpoint;
   private tba_api_key = environment.tba_key;
@@ -85,13 +86,18 @@ export class BackendUpdateService {
     //  /event/{event_key}/teams/simple and /event/{event_key}/matches/simple
     return Observable.forkJoin(
       this.makeTBARequest<Team[]>('event/' + regional_id + '/teams/simple'),
-      this.makeTBARequest<Match[]>('event/' + regional_id + '/matches/simple')
-    ).mergeMap((res: [Team[], Match[]]) => {
-      const rd: RegionalData = {
-        teams: res[0],
-        matches: res[1].sort((a, b) => this.sortReg(a, b))
-      };
-      return Observable.of(rd);
+      this.makeTBARequest<Match[]>('event/' + regional_id + '/matches/simple'),
+      this.utils.craftHttpGetPit('getteams')
+    ).mergeMap((res: [Team[]|Boolean, Match[]|Boolean, HttpResponse<any>]) => {
+      if (res[0] && res[1]) {
+        this.team_data = res[2].body.teams;
+        this.updateLocalStorage();
+        const rd: RegionalData = {
+          teams: (<Team[]>res[0]),
+          matches: (<Match[]>res[1]).sort((a, b) => this.sortReg(a, b))
+        };
+        return Observable.of(rd);
+      }
     });
   }
 
@@ -109,6 +115,8 @@ export class BackendUpdateService {
   private sortReg(a: Match, b: Match): number {
     return a.time > b.time ? 1 : b.time > a.time ? -1 : 0;
   }
+
+
 
 
 
@@ -137,6 +145,20 @@ export class BackendUpdateService {
                       return Observable.of(false);
                     });
   }
+
+  // public updateTeamData(): Observable<PitTeam[]|Boolean> {
+  //   return this.utils.craftHttpGetPit('getteams')
+  //                   .mergeMap((res: HttpResponse<any>) => {
+  //                     return Observable.of(<PitTeam[]>res.body.teams);
+  //                   }).catch((res: HttpErrorResponse) => {
+  //                     return Observable.of(false);
+  //                   }).do((res: Boolean|PitTeam[]) => {
+  //                     if (res) {
+  //                       this.team_data = <PitTeam[]>res;
+  //                       this.updateLocalStorage();
+  //                     }
+  //                   });
+  // }
 
   public addRegional(key: string, name: string): Observable<Boolean> {
     const data = {
@@ -196,6 +218,17 @@ export class BackendUpdateService {
                     return Observable.of(false);
                   });
   }
+
+
+
+
+
+
+
+
+
+
+
 
   public submitPitScout(data: PitTeam): void {
     if (this.is_online) {
@@ -270,6 +303,11 @@ export class BackendUpdateService {
 
   private updateLocalStorage(): void {
     localStorage.setItem('offline-backlog', JSON.stringify(this.backlog));
+    localStorage.setItem('team_data', JSON.stringify(this.team_data));
+  }
+
+  public getTeamData(): PitTeam[] {
+    return JSON.parse(localStorage.getItem('team_data'));
   }
 }
 
