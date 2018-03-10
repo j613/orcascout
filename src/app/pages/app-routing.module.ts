@@ -11,6 +11,7 @@ import { LoginComponent } from './login/login.component';
 import { MatchScheduleComponent } from './match-schedule/match-schedule.component';
 import { RegisterComponent } from './register/register.component';
 import { AdminComponent } from './admin/admin.component';
+import { ListComponent } from './list/list.component';
 
 const appRoutes: Routes = [
     { path: '', component: HomeComponent },
@@ -24,7 +25,8 @@ const appRoutes: Routes = [
             { path: 'match-scouting', component: MatchScoutingComponent },
             { path: 'edit-match-scouting', component: EditMatchScoutingComponent },
             { path: 'pit-scouting', component: PitScoutingComponent },
-            { path: 'match-schedule', component: MatchScheduleComponent }
+            { path: 'match-schedule', component: MatchScheduleComponent },
+            { path: 'list', component: ListComponent }
         ]
     },
     { path: '**', redirectTo: '' },

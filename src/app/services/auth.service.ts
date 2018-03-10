@@ -43,30 +43,6 @@ export class AuthService {
   }
 
   public login(username: string, password: string, regional_id: string): Observable<boolean> {
-    // if (this.isLoggedIn && this.session) {
-    //   return Observable.of(true);
-    // }
-
-    // TODO: Replace with actual request to backend server (below).
-    // return Observable.of(true).delay(1000).do((val) => {
-    //   this.session = {
-    //     user: { username: username,
-    //             firstname: 'Zamboni',
-    //             lastname: 'Macaroni',
-    //             level: 'regular',
-    //           }
-    //   };
-    //   this.session.regional = {
-    //     key: regional_id.split('-')[0],
-    //     name: regional_id.split('-')[1]
-    //   };
-    //   this.refreshRegionalData();
-    //   this.saveSession();
-    //   document.cookie = 'AuthToken=SoMeToKeNlMaO; expires=' + new Date(Date.now() + (30 * 60 * 1000)).toUTCString();
-    //   this.isLoggedIn = val;
-    // });
-
-    // Actual HTTP request when backend is hosted.
     return this.utils.craftHttpPostUser('login', { username: username, password: password }) // Login request
               // TODO: the 2 template parameters are 'input' and 'expected return' types.
               .mergeMap<any, any>((res: HttpResponse<null>) => {
@@ -178,6 +154,10 @@ export class AuthService {
 
   private saveSession(): void {
     localStorage.setItem('session', JSON.stringify(this.session));
+  }
+
+  public getSessionData(): Session {
+    return JSON.parse(localStorage.getItem('session'));
   }
 
 }

@@ -29,6 +29,7 @@ import { AdminComponent } from './pages/admin/admin.component';
 import { AdminUsersComponent } from './pages/admin/admin-users/admin-users.component';
 import { AdminCompetitionsComponent } from './pages/admin/admins-competitions/admins-competitions.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { ListComponent } from './pages/list/list.component';
 
 @NgModule({
   imports: [
@@ -53,7 +54,8 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
     AdminComponent,
     AdminUsersComponent,
     AdminCompetitionsComponent,
-    NotificationsComponent
+    NotificationsComponent,
+    ListComponent
   ],
   providers: [
     BackendUpdateService,

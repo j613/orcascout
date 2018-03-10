@@ -1,0 +1,26 @@
+<app-header [title]="title"></app-header>
+
+<div class="col-sm-12">
+  <div class="card" *ngFor="let t of teams">
+    <div class="card-header">
+      {{ t.team_number }} - {{ t.nickname }}
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="card mx-auto">
+            <img class="card-img-top" src="https://pbs.twimg.com/profile_images/949374088249671680/MuxDEZpD_400x400.jpg">
+            <div class="card-body">
+              <p class="card-text">Some team info would go here</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-8">
+          <h5 class="card-title">{{ t.nickname }}</h5>
+          <p class="card-text">Put table here with their match stats</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
