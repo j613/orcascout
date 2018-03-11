@@ -24,6 +24,7 @@ export class PitScoutingComponent {
   constructor(private backend_update: BackendUpdateService, private auth: AuthService) { }
 
   public submitPit() {
+    console.log(this.team);
     this.backend_update.submitPitScout(this.team);
   }
 

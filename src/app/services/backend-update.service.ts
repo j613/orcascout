@@ -38,6 +38,12 @@ export class BackendUpdateService {
       this.publishBacklog();
     });
     window.addEventListener('offline', () => this.is_online = false);
+    this.team_data = JSON.parse(localStorage.getItem('team_data'));
+    this.backlog = JSON.parse(localStorage.getItem('offline-backlog'));
+    if (this.backlog === null) {
+      this.backlog = [];
+    }
+    this.updateLocalStorage();
   }
 
   /**
@@ -90,7 +96,13 @@ export class BackendUpdateService {
       this.utils.craftHttpGetPit('getteams')
     ).mergeMap((res: [Team[]|Boolean, Match[]|Boolean, HttpResponse<any>]) => {
       if (res[0] && res[1]) {
-        this.team_data = res[2].body.teams;
+        this.team_data = res[2].body.teams.map((team) => {
+          team.teamname = team.team_name;
+          team.teamnumber = team.team_number;
+          delete team.team_name;
+          delete team.team_number;
+          return team;
+        });
         this.updateLocalStorage();
         const rd: RegionalData = {
           teams: (<Team[]>res[0]),
@@ -133,13 +145,14 @@ export class BackendUpdateService {
     return this.utils.craftHttpGetComp('getcomps')
                     .mergeMap((res: HttpResponse<any>) => {
                       if (res.body.hasOwnProperty('competitions')) {
-                        res.body.competitions.map((comp) => {
+                        const t = res.body.competitions.map((comp) => {
                           comp.key = comp.comp_id;
                           comp.name = comp.nickname;
                           delete comp.comp_id;
                           delete comp.nickname;
+                          return comp;
                         });
-                        return Observable.of(<Regional[]>res.body.competitions);
+                        return Observable.of(<Regional[]>t);
                       }
                     }).catch((res: HttpErrorResponse) => {
                       return Observable.of(false);
@@ -231,10 +244,14 @@ export class BackendUpdateService {
 
 
   public submitPitScout(data: PitTeam): void {
+    // TODO: idk bro JS is weird, if you dont create a copy of the data then by the time the notification pops up,
+    //        angular would have cleared the textboxes meaning that the 'data' variable wont point to anything.
+    data = Object.assign({}, data);
     if (this.is_online) {
       this.utils.craftHttpPostPit('create', data)
                 .mergeMap((res: HttpResponse<Object>) => {
                   if (res.status === 204) {
+                    console.log(data);
                     this.notif.addNotification('Pit Scout for team ' + data.teamnumber + ' submitted.', 1);
                     return Observable.of(true);
                   }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Team } from '../../classes/team';
 import { AuthService } from '../../services/auth.service';
 import { BackendUpdateService } from '../../services/backend-update.service';
@@ -9,20 +9,32 @@ import { PitTeam } from '../../classes/pit-team';
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.less']
 })
-export class ListComponent implements OnInit {
+export class ListComponent implements OnInit, OnDestroy {
   public title = 'List';
   public teams: Team[];
-  public team_data: PitTeam[];
+
+  private checker;
 
   constructor(private auth: AuthService, private backend_update: BackendUpdateService) { }
 
   ngOnInit() {
     this.teams = this.auth.getSessionData().regional.data.teams;
-    this.auth.refreshRegionalData();
-    this.team_data = this.backend_update.getTeamData();
+    this.refreshData();
+    this.checker = setInterval(() => {
+      this.refreshData();
+    }, 30000);
   }
 
-  public getTeamData(team_number: number): PitTeam {
-    return this.team_data.find((t) => t.teamnumber === team_number);
+  ngOnDestroy() {
+    clearInterval(this.checker);
+  }
+
+  private refreshData() {
+    this.auth.refreshRegionalData();
+  }
+
+  public getData(team_num: number): PitTeam {
+    // TODO: Figure out why === doesnt work in this comparison.
+    return this.backend_update.team_data.find(tm => tm.teamnumber == team_num);
   }
 }

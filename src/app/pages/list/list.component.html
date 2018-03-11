@@ -11,14 +11,24 @@
           <div class="card mx-auto">
             <img class="card-img-top" src="https://pbs.twimg.com/profile_images/949374088249671680/MuxDEZpD_400x400.jpg">
             <div class="card-body">
-              <p class="card-text">{{ getTeamData(t.team_number)?.team_number }}</p>
+              <p class="card-text" *ngIf="getData(t.team_number) !== undefined; else nodata">
+                <b>Drivetrain:</b> {{ getData(t.team_number)?.drivetrain }}<br>
+                <b>Notes:</b> {{ getData(t.team_number)?.notes }}
+              </p>
+              <ng-template #nodata>
+              <p class="card-text">
+                <b>No Pit Scouting Data.</b>
+              </p>
+              </ng-template>
             </div>
           </div>
         </div>
 
         <div class="col-sm-8">
           <h5 class="card-title">{{ t.nickname }}</h5>
-          <p class="card-text">Put table here with their match stats</p>
+          <p class="card-text">
+            Matches<br>
+          </p>
         </div>
       </div>
     </div>
