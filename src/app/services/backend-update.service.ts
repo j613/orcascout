@@ -251,7 +251,6 @@ export class BackendUpdateService {
       this.utils.craftHttpPostPit('create', data)
                 .mergeMap((res: HttpResponse<Object>) => {
                   if (res.status === 204) {
-                    console.log(data);
                     this.notif.addNotification('Pit Scout for team ' + data.teamnumber + ' submitted.', 1);
                     return Observable.of(true);
                   }
