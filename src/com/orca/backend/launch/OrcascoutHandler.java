@@ -141,6 +141,11 @@ public class OrcascoutHandler implements InputHandler {
                     return false;
                 }
                 obj = userHandler.getUserInfo(token);
+                if(obj==null){
+                    args.put("X-Error-Code", "1");
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
+                    return false;
+                }
                 sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "200 OK", null, out, null);
                 return false;
             case "getpending":

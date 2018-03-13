@@ -118,7 +118,11 @@ public class UserHandler {
             return null;
         }
     }
-
+    /**
+     * Gets the info for a given user
+     * @param token
+     * @return the data, or null
+     */
     public JSONObj getUserInfo(String token) {
         User us = getUserByToken(token);
         if (us == null) {
