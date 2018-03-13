@@ -21,8 +21,19 @@ public class UserHandler {
         connection = c;
     }
 
-    void timeoutUsers() {
+    private void timeoutUsers() {
         users.removeIf(n -> n.shouldLogout());
+    }
+
+    /**
+     * checks to see if the password given matches the Password Requirements in
+     * the Prefes file
+     *
+     * @param password the password to check
+     * @return true if the password matches the Requirements
+     */
+    public boolean passwordMatchesCustomReqs(String password) {
+        return true;//just for now
     }
 
     /**
@@ -69,8 +80,12 @@ public class UserHandler {
      *
      * @param token the token of the logged in user
      * @param compid the competition id to set for the user
-     * @return error code Error codes: 0: No Error 1: Comp ID doesn't exist 2:
-     * SQL Error 3: user doesn't exist
+     * @return error code<br>
+     * Error codes:<br>
+     * 0: No Error<br>
+     * 1: Comp ID doesn't exist<br>
+     * 2: SQL Error<br>
+     * 3: user doesn't exist
      */
     public int setCompIDByToken(String token, String compid) {
         int exec = OrcascoutHandler.compHandler.compExists(compid);
@@ -133,7 +148,7 @@ public class UserHandler {
             ResultSet rs = checkUser.executeQuery();
             return rs.next();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
             return false;
         }
     }
@@ -145,7 +160,7 @@ public class UserHandler {
             ResultSet rs = checkUser.executeQuery();
             return rs.next();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
             return false;
         }
     }
@@ -156,18 +171,28 @@ public class UserHandler {
      *
      * @param obj the JSON object that contains the necessary information. This
      * object should match 'UserCreateTemplate'
-     * @return true if the operation was a success
+     * @return error code<br>
+     * Error Codes:<br>
+     * 0: Success<br>
+     * 1: SQL Error<br>
+     * 2: Invalid Template<br>
+     * 3: User Exists<br>
+     * 4: Password is greater that 128 characters<br>
+     * 5: Password does not match the password security requirements<br>
      */
-    public boolean addNewUser(JSONObj obj) {
+    public int addNewUser(JSONObj obj) {
         try {
             if (!JSONObj.checkTemplate("UserCreateTemplate", obj)) {
-                return false;
+                return 2;
             }
             if (userExists(obj.getString("username"))) {
-                return false;
+                return 3;
             }
-            if (obj.getString("password").length() > 128 || obj.getString("password").length() < 8) {
-                return false;
+            if (obj.getString("password").length() > 128 || obj.getString("password").isEmpty()) {
+                return 3;
+            }
+            if (!passwordMatchesCustomReqs(obj.getString("password"))) {
+                return 5;
             }
             final String passwordSalt = Utils.genSalt();
             String passhash = Utils.hashPassword(passwordSalt, obj.getString("password"));
@@ -181,10 +206,11 @@ public class UserHandler {
             newUser.setString(5, "limited");
             newUser.setInt(6, 1);
             newUser.setString(7, passwordSalt);
-            return !newUser.execute();
+            newUser.execute();
+            return 0;
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
-            return false;
+            return 1;
         }
     }
 
@@ -197,19 +223,33 @@ public class UserHandler {
         return false;
     }
 
-    public boolean approveUser(JSONObj obj, String token) {
+    /**
+     * Sets a User's Pending state to false, and sets their user level
+     *
+     * @param obj the data to set
+     * @param token the token of the approving user
+     * @return the Error Code<br>
+     * Error Codes:<br>
+     * 0: No error<br>
+     * 1: SQL Error<br>
+     * 2: Doesn't match template<br>
+     * 3: Invalid User type<br>
+     * 4: User doesn't exist<br>
+     * 5: Sending User isn't valid<br>
+     */
+    public int approveUser(JSONObj obj, String token) {
         if (!JSONObj.checkTemplate("UserAcceptTemplate", obj)) {
-            return false;
+            return 2;
         }
         try {
             if (!isValidUserType(obj.getString("userlevel")) && !obj.getString("userlevel").equalsIgnoreCase("delete")) {
-                return false;
+                return 3;
             }
             if (!userExists(obj.getString("username")) || getUserByToken(token) == null) {
-                return false;
+                return 4;
             }
             if (getUserByToken(token).getUserLevel() != UserLevel.ADMIN) {
-                return false;
+                return 5;
             }
             PreparedStatement exec;
             if (obj.getString("userlevel").equalsIgnoreCase("delete")) {
@@ -220,10 +260,11 @@ public class UserHandler {
                 exec.setString(1, obj.getString("userlevel").toLowerCase());
                 exec.setString(2, obj.getString("username"));
             }
-            return !exec.execute();
+            exec.execute();
+            return 0;
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
-            return false;
+            return 1;
         }
     }
 
@@ -262,25 +303,31 @@ public class UserHandler {
      * given a JSON matching UserLoginTemplate, returns a token for user login
      *
      * @param obj the JSON object containing the data
-     * @return a token that is given to the client to keep a session
+     * @return a token that is given to the client to keep a session, or error
+     * code<br>
+     * Error codes:<br>
+     * 1: SQL Error<br>
+     * 2: Does not match Template<br>
+     * 3: User does not exist / Password is invalid<br>
+     * 4: User is logged in<br>
      */
-    public String loginUser(JSONObj obj) {
+    public JSONObj loginUser(JSONObj obj) {
         if (!JSONObj.checkTemplate("UserLoginTemplate", obj)) {
-            return null;
+            return Utils.errorJson(2);
         }
         try {
             if (!userExists(obj.getString("username"))) {
-                return null;
+                return Utils.errorJson(3);
             }
             if (users.stream().anyMatch(n -> n.getUsername().equalsIgnoreCase(obj.getString("username")))) {
-                return null;
+                return Utils.errorJson(4);
             }
             PreparedStatement exec
                     = connection.prepareStatement("select * from USERS where USERNAME = ? ");
             exec.setString(1, obj.getString("username"));
             ResultSet rs = exec.executeQuery();
             if (!rs.next()) {
-                return null;
+                return Utils.errorJson(3);
             }
             String passhash = Utils.hashPassword(rs.getString("PASSWORD_SALT"), obj.getString("password"));
             if (rs.getString("PASSWORD_HASH").equals(passhash)) {
@@ -294,13 +341,13 @@ public class UserHandler {
                 }
                 users.add(new User(rs.getInt("ID"), obj.getString("username"), token,
                         rs.getString("USER_LEVEL"), rs.getString("FIRSTNAME"), rs.getString("LASTNAME")));
-                return token;
+                return new JSONObj("{\"token\":\"" + token + "\"}");
             } else {
-                return null;
+                return Utils.errorJson(3);
             }
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
-            return null;
+            return Utils.errorJson(1);
         }
     }
 

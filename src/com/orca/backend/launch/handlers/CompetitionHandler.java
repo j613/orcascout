@@ -33,7 +33,10 @@ public class CompetitionHandler {
      * check to see if competition id is in the database
      *
      * @param compID
-     * @return error code error codes: 0: no error 1: doesn't exist 2: SQL error
+     * @return error code error codes:<br>
+     * 0: no error<br>
+     * 1: doesn't exist<br>
+     * 2: SQL error
      */
     public int compExists(String compID) {
         try {
@@ -50,7 +53,8 @@ public class CompetitionHandler {
      * gets all of the competitions in the database
      *
      * @return a JSON list of all of the competitions currently in the database,
-     * or error code Error codes: 1: SQL Error
+     * or error code Error codes:<br>
+     * 1: SQL Error
      */
     public JSONObj getComps() {
         try {

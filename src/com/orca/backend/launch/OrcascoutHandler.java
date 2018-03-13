@@ -90,18 +90,20 @@ public class OrcascoutHandler implements InputHandler {
             case "login":
                 //System.out.println("LL"+in.getActualPostData()[0]);
                 obj = new JSONObj(in.getRawPostData());
-                String t = userHandler.loginUser(obj);
-                if (t != null) {
-                    cokies.add("AuthToken=" + t + "; Expires=" + Utils.getHTTPDate(User.userTimeoutMillis()) + ";");
+                obj = userHandler.loginUser(obj);
+                if (obj.keySet().contains("token")) {
+                    cokies.add("AuthToken=" + obj.getString("token") + "; Expires=" + Utils.getHTTPDate(User.userTimeoutMillis()) + ";");
                     sendFile(null, "204 No Content", null, out, cokies); //maybe change to 205?? but it doesnt work tho...
                     System.out.println("User " + obj.getString("username") + " logged in.");
                 } else {
                     cokies.add("AuthToken=deleted; Expires=" + Utils.getHTTPDate(-1) + ";");
-                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, cokies);
+                    args.put("X-Error-Code", "" + obj.get("error"));
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, cokies);
                 }
                 return false;
             case "logout":
                 if (token == null || !userHandler.logoutUser(token)) {
+                    //Do I need an error code here?
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                     return false;
                 }
@@ -110,23 +112,27 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
             case "approve":
                 if (token == null || !userHandler.isLoggedIn(token)) {
-                    System.out.println("Not Logged In");
-                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
+                    args.put("X-Error-Code", "" + 1);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                     return false;
                 }
                 obj = new JSONObj(in.getRawPostData());
-                if (userHandler.approveUser(obj, token)) {
+                exec = userHandler.approveUser(obj, token);
+                if (exec == 0) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
-                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
+                    args.put("X-Error-Code", "" + exec);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                 }
                 return false;
             case "create":
                 obj = new JSONObj(in.getRawPostData());
-                if (userHandler.addNewUser(obj)) {
+                exec = userHandler.addNewUser(obj);
+                if (exec == 0) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
-                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
+                    args.put("X-Error-Code", "" + exec);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                 }
                 return false;
             case "getinfo":
@@ -228,7 +234,6 @@ public class OrcascoutHandler implements InputHandler {
         JSONObj obj;
         HashMap<String, String> args = new HashMap<>();
         int exec;
-        String execs;
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "create":
                 obj = new JSONObj(in.getRawPostData());
@@ -241,12 +246,12 @@ public class OrcascoutHandler implements InputHandler {
                 }
                 return false;
             case "getteams":
-                execs = teamHandler.getTeams();
-                if (execs.matches("\\d+")) {
-                    args.put("X-Error-Code", execs);
+                obj = teamHandler.getTeams(user);
+                if (obj.keySet().contains("error")) {
+                    args.put("X-Error-Code", "" + obj.get("error"));
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                 } else {
-                    sendFile(new ResponseFile(execs, "text/plain; charset=utf-8"), "204 No Content", null, out, null);
+                    sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "200 OK", null, out, null);
                 }
                 return false;
         }
@@ -282,7 +287,7 @@ public class OrcascoutHandler implements InputHandler {
         }
         HashSet<String> cokies = new HashSet<>();
         String token = in.getCookie("AuthToken");
-        if (token == null || !userHandler.isLoggedIn(token)) {
+        if ((token == null || !userHandler.isLoggedIn(token)) && !in.getPhpArgs().get("method").equalsIgnoreCase("getcomps")) {
             sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
             return false;
         }
@@ -290,7 +295,6 @@ public class OrcascoutHandler implements InputHandler {
         JSONObj obj;
         HashMap<String, String> args = new HashMap<>();
         int exec;
-        String execs;
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "getcomps":
                 obj = compHandler.getComps();
@@ -299,7 +303,7 @@ public class OrcascoutHandler implements InputHandler {
                     args.put("X-Error-Code", "" + exec);
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                 } else {
-                    sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "204 No Content", null, out, null);
+                    sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "200 OK", null, out, null);
                 }
                 return false;
             case "register":
@@ -309,7 +313,7 @@ public class OrcascoutHandler implements InputHandler {
                     args.put("X-Error-Code", "" + exec);
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                 } else {
-                    sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "204 No Content", null, out, null);
+                    sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "200 OK", null, out, null);
                 }
         }
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);

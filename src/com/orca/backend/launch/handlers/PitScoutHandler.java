@@ -3,6 +3,7 @@ package com.orca.backend.launch.handlers;
 import com.orca.backend.launch.JSONObj;
 import com.orca.backend.launch.User;
 import com.orca.backend.launch.User.UserLevel;
+import com.orca.backend.server.Utils;
 import com.orca.backend.sql.DatabaseConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -78,23 +79,27 @@ public class PitScoutHandler {
     }
 
     /**
-     * gets list of pit scouts for current competition competition checking not
-     * implemented
+     * gets list of pit scouts for current competition
      *
-     * @return JSON, or error code error codes: 1: SQL Exception
+     * @param u the user to get the competitions for(Based off of cached TBA
+     * COMP ID)
+     * @return JSON, or error code error codes:<br>
+     * 1: SQL Exception<br>
      */
-    public String getTeams() {
+    public JSONObj getTeams(User u) {
         try {
             JSONObj ret = new JSONObj();
-            ResultSet res = connection.executeQuery("select * from PITS");
+            PreparedStatement ps = connection.prepareStatement("select * from PITS where REGIONAL_ID = ?");
+            ps.setString(1, u.getCurrentRegionalId());
+            ResultSet res = ps.executeQuery();
             ret.put("teams", new JSONArray());
             while (res.next()) {
                 ret.append("teams", pitScoutToJSON(res, false, true));
             }
-            return ret.toString();
+            return ret;
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
-            return "1";
+            return Utils.errorJson(1);
         }
     }
 }

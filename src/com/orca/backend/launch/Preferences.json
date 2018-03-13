@@ -13,5 +13,7 @@
     "sql_args": "useSSL=false",
     "sql_username": "root",
     "sql_password": "NONO",
-    "debug_send_access_endpoint_all_requests": true
+    "password_security_level": 0,
+    "passwod_regex": "",
+    "tba_api_key": ""
 }
