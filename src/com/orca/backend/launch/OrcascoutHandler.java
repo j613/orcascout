@@ -182,14 +182,17 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
             case "changepassword":
                 if (token == null || !userHandler.isLoggedIn(token)) {
-                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
+                    args.put("X-Error-Code", "1"); //Not Logged In
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                     return false;
                 }
                 obj = new JSONObj(in.getRawPostData());
-                if (userHandler.changePassword(token, obj)) {
+                exec = userHandler.changePassword(token, obj);
+                if (exec==0) {
                     sendFile(null, "204 No Content", null, out, null);
                 } else {
-                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
+                    args.put("X-Error-Code", ""+exec); //Not Logged In
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                 }
                 return false;
             case "setcomp":

@@ -283,15 +283,26 @@ public class UserHandler {
             return 1;
         }
     }
-
-    public boolean changePassword(String token, JSONObj obj) {
+    /**
+     * Changes the password for a specified user
+     * @param token the token for the user
+     * @param obj the data
+     * @return Error code<br>
+     * Error Codes:<br>
+     * 0: No Error<br>
+     * 1: SQL Error<br>
+     * 2: Doesn't match template<br>
+     * 3: User not logged in<br>
+     * 4: Old Password Does not match<br>
+     */
+    public int changePassword(String token, JSONObj obj) {
         try {
             if (!JSONObj.checkTemplate("UserChangePassTemplate", obj)) {
-                return false;
+                return 2;
             }
             User u = getUserByToken(token);
             if (u == null) {
-                return false;
+                return 3;
             }
             PreparedStatement ps = connection.prepareStatement("select PASSWORD_HASH, "
                     + "PASSWORD_SALT from USERS where USERNAME = ?");
@@ -305,13 +316,13 @@ public class UserHandler {
                 ps.setString(2, passwordSalt);
                 ps.setString(3, u.getUsername());
                 ps.execute();
-                return true;
+                return 0;
             } else {
-                return false;
+                return 4;
             }
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
-            return false;
+            return 1;
         }
     }
 
