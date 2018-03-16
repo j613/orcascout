@@ -46,7 +46,14 @@ public class UserHandler {
         timeoutUsers();
         return users.stream().filter(n -> n.getToken().equals(token)).findAny().orElse(null);
     }
-
+    /**
+     * converts a SQL Result to a JSON Object containing the User information
+     * @param rs the SQL ResultSet that contains the data
+     * @param userLevel if true, include the User Level in the JSON Object
+     * @param passhash if true, include the hashed password in the JSON Object
+     * @return a JSON Object containing the User's information
+     * @throws SQLException if there is an error reading the information
+     */
     public static JSONObj userToJSON(ResultSet rs, boolean userLevel, boolean passhash) throws SQLException {
         JSONObj ret = new JSONObj();
         ret.put("username", rs.getString("USERNAME"));
@@ -60,7 +67,12 @@ public class UserHandler {
         }
         return ret;
     }
-
+    /**
+     * Gets a list of the pending Users(Not currently accepted)
+     * @return A JSONObj with either the list, or the error code<br>
+     * Error Codes:<br>
+     * 2: SQL Error<br>
+     */
     public JSONObj getPendingUsers() {
         try {
             JSONObj ret = new JSONObj();
@@ -71,7 +83,7 @@ public class UserHandler {
             return ret;
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
-            return null;
+            return Utils.errorJson(1);
         }
     }
 

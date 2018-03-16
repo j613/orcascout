@@ -100,6 +100,9 @@ public class JSONObj extends JSONObject {
             return false;
         }
     }
+    public boolean isErrorJSON(){
+        return keySet().contains("error");
+    }
     public static JSONObj JSONForError(int ecode, Throwable t){
         JSONObj j = new JSONObj();
         j.put("errorcode", ecode);
