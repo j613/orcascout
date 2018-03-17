@@ -33,6 +33,13 @@ public final class Utils {
         return dateFormat.format(new Date(calendar.getTimeInMillis() + millisAdd));
     }
 
+    public static String getTimeNoDate() {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
+        //dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return dateFormat.format(calendar.getTime());
+    }
+
     /**
      * Get This!
      *
@@ -70,7 +77,20 @@ public final class Utils {
         }
         return buff.toString();
     }
-    public static JSONObj errorJson(int errorCode){
-        return new JSONObj("{\"error\":"+errorCode+"}");
+
+    public static JSONObj errorJson(int errorCode) {
+        return new JSONObj("{\"error\":" + errorCode + "}");
+    }
+
+    public static synchronized void logln(String s) {
+        StringBuilder buff = new StringBuilder();
+        buff.append("[")
+                .append(Thread.currentThread().getName())
+                .append(" / ")
+                .append(getTimeNoDate())
+                .append("] ")
+                .append(s)
+                .append("\r\n");
+        System.out.print(buff.toString());
     }
 }

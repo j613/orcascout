@@ -18,6 +18,7 @@ public interface InputHandler {
         outWriter.write("Access-Control-Expose-Headers: X-Error-Code, Content-Length, Set-Cookie\r\n");
         outWriter.write("Access-Control-Allow-Headers: Content-Type, Cookie, Origin\r\n");
         outWriter.write("Access-Control-Allow-Credentials: true\r\n");
+        outWriter.write("Cache-Control: no-store, no-cache, must-revalidate\r\n");  //Temporary
         if (file != null) {
             outWriter.write("Content-Type: " + file.getContentType() + "\r\n");
             outWriter.write("Content-Encoding: identity\r\n");

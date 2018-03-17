@@ -18,10 +18,6 @@ public class Server extends Thread {
     private final ExecutorService execService;
     // private final boolean useSSL; //TODO implement SSL
 
-    synchronized static void logln(String tname, String g) {
-        System.out.println("[" + tname + " / " + Utils.getHTTPDate() + "] " + g);
-        System.out.flush();
-    }
 
     public Server(InputHandler inputHandler, int port) {
         super("Orca Server handler");
@@ -61,7 +57,7 @@ public class Server extends Thread {
                 int soTimeout = Prefs.getInt("server_socket_timeout", 0);
                 connection.setSoTimeout(soTimeout);
                 ClientHandler chandle = new ClientHandler(connection, this);
-                System.out.println("Accepted connection from: " + connection.getInetAddress());
+                Utils.logln("Accepted connection from: " + connection.getInetAddress());
                 execService.submit(chandle);
 
             }

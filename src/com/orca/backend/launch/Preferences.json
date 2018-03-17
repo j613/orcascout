@@ -2,7 +2,7 @@
     "host_port": 80,
     "host_bind_ip": "0.0.0.0",
     "host_connection_backlog": 50,
-    "host_domain": "http://localhost",
+    "host_domain": "http://localhost:4200",
     "server_name": "Orca/NaN",
     "server_threadpool_size": 10,
     "server_socket_timeout": 0,

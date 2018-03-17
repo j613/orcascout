@@ -75,13 +75,17 @@ public class CompetitionHandler {
      *
      * @param data the data for the competition
      * @param u the user to register it
-     * @return the error code error codes: 0: no error 1: SQL Error 2: User is
-     * not Admin 3: incorrect template
+     * @return the error code<br>
+     * Error codes:<br>
+     * 0: No error<br>
+     * 1: SQL Error<br>
+     * 2: User is not Admin<br>
+     * 3: Incorrect template<br>
      */
     public int registerComp(JSONObj data, User u) {
         try {
             //TODO Implement TBA API
-            if (!JSONObj.checkTemplate("Competition", data)) {
+            if (!JSONObj.checkTemplate("CompetitionRegisterTemplate", data)) {
                 return 3;
             }
             if (u.getUserLevel() != UserLevel.ADMIN) {

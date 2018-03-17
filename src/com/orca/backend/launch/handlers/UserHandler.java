@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Optional;
 import org.json.JSONArray;
 
 public class UserHandler {
@@ -27,13 +28,28 @@ public class UserHandler {
 
     /**
      * checks to see if the password given matches the Password Requirements in
-     * the Prefes file
+     * the Prefs file
      *
      * @param password the password to check
      * @return true if the password matches the Requirements
      */
     public boolean passwordMatchesCustomReqs(String password) {
         return true;//just for now
+    }
+
+    public User getUserByID(int id) throws SQLException {
+        Optional<User> u = users.stream().filter(n -> n.getID() == id).findAny();
+        if (u.isPresent()) {
+            return u.get();
+        }
+        PreparedStatement ps = connection.prepareStatement("select * from USERS where ID = ?");
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+        if (!rs.next()) {
+            return null;
+        }
+        return new User(rs.getInt("ID"), rs.getString("username"), null,
+                rs.getString("USER_LEVEL"), rs.getString("FIRSTNAME"), rs.getString("LASTNAME"));
     }
 
     /**
@@ -46,8 +62,10 @@ public class UserHandler {
         timeoutUsers();
         return users.stream().filter(n -> n.getToken().equals(token)).findAny().orElse(null);
     }
+
     /**
      * converts a SQL Result to a JSON Object containing the User information
+     *
      * @param rs the SQL ResultSet that contains the data
      * @param userLevel if true, include the User Level in the JSON Object
      * @param passhash if true, include the hashed password in the JSON Object
@@ -67,8 +85,10 @@ public class UserHandler {
         }
         return ret;
     }
+
     /**
      * Gets a list of the pending Users(Not currently accepted)
+     *
      * @return A JSONObj with either the list, or the error code<br>
      * Error Codes:<br>
      * 2: SQL Error<br>
@@ -130,8 +150,10 @@ public class UserHandler {
             return null;
         }
     }
+
     /**
      * Gets the info for a given user
+     *
      * @param token
      * @return the data, or null
      */
@@ -153,7 +175,6 @@ public class UserHandler {
     }
 
     public boolean isLoggedIn(String token) {
-        System.out.println("LL" + users);
         return this.getUserByToken(token) != null;
     }
 
@@ -283,8 +304,10 @@ public class UserHandler {
             return 1;
         }
     }
+
     /**
      * Changes the password for a specified user
+     *
      * @param token the token for the user
      * @param obj the data
      * @return Error code<br>
@@ -326,6 +349,10 @@ public class UserHandler {
         }
     }
 
+    public boolean isUserLoggedIn(String username) {
+        return users.stream().anyMatch(n -> n.getUsername().equalsIgnoreCase(username));
+    }
+
     /**
      * given a JSON matching UserLoginTemplate, returns a token for user login
      *
@@ -336,18 +363,15 @@ public class UserHandler {
      * 1: SQL Error<br>
      * 2: Does not match Template<br>
      * 3: User does not exist / Password is invalid<br>
-     * 4: User is logged in<br>
      */
     public JSONObj loginUser(JSONObj obj) {
+        Utils.logln("USERS LOGGED IN: " + users);
         if (!JSONObj.checkTemplate("UserLoginTemplate", obj)) {
             return Utils.errorJson(2);
         }
         try {
             if (!userExists(obj.getString("username"))) {
                 return Utils.errorJson(3);
-            }
-            if (users.stream().anyMatch(n -> n.getUsername().equalsIgnoreCase(obj.getString("username")))) {
-                return Utils.errorJson(4);
             }
             PreparedStatement exec
                     = connection.prepareStatement("select * from USERS where USERNAME = ? ");
@@ -359,11 +383,17 @@ public class UserHandler {
             String passhash = Utils.hashPassword(rs.getString("PASSWORD_SALT"), obj.getString("password"));
             if (rs.getString("PASSWORD_HASH").equals(passhash)) {
                 String token;
-                while (true) {
-                    token = Utils.generateToken(256);
-                    final String why = token;
-                    if (users.stream().noneMatch(n -> n.getToken().equals(why))) {
-                        break;
+                if (isUserLoggedIn(rs.getString("USERNAME"))) {
+                    final String usernamewhy = rs.getString("USERNAME");
+                    token = users.stream().filter(n->n.getUsername().equalsIgnoreCase(usernamewhy))
+                            .findAny().get().getToken();
+                } else {
+                    while (true) {
+                        token = Utils.generateToken(256);
+                        final String why = token;
+                        if (users.stream().noneMatch(n -> n.getToken().equals(why))) {
+                            break;
+                        }
                     }
                 }
                 users.add(new User(rs.getInt("ID"), obj.getString("username"), token,

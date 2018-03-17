@@ -32,7 +32,16 @@ public class User {
     public static long userTimeoutMillis(){
         return Prefs.getInt("user_expire_time", 259200000);
     }
-
+    public JSONObj asJSON(boolean userLevel){
+        JSONObj ret = new JSONObj();
+        ret.put("username", username);
+        ret.put("firstname", firstname);
+        ret.put("lastname", lastname);
+        if (userLevel) {
+            ret.put("userlevel", this.userLevel.toString());
+        }
+        return ret;
+    }
     public String getFirstname() {
         return firstname;
     }

@@ -15,20 +15,17 @@ public class ClientHandler extends Thread {
     private final Server server;
 
     public ClientHandler(Socket cs, Server s) {
-        super(clientHandlerThreadGroup, "Client Handler for " + cs.getInetAddress());
+        super(clientHandlerThreadGroup, "This won't affect anything anyway");
         this.clientSocket = cs;
         server = s;
-    }
-
-    private synchronized void logln(String g) {
-        Server.logln(clientSocket.getInetAddress().toString(), g);
     }
 
     @Override
     public void run() { //TODO make isClosed calls more clean we dont need three of them
         int inc = 0;
         try {
-            logln("Connection from " + clientSocket.getInetAddress() + " opened" + getName());
+            Thread.currentThread().setName("Handler for " + clientSocket.getInetAddress());
+            Utils.logln(clientSocket.getInetAddress() + " opened");
             InputStream in = clientSocket.getInputStream();
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
 
@@ -38,29 +35,27 @@ public class ClientHandler extends Thread {
                 long inputSize = 0;
                 StringBuffer inputBuffer = new StringBuffer(1024);
                 HTTPInput HTTPParser = new HTTPInput();
-               // logln("SHUTDOWN OUT: " + clientSocket.isOutputShutdown() + " IN: " + clientSocket.isInputShutdown() + "CLOSED: " + clientSocket.isClosed() + "avaliable: " + in.available());
-
                 inc = in.read();
                 for (; inc >= 0 && !clientSocket.isClosed(); inc = in.read()) {
                     char c = (char) inc;
                     inputSize++;
-                    System.out.print(c);//+""+inc+" "); // Debug print request
+//                    System.out.print(c);//+""+inc+" "); // Debug print request
                     inputBuffer.append(c);
                     if (inputBuffer.length() > 1024 || inputSize > 1024 * 1024) {
-                        logln("Request Too Long");
+                        Utils.logln("PARSER$ Request Too Long");
                         HTTPParser.setError(1);
                         break;
                     }
-                     if(HTTPParser.inPostMode()){
+                    if (HTTPParser.inPostMode()) {
                         HTTPParser.parseString(inputBuffer.toString());
                         if (HTTPParser.isFinished()) {
                             //logln(HTTPParser.getActualPostData());
                             break;
                         }
                         inputBuffer = new StringBuffer(1024);
-                    }else if (c == '\n') {
+                    } else if (c == '\n') {
                         if (HTTPParser.parseString(inputBuffer.toString()) != 0) {
-                            logln("Bad request Header");
+                            Utils.logln("PARSER$ Bad request Header");
                             break;
                         }
                         if (HTTPParser.isFinished()) {
@@ -70,31 +65,31 @@ public class ClientHandler extends Thread {
                         inputBuffer = new StringBuffer(1024);
                     }
                 }
-                logln("Finished parsing");
+                Utils.logln("Finished parsing");
                 if (inc < 0) {
-                    logln("Input Returned null");
+                    Utils.logln("Input Returned null");
                     break;
                 } else if (server.sendToInputHandler(HTTPParser, out)) {
                     clientSocket.close();
-                    logln("Intentiaonally Closed");
+                    Utils.logln("Socket Intentiaonally Closed");
                 }
             }
         } catch (SocketTimeoutException e) {
-            logln("Socket timed out");
+            Utils.logln("Socket timed out");
         } catch (IOException ex) {
-            
-            logln("IO Error in Thread " + getName());
-           // logln("inc: " + inc);
-           if(ex instanceof SocketException && ex.getMessage().trim().equalsIgnoreCase("Connection Reset")){
-               logln("Connection reset");
-           }else{
-            ex.printStackTrace(System.out);
-           }
+
+            Utils.logln("IO Error in Thread " + getName());
+            // logln("inc: " + inc);
+            if (ex instanceof SocketException && ex.getMessage().trim().equalsIgnoreCase("Connection Reset")) {
+                Utils.logln("Connection reset");
+            } else {
+                ex.printStackTrace(System.out);
+            }
             //System.err.flush();
             /*} catch (InterruptedException e) {
 			e.printStackTrace();*/
         } finally {
-            logln("Connection from " + clientSocket.getInetAddress() + " closed");
+            Utils.logln("Connection from " + clientSocket.getInetAddress() + " closed");
             try {
                 clientSocket.close();
             } catch (IOException e) {

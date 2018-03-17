@@ -87,12 +87,12 @@ public class HTTPInput extends HashMap<String, String> {
             if (inReadRawDataMode) {
                 int clength = Integer.parseInt(getOrDefault("Content-Length", "0"));
                 if (!containsKey("Content-Length")) {
-                    System.out.println("POST, but no content length");
+                    Utils.logln("PARSER$ POST, but no content length");
                     error = 6;
                     return error;
                 }
                 if (clength > 1024 * 1024 || clength > Integer.parseInt(get("Content-Length"))) {
-                    System.out.println("Content-Legnth too big");
+                    Utils.logln("PARSER$ Content-Legnth too big");
                     error = 2;
                     return error;
                 }
@@ -101,7 +101,7 @@ public class HTTPInput extends HashMap<String, String> {
                 }
                 postDataBuffer.append(s);
                 if (postDataBuffer.length() == clength) {
-                    System.out.println("Length exceeded Content-Length");
+                    Utils.logln("PARSER$ Length exceeded Content-Length");
                     isFinished = true;
                 }
             } else {
@@ -139,6 +139,7 @@ public class HTTPInput extends HashMap<String, String> {
             return 0;
         } catch (Exception ex) {
             error = 5;
+            Utils.logln("PARSER$ Exception occured in parsing.");
             ex.printStackTrace(System.out);
             return error;
         }
