@@ -13,7 +13,8 @@
             <div class="card-body">
               <p class="card-text" *ngIf="getData(t.team_number) !== undefined; else nodata">
                 <b>Drivetrain:</b> {{ getData(t.team_number)?.drivetrain }}<br>
-                <b>Notes:</b> {{ getData(t.team_number)?.notes }}
+                <b>Notes:</b> {{ getData(t.team_number)?.notes }}<br>
+                <b>Submitted By:</b> {{ getData(t.team_number)?.submit_by }}
               </p>
               <ng-template #nodata>
               <p class="card-text">
