@@ -8,6 +8,7 @@ import { SidebarModule } from 'ng-sidebar';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { AdminRoutingModule } from './pages/admin/admin-routing.module';
 import { AppRoutingModule } from './pages/app-routing.module';
+import { AccordionModule } from 'ngx-bootstrap';
 // Services
 import { BackendUpdateService } from './services/backend-update.service';
 import { AuthService } from './services/auth.service';
@@ -39,7 +40,8 @@ import { ListComponent } from './pages/list/list.component';
     FormsModule,
     AdminRoutingModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    AccordionModule.forRoot()
   ],
   declarations: [
     AppComponent,
