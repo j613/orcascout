@@ -186,6 +186,7 @@ export class BackendUpdateService {
                         this.notif.addNotification('Competition ' + name + ' added.', 1);
                         return Observable.of(true);
                       }
+                      return Observable.of(false);
                     }).catch((res: HttpErrorResponse) => {
                       return Observable.of(false);
                     });

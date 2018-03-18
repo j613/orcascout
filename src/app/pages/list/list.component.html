@@ -1,19 +1,17 @@
 <app-header [title]="_title"></app-header>
 
 <div class="col-sm-12">
-  <div class="card" *ngFor="let t of teams">
-    <div class="card-header">
-      {{ t.team_number }} - {{ t.nickname }}
-    </div>
-    <div class="card-body">
+  <accordion>
+    <accordion-group *ngFor="let t of teams" heading="{{ t.team_number }} - {{ t.nickname }}">
       <div class="row">
         <div class="col-sm-4">
           <div class="card mx-auto">
             <img class="card-img-top" src="https://pbs.twimg.com/profile_images/949374088249671680/MuxDEZpD_400x400.jpg">
             <div class="card-body">
               <p class="card-text" *ngIf="getData(t.team_number) !== undefined; else nodata">
-                <b>Drivetrain:</b> {{ getData(t.team_number)?.drivetrain }}<br>
-                <b>Notes:</b> {{ getData(t.team_number)?.notes }}
+                <b>Drivetrain:</b> {{ getData(t.team_number).drivetrain }}<br>
+                <b>Notes:</b> {{ getData(t.team_number)?.notes }}<br>
+                <b>Submitted By:</b> {{ getData(t.team_number)?.user_info.firstname + " " + getData(t.team_number)?.user_info.lastname }}
               </p>
               <ng-template #nodata>
               <p class="card-text">
@@ -25,12 +23,34 @@
         </div>
 
         <div class="col-sm-8">
-          <h5 class="card-title">{{ t.nickname }}</h5>
-          <p class="card-text">
-            Matches<br>
-          </p>
+          <h5 class="card-title">Stats</h5>
+          <div class="card-text">
+            <div class="col-sm-12">
+              {{ getWinStats(t.team_number) }}
+            </div>
+            <table>
+              <tr>
+                <th>Match Number</th>
+                <th class="red">Red 1</th>
+                <th class="red">Red 2</th>
+                <th class="red">Red 3</th>
+                <th class="red">Red Score</th>
+                <th class="blue">Blue 1</th>
+                <th class="blue">Blue 2</th>
+                <th class="blue">Blue 3</th>
+                <th class="blue">Blue Score</th>
+              </tr>
+              <!-- <tr *ngFor="let match of getMatches(t.team_number)">
+                <td>{{ match.match_number }} ({{ match.comp_level | uppercase }})</td>
+                <td class="red" *ngFor="let team of match.alliances.red.team_keys" [class.selected-team]="team.substr(3) == t.team_number" [class.winner-red]="match.alliances.red.score > match.alliances.blue.score">{{ team.substr(3) }}</td>
+                <td class="red" [class.winner-red]="match.alliances.red.score > match.alliances.blue.score">{{ match.alliances.red.score }}</td>
+                <td class="blue" *ngFor="let team of match.alliances.blue.team_keys" [class.selected-team]="team.substr(3) == t.team_number" [class.winner-blue]="match.alliances.blue.score > match.alliances.red.score">{{ team.substr(3) }}</td>
+                <td class="blue" [class.winner-blue]="match.alliances.blue.score > match.alliances.red.score">{{ match.alliances.blue.score }}</td>
+              </tr> -->
+            </table>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </accordion-group>
+  </accordion>
 </div>

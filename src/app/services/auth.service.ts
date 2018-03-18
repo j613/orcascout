@@ -26,12 +26,11 @@ export class AuthService {
 
   constructor(private router: Router, private utils: UtilsService, private backend_update: BackendUpdateService) {
     console.log('AuthService Constructed');
-    if (this.utils.parseCookies()['AuthToken'] && localStorage.getItem('session')) { // If there is a session stored in LocalStorage and there is an AuthToken cookie saved
+    if (localStorage.getItem('session')) { // If there is a session stored in LocalStorage and there is an AuthToken cookie saved
       this.isLoggedIn = true;
       this.session = JSON.parse(localStorage.getItem('session'));
     } else { // This is called if session(localStorage) or AuthToken(is notpresent).  If one of them isnt set, erase them both.
       localStorage.removeItem('session');
-      document.cookie = 'AuthToken=; expires=' + new Date(0).toUTCString();
     }
   }
 
@@ -146,7 +145,7 @@ export class AuthService {
     this.backend_update.getRegionalData(this.session.regional.key)
                       .subscribe((reg: RegionalData) => {
                         this.session.regional.data = reg;
-                        // this.setRegional();
+                        // this.setRegionalBackend();
                         this.saveSession();
                       });
   }
@@ -167,4 +166,8 @@ export class AuthService {
     localStorage.setItem('session', JSON.stringify(this.session));
   }
 
+  public getSessionData(): Session {
+    return this.session;
+    // return JSON.parse(localStorage.getItem('session'));
+  }
 }

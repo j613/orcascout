@@ -6,11 +6,11 @@ export interface Match {
     match_number: number;
     alliances: {
         red: {
-            team_keys: number[],
+            team_keys: string[],
             score: number
         }
         blue: {
-            team_keys: number[],
+            team_keys: string[],
             score: number
         }
     };
