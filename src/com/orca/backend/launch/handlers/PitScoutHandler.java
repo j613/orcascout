@@ -34,7 +34,7 @@ public class PitScoutHandler {
             ret.put("image", rs.getString("image"));
         }
         if(userInfo){
-            ret.put("user_info", OrcascoutHandler.userHandler.getUserByID(rs.getInt("id")).asJSON(true));
+            ret.put("user_info", OrcascoutHandler.userHandler.getUserByID(rs.getInt("submit_by")).asJSON(true));
         }
         return ret;
     }
