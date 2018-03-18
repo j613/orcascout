@@ -40,10 +40,26 @@ export class AppComponent implements OnInit {
   }
 
   public getPages() {
-    if (this.auth.session.user.level.toLowerCase() === 'limited') {
+    if (this.auth.getSession().user.level.toLowerCase() === 'limited') {
       return this.pages.filter((page) => !page.hide_ltd);
     }
     return this.pages;
+  }
+
+  public getSession() {
+    return this.auth.getSession();
+  }
+
+  public isUserLoggedIn() {
+    return this.auth.userLoggedIn();
+  }
+
+  public getBacklog() {
+    return this.backend_update.getBacklog();
+  }
+
+  public isOnline() {
+    return this.backend_update.isOnline();
   }
 
   public logout() {

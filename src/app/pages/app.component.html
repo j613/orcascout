@@ -3,15 +3,15 @@
   <!-- A sidebar -->
   <ng-sidebar [(opened)]="_opened" mode="slide" closeOnClickOutside="true" (onOpened)="_toggleSidebar(true)" (onClosed)="_toggleSidebar(false)">
     <div class="sidebar">
-      <ul *ngIf="auth.isLoggedIn; else loggedout">
+      <ul *ngIf="isUserLoggedIn(); else loggedout">
         <li *ngFor="let page of getPages()">
           <a [routerLink]="page.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ page.name }}</a>
         </li>
-        <li *ngIf="auth.session.user.level.toLowerCase() === 'admin'">
+        <li *ngIf="getSession().user.level.toLowerCase() === 'admin'">
           <a routerLink="admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Admin</a>
         </li>
         <li>
-          <a (click)="logout()">Logout - {{ auth.session.user.username }}</a>
+          <a (click)="logout()">Logout - {{ getSession().user.username }}</a>
         </li>
       </ul>
       <ng-template #loggedout>
@@ -27,12 +27,12 @@
         </li>
       </ul>
       </ng-template>
-      <span *ngIf="auth.session && auth.session.user.level.toLowerCase() === 'limited'" class="limitedusr">You're account is limited! Please wait to be accepted by an admin.<br></span>
-      Status: <span [style.color]="backend_update.is_online ? 'green' : 'red'">{{ backend_update.is_online ? 'ONLINE' : 'OFFLINE' }}</span><br>
-      <span *ngIf="auth.isLoggedIn">
-        Regional: {{ auth.session.regional.name }}<br>
-        <span *ngIf="backend_update.backlog.length >= 0">
-          There are {{ backend_update.backlog.length }} offline records stored.
+      <span *ngIf="getSession() && getSession().user.level.toLowerCase() === 'limited'" class="limitedusr">You're account is limited! Please wait to be accepted by an admin.<br></span>
+      Status: <span [style.color]="isOnline() ? 'green' : 'red'">{{ isOnline() ? 'ONLINE' : 'OFFLINE' }}</span><br>
+      <span *ngIf="isUserLoggedIn()">
+        Regional: {{ getSession().regional?.name }}<br>
+        <span *ngIf="getBacklog().length >= 0">
+          There are {{ getBacklog().length }} offline records stored.
         </span>
       </span>
     </div>

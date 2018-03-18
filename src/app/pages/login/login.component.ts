@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit {
         this.login_fields.username = params.params.username;
       }
     });
-    if (!this.backend_update.is_online) {
+    if (!this.backend_update.isOnline()) {
       this.message = 'Currently offline, please go online to login.';
     }
     // Call backend_update to get regional list

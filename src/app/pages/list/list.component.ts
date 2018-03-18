@@ -10,7 +10,7 @@ import { PitTeam } from '../../classes/pit-team';
   styleUrls: ['./list.component.less']
 })
 export class ListComponent implements OnInit, OnDestroy {
-  public title = 'List';
+  public _title = 'List';
   public teams: Team[];
 
   private checker;
@@ -18,7 +18,7 @@ export class ListComponent implements OnInit, OnDestroy {
   constructor(private auth: AuthService, private backend_update: BackendUpdateService) { }
 
   ngOnInit() {
-    this.teams = this.auth.getSessionData().regional.data.teams;
+    this.teams = this.auth.getSession().regional.data.teams;
     this.refreshData();
     this.checker = setInterval(() => {
       this.refreshData();
@@ -35,6 +35,6 @@ export class ListComponent implements OnInit, OnDestroy {
 
   public getData(team_num: number): PitTeam {
     // TODO: Figure out why === doesnt work in this comparison.
-    return this.backend_update.team_data.find(tm => tm.teamnumber == team_num);
+    return this.backend_update.getTeamData().find(tm => tm.teamnumber == team_num);
   }
 }

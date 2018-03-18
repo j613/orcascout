@@ -14,7 +14,7 @@
         <th class="blue">Blue 3</th>
         <th class="blue">Blue Score</th>
     </tr>
-    <tr *ngFor="let match of auth.session.regional.data.matches">
+    <tr *ngFor="let match of getMatches()">
         <td>{{ match.match_number }} ({{ match.comp_level | uppercase }})</td>
         <td class="red" *ngFor="let team of match.alliances.red.team_keys" [class.winner]="match.alliances.red.score > match.alliances.blue.score">{{ team.substr(3) }}</td>
         <td class="red" [class.winner]="match.alliances.red.score > match.alliances.blue.score">{{ match.alliances.red.score === -1 ? "" : match.alliances.red.score }}</td>

@@ -24,6 +24,10 @@ export class MatchScheduleComponent implements OnInit, OnDestroy {
     clearInterval(this.checker);
   }
 
+  public getMatches() {
+    return this.auth.getSession().regional.data.matches;
+  }
+
   public refreshSchedule() {
     this.auth.refreshRegionalData();
   }

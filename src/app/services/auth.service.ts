@@ -21,8 +21,8 @@ interface Session {
 
 @Injectable()
 export class AuthService {
-  public isLoggedIn = false;
-  public session: Session;
+  private isLoggedIn = false;
+  private session: Session;
 
   constructor(private router: Router, private utils: UtilsService, private backend_update: BackendUpdateService) {
     console.log('AuthService Constructed');
@@ -42,9 +42,19 @@ export class AuthService {
     return false;
   }
 
+  public getSession(): Session {
+    return this.session;
+  }
+
+  public getRegional(): Regional {
+    if (this.session.regional) {
+      return this.session.regional;
+    }
+    return null;
+  }
+
   public login(username: string, password: string, regional_id: string): Observable<boolean> {
     return this.utils.craftHttpPostUser('login', { username: username, password: password }) // Login request
-              // TODO: the 2 template parameters are 'input' and 'expected return' types.
               .mergeMap<any, any>((res: HttpResponse<null>) => {
                 if (res.status === 204) { // If valid login, make request for userinfo
                   return this.utils.craftHttpGetUser('getinfo');
@@ -63,11 +73,7 @@ export class AuthService {
                 this.session = {
                   user: res.body
                 };
-                this.session.regional = {
-                  key: regional_id.split('-')[0],
-                  name: regional_id.split('-')[1]
-                };
-                this.refreshRegionalData();
+                this.setRegional(regional_id.split('-')[0], regional_id.split('-')[1]);
                 this.saveSession();
                 return Observable.of(true);
               }).catch((res: HttpErrorResponse) => {
@@ -101,10 +107,15 @@ export class AuthService {
                   });
   }
 
-  private setRegionalBackend() {
-    this.utils.craftHttpPostUser('setcomp', {comp_id: this.session.regional.key})
+  private setRegional(reg_id: string, reg_name: string) {
+    this.utils.craftHttpPostUser('setcomp', {comp_id: reg_id})
               .mergeMap((res: HttpResponse<null>) => {
                 if (res.status === 204) {
+                  this.session.regional = {
+                    key: reg_id,
+                    name: reg_name
+                  };
+                  this.refreshRegionalData();
                   return Observable.of(true);
                 } else {
                   return Observable.of(false);
@@ -120,8 +131,7 @@ export class AuthService {
                       break;
                   }
                 }
-                // TODO: Uncomment below line when set competition endpoint is made
-                // this.logout();
+                this.logout();
                 return Observable.of(false);
               }).subscribe((res: boolean) => {
                 if (res) {
@@ -136,7 +146,7 @@ export class AuthService {
     this.backend_update.getRegionalData(this.session.regional.key)
                       .subscribe((reg: RegionalData) => {
                         this.session.regional.data = reg;
-                        this.setRegionalBackend();
+                        // this.setRegional();
                         this.saveSession();
                       });
   }
@@ -155,10 +165,6 @@ export class AuthService {
 
   private saveSession(): void {
     localStorage.setItem('session', JSON.stringify(this.session));
-  }
-
-  public getSessionData(): Session {
-    return JSON.parse(localStorage.getItem('session'));
   }
 
 }
