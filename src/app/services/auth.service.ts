@@ -165,9 +165,4 @@ export class AuthService {
   private saveSession(): void {
     localStorage.setItem('session', JSON.stringify(this.session));
   }
-
-  public getSessionData(): Session {
-    return this.session;
-    // return JSON.parse(localStorage.getItem('session'));
-  }
 }
