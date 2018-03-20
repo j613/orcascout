@@ -1,9 +1,9 @@
 package com.orca.backend.launch.handlers;
 
-import com.orca.backend.launch.JSONObj;
 import com.orca.backend.sql.DatabaseConnection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.json.JSONObject;
 
 public class MatchHandler {
     private final DatabaseConnection connection;
@@ -11,11 +11,11 @@ public class MatchHandler {
     public MatchHandler(DatabaseConnection c) {
         connection = c;
     }
-    public boolean submitNewMatch(JSONObj obj){//TODO Implement
+    public boolean submitNewMatch(JSONObject obj){//TODO Implement
         return false;
     }
-    public static JSONObj matchToJSON(ResultSet rs, boolean gameStats, boolean submitBy) throws SQLException{
-        JSONObj ret = new JSONObj();
+    public static JSONObject matchToJSON(ResultSet rs, boolean gameStats, boolean submitBy) throws SQLException{
+        JSONObject ret = new JSONObject();
         ret.put("regional_id", rs.getString("regional_id"));
         ret.put("team_number",rs.getString("team_number"));
         ret.put("match_number",rs.getString("match_number"));

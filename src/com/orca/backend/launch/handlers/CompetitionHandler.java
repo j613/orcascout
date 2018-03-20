@@ -1,6 +1,5 @@
 package com.orca.backend.launch.handlers;
 
-import com.orca.backend.launch.JSONObj;
 import com.orca.backend.launch.User;
 import com.orca.backend.launch.User.UserLevel;
 import com.orca.backend.server.Utils;
@@ -8,8 +7,7 @@ import com.orca.backend.sql.DatabaseConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.json.JSONObject;
 
 public class CompetitionHandler {
 
@@ -19,8 +17,8 @@ public class CompetitionHandler {
         connection = c;
     }
 
-    public static JSONObj compToJSON(ResultSet rs, boolean Id) throws SQLException {
-        JSONObj ret = new JSONObj();
+    public static JSONObject compToJSON(ResultSet rs, boolean Id) throws SQLException {
+        JSONObject ret = new JSONObject();
         ret.put("nickname", rs.getString("NICKNAME"));
         ret.put("comp_id", rs.getString("COMP_ID"));
         if (Id) {
@@ -56,9 +54,9 @@ public class CompetitionHandler {
      * or error code Error codes:<br>
      * 1: SQL Error
      */
-    public JSONObj getComps() {
+    public JSONObject getComps() {
         try {
-            JSONObj ret = new JSONObj();
+            JSONObject ret = new JSONObject();
             ResultSet rs = connection.executeQuery("select * from COMPETITIONS");
             while (rs.next()) {
                 ret.append("competitions", compToJSON(rs, false));
@@ -81,15 +79,20 @@ public class CompetitionHandler {
      * 1: SQL Error<br>
      * 2: User is not Admin<br>
      * 3: Incorrect template<br>
+     * 4: Match ID is not valid<br>
+     * 5: TBA API Connection Error<br>
      */
-    public int registerComp(JSONObj data, User u) {
+    public int registerComp(JSONObject data, User u) {
         try {
-            //TODO Implement TBA API
-            if (!JSONObj.checkTemplate("CompetitionRegisterTemplate", data)) {
+            if (!Utils.checkTemplate("CompetitionRegisterTemplate", data)) {
                 return 3;
             }
             if (u.getUserLevel() != UserLevel.ADMIN) {
                 return 2;
+            }
+            int exec = BlueAllianceHandler.matchIsValid(data.getString("comp_id"));
+            if(exec!=0){
+                return exec+3;
             }
             PreparedStatement ps = connection.prepareStatement("insert into COMPETITIONS(NICKNAME, COMP_ID) values (?,?)");
             ps.setString(1, data.getString("nickname"));

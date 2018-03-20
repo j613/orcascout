@@ -1,5 +1,7 @@
 package com.orca.backend.launch;
 
+import org.json.JSONObject;
+
 public class User {
 
     public static enum UserLevel {
@@ -32,8 +34,8 @@ public class User {
     public static long userTimeoutMillis(){
         return Prefs.getInt("user_expire_time", 259200000);
     }
-    public JSONObj asJSON(boolean userLevel){
-        JSONObj ret = new JSONObj();
+    public JSONObject asJSON(boolean userLevel){
+        JSONObject ret = new JSONObject();
         ret.put("username", username);
         ret.put("firstname", firstname);
         ret.put("lastname", lastname);

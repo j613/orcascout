@@ -15,5 +15,6 @@
     "sql_password": "NONO",
     "password_security_level": 0,
     "passwod_regex": "",
-    "tba_api_key": ""
+    "tba_api_key": "",
+    "server_root_directory":""
 }

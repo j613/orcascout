@@ -1,6 +1,5 @@
 package com.orca.backend.launch.handlers;
 
-import com.orca.backend.launch.JSONObj;
 import com.orca.backend.launch.OrcascoutHandler;
 import com.orca.backend.launch.User;
 import com.orca.backend.launch.User.UserLevel;
@@ -10,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class PitScoutHandler {
 
@@ -19,8 +19,8 @@ public class PitScoutHandler {
         connection = c;
     }
 
-    public static JSONObj pitScoutToJSON(ResultSet rs, boolean ID, boolean image, boolean userInfo) throws SQLException {
-        JSONObj ret = new JSONObj();
+    public static JSONObject pitScoutToJSON(ResultSet rs, boolean ID, boolean image, boolean userInfo) throws SQLException {
+        JSONObject ret = new JSONObject();
         ret.put("notes", rs.getString("notes"));
         ret.put("team_number", rs.getString("team_number"));
         ret.put("team_name", rs.getString("team_name"));
@@ -52,8 +52,8 @@ public class PitScoutHandler {
      * 4: Pit Scout Data Already Exists (Use method=update?)<br>
      * 5: No Comp ID<br>
      */
-    public int newTeam(JSONObj obj, User u) {
-        if (!JSONObj.checkTemplate("PitScoutTemplate", obj)) {
+    public int newTeam(JSONObject obj, User u) {
+        if (!Utils.checkTemplate("PitScoutTemplate", obj)) {
             return 1;
         }
         if (u.getUserLevel() == UserLevel.LIMITED) {
@@ -94,9 +94,9 @@ public class PitScoutHandler {
      * @return JSON, or error code error codes:<br>
      * 1: SQL Exception<br>
      */
-    public JSONObj getTeams(User u) {
+    public JSONObject getTeams(User u) {
         try {
-            JSONObj ret = new JSONObj();
+            JSONObject ret = new JSONObject();
             PreparedStatement ps = connection.prepareStatement("select * from PITS where REGIONAL_ID = ?");
             ps.setString(1, u.getCurrentRegionalId());
             ResultSet res = ps.executeQuery();

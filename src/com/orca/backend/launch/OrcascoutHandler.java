@@ -18,11 +18,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
+import org.json.JSONObject;
 
 public class OrcascoutHandler implements InputHandler {
-    
+
     private static final DatabaseConnection connection;
-    
+
     static {
         String SqlUrl = "jdbc:mysql://" + Prefs.getString("sql_url", "localhost") + ":"
                 + Prefs.getInt("sql_port", 2206) + "/"
@@ -39,7 +40,7 @@ public class OrcascoutHandler implements InputHandler {
     public static final PitScoutHandler teamHandler = new PitScoutHandler(connection);
     public static final CompetitionHandler compHandler = new CompetitionHandler(connection);
     private static final LCHashMap<ResponseFile> memCachedFiles = new LCHashMap<>();
-    
+
     static {
         try {
             Path p = new File(OrcascoutHandler.class.getResource("/frontend/").toURI()).toPath();//TODO CHANGE WHEN JARRING
@@ -61,11 +62,11 @@ public class OrcascoutHandler implements InputHandler {
             ex.printStackTrace(System.out);
         }
     }
-    
+
     private ResponseFile getCachedFile(String f) {
         return memCachedFiles.get(f);
     }
-    
+
     private boolean shouldCloseConnectionErrorCode(int code) {
         return code > 0;
     }
@@ -82,16 +83,16 @@ public class OrcascoutHandler implements InputHandler {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
             return true;
         }
-        
+
         HashSet<String> cokies = new HashSet<>();
         HashMap<String, String> args = new HashMap<>();
         String token = in.getCookie("AuthToken");
-        JSONObj obj;
+        JSONObject obj;
         int exec;
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "login":
                 //System.out.println("LL"+in.getActualPostData()[0]);
-                obj = new JSONObj(in.getRawPostData());
+                obj = new JSONObject(in.getRawPostData());
                 String tusern = obj.getString("username");
                 obj = userHandler.loginUser(obj);
                 if (obj.keySet().contains("token")) {
@@ -115,7 +116,7 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                     return false;
                 }
-                obj = new JSONObj(in.getRawPostData());
+                obj = new JSONObject(in.getRawPostData());
                 exec = userHandler.approveUser(obj, token);
                 if (exec == 0) {
                     sendFile(null, "204 No Content", null, out, null);
@@ -125,7 +126,7 @@ public class OrcascoutHandler implements InputHandler {
                 }
                 return false;
             case "create":
-                obj = new JSONObj(in.getRawPostData());
+                obj = new JSONObject(in.getRawPostData());
                 exec = userHandler.addNewUser(obj);
                 if (exec == 0) {
                     sendFile(null, "204 No Content", null, out, null);
@@ -172,7 +173,7 @@ public class OrcascoutHandler implements InputHandler {
                     return false;
                 }
                 obj = userHandler.getMatchesScouted(token);
-                if (obj.isErrorJSON()) {
+                if (Utils.isErrorJSON(obj)) {
                     args.put("X-Error-Code", obj.get("error") + "");
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                     return false;
@@ -185,7 +186,7 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
                     return false;
                 }
-                obj = new JSONObj(in.getRawPostData());
+                obj = new JSONObject(in.getRawPostData());
                 exec = userHandler.changePassword(token, obj);
                 if (exec == 0) {
                     sendFile(null, "204 No Content", null, out, null);
@@ -199,7 +200,7 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
                     return false;
                 }
-                obj = new JSONObj(in.getRawPostData());
+                obj = new JSONObject(in.getRawPostData());
                 exec = userHandler.setCompIDByToken(token, obj.getString("comp_id"));
                 if (exec == 0) {
                     sendFile(null, "204 No Content", null, out, null);
@@ -212,7 +213,7 @@ public class OrcascoutHandler implements InputHandler {
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
     }
-    
+
     public boolean handleUserOptions(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
@@ -241,7 +242,7 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
         }
     }
-    
+
     private boolean handlePitScout(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
@@ -254,12 +255,12 @@ public class OrcascoutHandler implements InputHandler {
             return false;
         }
         User user = userHandler.getUserByToken(token);
-        JSONObj obj;
+        JSONObject obj;
         HashMap<String, String> args = new HashMap<>();
         int exec;
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "create":
-                obj = new JSONObj(in.getRawPostData());
+                obj = new JSONObject(in.getRawPostData());
                 exec = teamHandler.newTeam(obj, user);
                 if (exec == 0) {
                     sendFile(null, "204 No Content", null, out, null);
@@ -281,7 +282,7 @@ public class OrcascoutHandler implements InputHandler {
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
     }
-    
+
     public boolean handlePitOptions(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
@@ -302,7 +303,7 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
         }
     }
-    
+
     private boolean handleComp(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
@@ -315,7 +316,7 @@ public class OrcascoutHandler implements InputHandler {
             return false;
         }
         User user = userHandler.getUserByToken(token);
-        JSONObj obj;
+        JSONObject obj;
         HashMap<String, String> args = new HashMap<>();
         int exec;
         switch (in.getPhpArgs().get("method").toLowerCase()) {
@@ -330,7 +331,7 @@ public class OrcascoutHandler implements InputHandler {
                 }
                 return false;
             case "register":
-                obj = new JSONObj(in.getRawPostData());
+                obj = new JSONObject(in.getRawPostData());
                 exec = compHandler.registerComp(obj, user);
                 if (exec != 0) {
                     args.put("X-Error-Code", "" + exec);
@@ -342,7 +343,7 @@ public class OrcascoutHandler implements InputHandler {
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
     }
-    
+
     public boolean handleCompOptions(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
@@ -363,7 +364,7 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
         }
     }
-    
+
     private boolean handleMatch(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
@@ -376,7 +377,7 @@ public class OrcascoutHandler implements InputHandler {
             return false;
         }
         User user = userHandler.getUserByToken(token);
-        JSONObj obj;
+        JSONObject obj;
         HashMap<String, String> args = new HashMap<>();
         int exec;
         switch (in.getPhpArgs().get("method").toLowerCase()) {
@@ -384,7 +385,7 @@ public class OrcascoutHandler implements InputHandler {
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
     }
-    
+
     public boolean handleMatchOptions(HTTPInput in, BufferedWriter out) throws IOException {
         if (!in.getPhpArgs().containsKey("method")) {
             sendFile(getCachedFile("/errorFiles/400error.html"), "400 Bad Request", null, out, null);
@@ -405,7 +406,7 @@ public class OrcascoutHandler implements InputHandler {
                 return false;
         }
     }
-    
+
     @Override
     public boolean handleRequest(HTTPInput in, BufferedWriter out) {
         try {
@@ -457,7 +458,7 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile = getCachedFile(in.getRequestedFile());
                 }
             }
-            
+
             Utils.logln("Sending Static Requested file: " + in.getRequestedFile());
             sendFile(sendFile, respMessage, null, out, null);
             Utils.logln("Static File Sent");

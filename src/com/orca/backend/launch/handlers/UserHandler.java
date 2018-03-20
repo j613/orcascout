@@ -1,6 +1,5 @@
 package com.orca.backend.launch.handlers;
 
-import com.orca.backend.launch.JSONObj;
 import com.orca.backend.launch.OrcascoutHandler;
 import com.orca.backend.launch.User;
 import com.orca.backend.launch.User.UserLevel;
@@ -12,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class UserHandler {
 
@@ -72,8 +72,8 @@ public class UserHandler {
      * @return a JSON Object containing the User's information
      * @throws SQLException if there is an error reading the information
      */
-    public static JSONObj userToJSON(ResultSet rs, boolean userLevel, boolean passhash) throws SQLException {
-        JSONObj ret = new JSONObj();
+    public static JSONObject userToJSON(ResultSet rs, boolean userLevel, boolean passhash) throws SQLException {
+        JSONObject ret = new JSONObject();
         ret.put("username", rs.getString("USERNAME"));
         ret.put("firstname", rs.getString("FIRSTNAME"));
         ret.put("lastname", rs.getString("LASTNAME"));
@@ -89,13 +89,13 @@ public class UserHandler {
     /**
      * Gets a list of the pending Users(Not currently accepted)
      *
-     * @return A JSONObj with either the list, or the error code<br>
+     * @return A JSONObject with either the list, or the error code<br>
      * Error Codes:<br>
      * 2: SQL Error<br>
      */
-    public JSONObj getPendingUsers() {
+    public JSONObject getPendingUsers() {
         try {
-            JSONObj ret = new JSONObj();
+            JSONObject ret = new JSONObject();
             ResultSet rs = connection.executeQuery("select USERNAME, FIRSTNAME, LASTNAME from USERS where PENDING = 1;");
             while (rs.next()) {
                 ret.append("users", userToJSON(rs, false, false));
@@ -133,9 +133,9 @@ public class UserHandler {
         }
     }
 
-    public JSONObj getMatchesScouted(String token) {
+    public JSONObject getMatchesScouted(String token) {
         try {
-            JSONObj ret = new JSONObj();
+            JSONObject ret = new JSONObject();
             ret.put("matches", new JSONArray());
             User u = getUserByToken(token);
             PreparedStatement ps = connection.prepareStatement("select MATCH_NUMBER from MATCHES where SUBMIT_BY = ?");
@@ -157,12 +157,12 @@ public class UserHandler {
      * @param token
      * @return the data, or null
      */
-    public JSONObj getUserInfo(String token) {
+    public JSONObject getUserInfo(String token) {
         User us = getUserByToken(token);
         if (us == null) {
             return null;
         }
-        JSONObj tmp = new JSONObj();
+        JSONObject tmp = new JSONObject();
         tmp.put("username", us.getUsername());
         tmp.put("firstname", us.getFirstname());
         tmp.put("lastname", us.getLastname());
@@ -217,9 +217,9 @@ public class UserHandler {
      * 4: Password is greater that 128 characters<br>
      * 5: Password does not match the password security requirements<br>
      */
-    public int addNewUser(JSONObj obj) {
+    public int addNewUser(JSONObject obj) {
         try {
-            if (!JSONObj.checkTemplate("UserCreateTemplate", obj)) {
+            if (!Utils.checkTemplate("UserCreateTemplate", obj)) {
                 return 2;
             }
             if (userExists(obj.getString("username"))) {
@@ -274,8 +274,8 @@ public class UserHandler {
      * 4: User doesn't exist<br>
      * 5: Sending User isn't valid<br>
      */
-    public int approveUser(JSONObj obj, String token) {
-        if (!JSONObj.checkTemplate("UserAcceptTemplate", obj)) {
+    public int approveUser(JSONObject obj, String token) {
+        if (!Utils.checkTemplate("UserAcceptTemplate", obj)) {
             return 2;
         }
         try {
@@ -318,9 +318,9 @@ public class UserHandler {
      * 3: User not logged in<br>
      * 4: Old Password Does not match<br>
      */
-    public int changePassword(String token, JSONObj obj) {
+    public int changePassword(String token, JSONObject obj) {
         try {
-            if (!JSONObj.checkTemplate("UserChangePassTemplate", obj)) {
+            if (!Utils.checkTemplate("UserChangePassTemplate", obj)) {
                 return 2;
             }
             User u = getUserByToken(token);
@@ -364,9 +364,9 @@ public class UserHandler {
      * 2: Does not match Template<br>
      * 3: User does not exist / Password is invalid<br>
      */
-    public JSONObj loginUser(JSONObj obj) {
+    public JSONObject loginUser(JSONObject obj) {
         Utils.logln("USERS LOGGED IN: " + users);
-        if (!JSONObj.checkTemplate("UserLoginTemplate", obj)) {
+        if (!Utils.checkTemplate("UserLoginTemplate", obj)) {
             return Utils.errorJson(2);
         }
         try {
@@ -385,7 +385,7 @@ public class UserHandler {
                 String token;
                 if (isUserLoggedIn(rs.getString("USERNAME"))) {
                     final String usernamewhy = rs.getString("USERNAME");
-                    token = users.stream().filter(n->n.getUsername().equalsIgnoreCase(usernamewhy))
+                    token = users.stream().filter(n -> n.getUsername().equalsIgnoreCase(usernamewhy))
                             .findAny().get().getToken();
                 } else {
                     while (true) {
@@ -398,7 +398,7 @@ public class UserHandler {
                 }
                 users.add(new User(rs.getInt("ID"), obj.getString("username"), token,
                         rs.getString("USER_LEVEL"), rs.getString("FIRSTNAME"), rs.getString("LASTNAME")));
-                return new JSONObj("{\"token\":\"" + token + "\"}");
+                return new JSONObject("{\"token\":\"" + token + "\"}");
             } else {
                 return Utils.errorJson(3);
             }

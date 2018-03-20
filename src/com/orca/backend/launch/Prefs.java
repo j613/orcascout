@@ -17,7 +17,7 @@ public class Prefs {
 
     public static void refresh() {
         try {
-            JSONObj prefsObj = new JSONObj(new String(
+            JSONObject prefsObj = new JSONObject(new String(
                     Files.readAllBytes(new File(Prefs.class.getResource("/com/orca/backend/launch/Preferences.json")
                             .toURI()).toPath())));
             prefsObj.keySet().forEach(k -> {
