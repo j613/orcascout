@@ -40,13 +40,13 @@
                 <th class="blue">Blue 3</th>
                 <th class="blue">Blue Score</th>
               </tr>
-              <!-- <tr *ngFor="let match of getMatches(t.team_number)">
+              <tr *ngFor="let match of getMatches(t.team_number)">
                 <td>{{ match.match_number }} ({{ match.comp_level | uppercase }})</td>
                 <td class="red" *ngFor="let team of match.alliances.red.team_keys" [class.selected-team]="team.substr(3) == t.team_number" [class.winner-red]="match.alliances.red.score > match.alliances.blue.score">{{ team.substr(3) }}</td>
                 <td class="red" [class.winner-red]="match.alliances.red.score > match.alliances.blue.score">{{ match.alliances.red.score }}</td>
                 <td class="blue" *ngFor="let team of match.alliances.blue.team_keys" [class.selected-team]="team.substr(3) == t.team_number" [class.winner-blue]="match.alliances.blue.score > match.alliances.red.score">{{ team.substr(3) }}</td>
                 <td class="blue" [class.winner-blue]="match.alliances.blue.score > match.alliances.red.score">{{ match.alliances.blue.score }}</td>
-              </tr> -->
+              </tr>
             </table>
           </div>
         </div>

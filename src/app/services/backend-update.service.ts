@@ -112,6 +112,12 @@ export class BackendUpdateService {
         };
         return Observable.of(rd);
       }
+    }).catch((err: HttpErrorResponse) => {
+      const rd: RegionalData = {
+        teams: [],
+        matches: []
+      };
+      return Observable.of(rd);
     });
   }
 
@@ -157,23 +163,10 @@ export class BackendUpdateService {
                         return Observable.of(<Regional[]>t);
                       }
                     }).catch((res: HttpErrorResponse) => {
+                      this.notif.addNotification('Error fetching competitions.', 3);
                       return Observable.of(false);
                     });
   }
-
-  // public updateTeamData(): Observable<PitTeam[]|Boolean> {
-  //   return this.utils.craftHttpGetPit('getteams')
-  //                   .mergeMap((res: HttpResponse<any>) => {
-  //                     return Observable.of(<PitTeam[]>res.body.teams);
-  //                   }).catch((res: HttpErrorResponse) => {
-  //                     return Observable.of(false);
-  //                   }).do((res: Boolean|PitTeam[]) => {
-  //                     if (res) {
-  //                       this.team_data = <PitTeam[]>res;
-  //                       this.updateLocalStorage();
-  //                     }
-  //                   });
-  // }
 
   public addRegional(key: string, name: string): Observable<Boolean> {
     const data = {
