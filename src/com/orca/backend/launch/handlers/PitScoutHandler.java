@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PitScoutHandler {
@@ -33,7 +34,7 @@ public class PitScoutHandler {
         if (image) {
             ret.put("image", rs.getString("image"));
         }
-        if(userInfo){
+        if (userInfo) {
             ret.put("user_info", OrcascoutHandler.userHandler.getUserByID(rs.getInt("submit_by")).asJSON(true));
         }
         return ret;
@@ -46,16 +47,13 @@ public class PitScoutHandler {
      * @return the error code<br>
      * Error codes:<br>
      * 0: success<br>
-     * 1: invalid template<br>
+     * 1: invalid JSON Object<br>
      * 2: user is limited<br>
      * 3: SQL Error<br>
      * 4: Pit Scout Data Already Exists (Use method=update?)<br>
      * 5: No Comp ID<br>
      */
     public int newTeam(JSONObject obj, User u) {
-        if (!Utils.checkTemplate("PitScoutTemplate", obj)) {
-            return 1;
-        }
         if (u.getUserLevel() == UserLevel.LIMITED) {
             return 2;
         }
@@ -84,13 +82,16 @@ public class PitScoutHandler {
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
             return 3;
+        } catch (JSONException e) {
+            return 1;
         }
     }
 
     /**
      * gets list of pit scouts for current competition
      *
-     * @param u the user to get the competitions for(Based off of cached TBA COMP ID)
+     * @param u the user to get the competitions for(Based off of cached TBA
+     * COMP ID)
      * @return JSON, or error code error codes:<br>
      * 1: SQL Exception<br>
      */

@@ -1,11 +1,6 @@
 package com.orca.backend.server;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -16,43 +11,17 @@ import org.json.JSONObject;
 import org.mindrot.jbcrypt.BCrypt;
 
 public final class Utils {
-    
-    private static final LCHashMap<JSONObject> templates = new LCHashMap<>();
-    
-    static {
-        try {
-            Path p = new File(JSONObject.class.getResource("/com/orca/backend/templates/").toURI()).toPath();
-            Files.walk(p).forEach(n -> {
-                if (!n.toFile().isDirectory()) {
-                    try {
-                        String g = n.getFileName().toString().toLowerCase();
-                        templates.put(g.split("\\.")[0], new JSONObject(new String(Files.readAllBytes(n))));
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            });
-        } catch (IOException e) {
-            System.err.println("Error reading files from disk. abort");
-            e.printStackTrace(System.out);
-        } catch (URISyntaxException ex) {
-            ex.printStackTrace(System.out);
-        }
-    }
-    
-    public static boolean checkTemplate(String temp, JSONObject obj) {
-        return JSONSimilar(templates
-                .get(temp), obj);
-    }
+
     
     private static final Random rand = new Random();
     
     public static boolean isErrorJSON(JSONObject obj) {
         return obj.keySet().contains("error");
     }
-    
-    private Utils() {
-    }
+    /**
+     * Utils cannot be instantiated
+     */
+    private Utils() {}
 
     /**
      * Thanks Hannes R. from Stack Overflow
@@ -78,8 +47,8 @@ public final class Utils {
     }
 
     /**
-     * Get This!
-     *
+     * Get This!<br>
+     * Very Useful
      * @return This!
      */
     public Utils getThis() {

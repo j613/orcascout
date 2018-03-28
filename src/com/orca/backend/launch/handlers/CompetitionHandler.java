@@ -7,6 +7,7 @@ import com.orca.backend.sql.DatabaseConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class CompetitionHandler {
@@ -63,7 +64,7 @@ public class CompetitionHandler {
             }
             return ret;
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
             return Utils.errorJson(1);
         }
     }
@@ -78,15 +79,12 @@ public class CompetitionHandler {
      * 0: No error<br>
      * 1: SQL Error<br>
      * 2: User is not Admin<br>
-     * 3: Incorrect template<br>
+     * 3: Invalid JSON Object<br>
      * 4: Match ID is not valid<br>
      * 5: TBA API Connection Error<br>
      */
     public int registerComp(JSONObject data, User u) {
         try {
-            if (!Utils.checkTemplate("CompetitionRegisterTemplate", data)) {
-                return 3;
-            }
             if (u.getUserLevel() != UserLevel.ADMIN) {
                 return 2;
             }
@@ -102,6 +100,8 @@ public class CompetitionHandler {
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
             return 1;
+        } catch (JSONException e) {
+            return 3;
         }
     }
 }

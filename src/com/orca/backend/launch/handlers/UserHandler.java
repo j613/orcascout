@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class UserHandler {
@@ -177,7 +178,11 @@ public class UserHandler {
     public boolean isLoggedIn(String token) {
         return this.getUserByToken(token) != null;
     }
-
+    /**
+     * Checks if a user exists in the database
+     * @param username the username to check against
+     * @return true if the user exists
+     */
     public boolean userExists(String username) {
         try {
             PreparedStatement checkUser = connection.prepareStatement("select * from USERS where USERNAME = ?");
@@ -219,9 +224,6 @@ public class UserHandler {
      */
     public int addNewUser(JSONObject obj) {
         try {
-            if (!Utils.checkTemplate("UserCreateTemplate", obj)) {
-                return 2;
-            }
             if (userExists(obj.getString("username"))) {
                 return 3;
             }
@@ -248,6 +250,8 @@ public class UserHandler {
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
             return 1;
+        } catch (JSONException e) {
+            return 2;
         }
     }
 
@@ -275,9 +279,6 @@ public class UserHandler {
      * 5: Sending User isn't valid<br>
      */
     public int approveUser(JSONObject obj, String token) {
-        if (!Utils.checkTemplate("UserAcceptTemplate", obj)) {
-            return 2;
-        }
         try {
             if (!isValidUserType(obj.getString("userlevel")) && !obj.getString("userlevel").equalsIgnoreCase("delete")) {
                 return 3;
@@ -302,6 +303,8 @@ public class UserHandler {
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
             return 1;
+        } catch (JSONException e) {
+            return 2;
         }
     }
 
@@ -320,9 +323,6 @@ public class UserHandler {
      */
     public int changePassword(String token, JSONObject obj) {
         try {
-            if (!Utils.checkTemplate("UserChangePassTemplate", obj)) {
-                return 2;
-            }
             User u = getUserByToken(token);
             if (u == null) {
                 return 3;
@@ -346,6 +346,8 @@ public class UserHandler {
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
             return 1;
+        } catch (JSONException e) {
+            return 2;
         }
     }
 
@@ -365,10 +367,6 @@ public class UserHandler {
      * 3: User does not exist / Password is invalid<br>
      */
     public JSONObject loginUser(JSONObject obj) {
-        Utils.logln("USERS LOGGED IN: " + users);
-        if (!Utils.checkTemplate("UserLoginTemplate", obj)) {
-            return Utils.errorJson(2);
-        }
         try {
             if (!userExists(obj.getString("username"))) {
                 return Utils.errorJson(3);
@@ -405,6 +403,8 @@ public class UserHandler {
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
             return Utils.errorJson(1);
+        } catch (JSONException e) {
+            return Utils.errorJson(2);
         }
     }
 
