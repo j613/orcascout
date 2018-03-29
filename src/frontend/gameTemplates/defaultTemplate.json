@@ -1,0 +1,26 @@
+{
+    "year": "game year (int field)",
+    "game_name": "Game name (such as FIRST POWER UP)",
+    "autonomous": {
+        "fields": [
+            "All of the input Fields in the auto period (same style for teleop)",
+            {
+                "name": "some_identifier_name",
+                "display_name": "What is shows on the website",
+                "type": "text_box(can have newlines), int, string(cannot have newlines), boolean, enum",
+                "values": ["enum", "values", "if", "your", "type", "is", "enum"],
+                "default_value": "the default value when scouting a new match",
+                "max_value": "max value for ints (this field is an int not a string",
+                "min_value": "do I have to explain this?",
+                "max_length": "max length for string, text boxes",
+                "comments": "DO NOT PUT ANY COMMENTS FIELD IN THE ACTUAL TEMPLATE"
+            }
+        ],
+        "duration": "duration of the auto period (int field)"
+    },
+    "teleop": {
+        "fields": [
+        ],
+        "duration": "the duration of the teleop period (int field)"
+    }
+}

@@ -1,0 +1,94 @@
+{
+    "year": 2018,
+    "game_name": "FIRST Power Up",
+    "autonomous": {
+        "fields": [
+            {
+                "name": "baseline",
+                "display_name": "Crossed Baseline?",
+                "type": "boolean",
+                "default_value": false				
+            },
+            {
+                "name": "switch",
+                "display_name": "Switch",
+                "type": "int",
+                "min_value": 0,
+                "max_value": 60,
+                "default_value": 0
+            },
+            {
+                "name": "scale",
+                "display_name": "Scale",
+                "type": "int",
+                "min_value": 0,
+                "max_value": 60,
+                "default_value": 0
+            },
+            {
+                "name": "auto_comments",
+                "display_name": "Auto Comments",
+                "type": "text_box",
+                "default_value": "",
+                "max_length": 1024
+            }
+        ],
+        "duration": 15
+    },
+    "teleop": {
+        "fields": [
+            {
+                "name": "team_switch",
+                "display_name": "Team's Switch",
+                "type": "int",
+                "min_value": 0,
+                "max_value": 135,
+                "default_value": 0
+            },
+            {
+                "name": "opponent_switch",
+                "display_name": "Opponent's Switch",
+                "type": "int",
+                "min_value": 0,
+                "max_value": 135,
+                "default_value": 0
+            },
+            {
+                "name": "exchange",
+                "display_name": "Cube Exchange",
+                "type": "int",
+                "min_value": 0,
+                "max_value": 9,
+                "default_value": 0
+            },
+            {
+                "name": "scale",
+                "display_name": "Scale",
+                "type": "int",
+                "min_value": 0,
+                "max_value": 135,
+                "default_value": 0
+            },
+            {
+                "name": "climb",
+                "display_name": "Climb",
+                "type": "enum",
+                "values": ["Self Climb", "Carry 1", "Carry 2", "Levitate", "None"],
+                "default_value": "None"
+            },
+            {
+                "name": "teleop_comments",
+                "display_name": "Teleop Comments",
+                "type": "text_box",
+                "max_length": 1024
+            },
+            {
+                "name": "penalty_comments",
+                "display_name": "Penalties",
+                "type": "text_box",
+                "max_length": 1024
+            }
+        ],
+        "duration": 135
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "autonomous":{
+        "name1":"value1",
+        "name2":0
+    },
+    "teleop":{
+        "name1":"value1",
+        "name2":0
+    }
+}
