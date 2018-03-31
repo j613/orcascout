@@ -39,7 +39,7 @@ public class OrcascoutHandler implements InputHandler {
     public static final MatchHandler matchHandler = new MatchHandler(connection);
     public static final PitScoutHandler teamHandler = new PitScoutHandler(connection);
     public static final CompetitionHandler compHandler = new CompetitionHandler(connection);
-    private static final LCHashMap<ResponseFile> memCachedFiles = new LCHashMap<>();
+    private static final HashMap<String,ResponseFile> memCachedFiles = new HashMap<>();
 
     static {
         try {
@@ -48,7 +48,7 @@ public class OrcascoutHandler implements InputHandler {
                 if (!n.toFile().isDirectory()) {
                     try {
                         String g = n.toString();
-                        g = g.substring(g.indexOf("frontend") + 8).replaceAll("\\\\", "/").toLowerCase();
+                        g = g.substring(g.indexOf("frontend") + 8).replaceAll("\\\\", "/");//.toLowerCase();
                         memCachedFiles.put(g, ResponseFile.readFromFile(n));
                     } catch (IOException ex) {
                         ex.printStackTrace(System.out);
@@ -391,6 +391,16 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile(null, "204 No Content", null, out, null);
                 }
                 return false;
+            case "getmatches":
+                obj = matchHandler.getMatches(user);
+                exec = obj.optInt("error", 0);
+                if (exec != 0) {
+                    args.put("X-Error-Code", "" + exec);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
+                } else {
+                    sendFile(new ResponseFile(obj.toString(), "text/plain; charset=utf-8"), "200 OK", null, out, null);
+                }
+                return false;
                 /*
             case "exists":
                 obj = new JSONObject(in.getRawPostData());
@@ -419,7 +429,7 @@ public class OrcascoutHandler implements InputHandler {
                 args.put("Access-Control-Allow-Methods", "POST");
                 sendFile(null, "200 OK", args, out, null);
                 return false; //TODO: MAYBE CHANGE CUZ CLOSE CONNECTION?
-            case "CHANGE1":
+            case "getmatches":
                 args.put("Access-Control-Allow-Methods", "GET");
                 sendFile(null, "200 OK", args, out, null);
                 return false;

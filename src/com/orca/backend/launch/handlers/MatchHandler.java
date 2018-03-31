@@ -13,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -187,6 +189,29 @@ public class MatchHandler {
             return 2;
         }
     }*/
+    /**
+     * Gets all of the currently scouted matches for the user based off of their current comp id
+     * @param u the user from which the comp id will be taken
+     * @return the list of matches, or error code<br>
+     * Error Codes:<br>
+     * 1: SQL Error<br>
+     */
+    public JSONObject getMatches(User u){
+        try {
+            PreparedStatement ps = connection.prepareStatement("select * from MATCHES where REGIONAL_ID = ?");
+            ps.setString(1,  u.getCurrentRegionalId());
+            ResultSet rs = ps.executeQuery();
+            JSONObject ret = new JSONObject();
+            ret.put("matches", new JSONArray());
+            while(rs.next()){
+                ret.append("matches", matchToJSON(rs, false, true));
+            }
+            return ret;
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
+            return Utils.errorJson(1);
+        }
+    }
     public static JSONObject matchToJSON(ResultSet rs, boolean gameStats, boolean submitBy) throws SQLException {
         JSONObject ret = new JSONObject();
         ret.put("regional_id", rs.getString("regional_id"));
