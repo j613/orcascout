@@ -391,6 +391,17 @@ public class OrcascoutHandler implements InputHandler {
                     sendFile(null, "204 No Content", null, out, null);
                 }
                 return false;
+                /*
+            case "exists":
+                obj = new JSONObject(in.getRawPostData());
+                exec = matchHandler.matchExists(user, obj);
+                if (exec != 0) {
+                    args.put("X-Error-Code", "" + exec);
+                    sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", args, out, null);
+                } else {
+                    sendFile(null, "204 No Content", null, out, null);
+                }
+                return false;*/
         }
         sendFile(getCachedFile("/errorFiles/401error.html"), "401 Unauthorized", null, out, null);
         return false;
@@ -404,6 +415,7 @@ public class OrcascoutHandler implements InputHandler {
         HashMap<String, String> args = new HashMap<>();
         switch (in.getPhpArgs().get("method").toLowerCase()) {
             case "create":
+           // case "exists":
                 args.put("Access-Control-Allow-Methods", "POST");
                 sendFile(null, "200 OK", args, out, null);
                 return false; //TODO: MAYBE CHANGE CUZ CLOSE CONNECTION?
@@ -469,7 +481,7 @@ public class OrcascoutHandler implements InputHandler {
                 }
             }
 
-            Utils.logln("Sending Static Requested file: " + in.getRequestedFile());
+//            Utils.logln("Sending Static Requested file: " + in.getRequestedFile());
             sendFile(sendFile, respMessage, null, out, null);
             Utils.logln("Static File Sent");
             return in.getOrDefault("Connection", "keep-alive").equals("close") || shouldCloseConnectionErrorCode(in.getErrorCode());

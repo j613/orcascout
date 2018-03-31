@@ -123,6 +123,7 @@ public class MatchHandler {
      * 1: SQL Error<br>
      * 2: Data does not match game data template<br>
      * 3: Template for given Game Year does not exist<br>
+     * 4: Match already Scouted<br>
      */
     public int submitNewMatch(User u, JSONObject obj) {
         int gyear = Integer.parseInt(u.getCurrentRegionalId().substring(0, 3));
@@ -133,7 +134,15 @@ public class MatchHandler {
             return 2;
         }
         try {
-            PreparedStatement ps = connection.prepareStatement("insert into MATCHES"
+            PreparedStatement ps = connection.prepareStatement("select * from MATCHES where "
+                    + "REGIONAL_ID = ? and TEAM_NUMBER = ? and MATCH_NUMBER = ?");
+            ps.setString(1,u.getCurrentRegionalId());
+            ps.setInt(2, obj.getInt("team_number"));
+            ps.setString(3, obj.getString("match_number"));
+            if(!ps.executeQuery().next()){
+                return 4;
+            }
+            ps = connection.prepareStatement("insert into MATCHES"
                     + "(REGIONAL_ID, TEAM_NUMBER, MATCH_NUMBER, GAME_STATS, SUBMIT_BY) values(?,?,?,?,?)");
             ps.setString(1, u.getCurrentRegionalId());
             ps.setInt(2, obj.getInt("team_number"));
@@ -142,11 +151,42 @@ public class MatchHandler {
             ps.setInt(5, u.getID());
             ps.execute();
             return 0;
-        } catch (SQLException e) {
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
             return 1;
+        } catch(JSONException ex){
+            ex.printStackTrace(System.out);
+            return 5;//???
         }
     }
-
+    /**
+     * Checks to see if a match is currently in the database
+     * @param u the user to get the current Comp ID from
+     * @param obj the data
+     * @return Error Code<br>
+     * Error Codes:<br>
+     * 0: No Error<br>
+     * 1: SQL Error<br>
+     * 2: JSON Error<br>
+     * 3: Match Does Not Exist<br>
+     */
+    /*
+    public int matchExists(User u, JSONObject obj){
+        try {
+            PreparedStatement ps = connection.prepareStatement("select * from MATCHES where "
+                    + "REGIONAL_ID = ? and TEAM_NUMBER = ? and MATCH_NUMBER = ?");
+            ps.setString(1,u.getCurrentRegionalId());
+            ps.setInt(2, obj.getInt("team_number"));
+            ps.setString(3, obj.getString("match_number"));
+            return ps.executeQuery().next()?0:3;
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
+            return 1;
+        }catch(JSONException ex){
+            ex.printStackTrace(System.out);
+            return 2;
+        }
+    }*/
     public static JSONObject matchToJSON(ResultSet rs, boolean gameStats, boolean submitBy) throws SQLException {
         JSONObject ret = new JSONObject();
         ret.put("regional_id", rs.getString("regional_id"));

@@ -22,4 +22,13 @@ public class LCHashMap<T> extends HashMap<String, T>{
             }
             return super.getOrDefault(((String) key).replaceAll("\\\\", "/").toLowerCase().trim(),def);
         }
+
+    @Override
+    public boolean containsKey(Object key) {
+        if(key instanceof String){
+            return super.containsKey(((String)key).toLowerCase().trim());
+        }
+        return super.containsKey(key);
+    }
+        
 }
