@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { UtilsService } from './utils.service';
 import { Regional, RegionalData } from '../classes/regional';
 import { User } from '../classes/user';
+import { GameTemplate } from '../classes/gametemplate';
 
 interface Session {
   user: User;
@@ -45,6 +46,10 @@ export class AuthService {
     return this.session;
   }
 
+  public getMatchTemplate(): GameTemplate {
+    return this.utils.getMatchTemplate();
+  }
+
   public getRegional(): Regional {
     if (this.session.regional) {
       return this.session.regional;
@@ -56,23 +61,29 @@ export class AuthService {
     return this.utils.craftHttpPostUser('login', { username: username, password: password }) // Login request
               .mergeMap<any, any>((res: HttpResponse<null>) => {
                 if (res.status === 204) { // If valid login, make request for userinfo
-                  return this.utils.craftHttpGetUser('getinfo');
+                  return Observable.forkJoin(
+                    this.utils.craftHttpGetUser('getinfo'),
+                    this.utils.craftHttpGetGameTemplate()
+                  );
                 }
                 return Observable.of(false);
               })
-              .mergeMap((res: HttpResponse<User>|Boolean) => {
+              .mergeMap((res: [HttpResponse<User>|Boolean, HttpResponse<Object>|Boolean]) => {
                 if (!res) {
                   return Observable.of(false);
                 }
-                res = <HttpResponse<User>>res;
-                if (res.status !== 200) {
+                const info = <HttpResponse<User>>(res[0]);
+                const template = <HttpResponse<Object>>(res[1]);
+                if (info.status !== 200 && template.status !== 200) {
                   return Observable.of(false);
                 }
                 this.isLoggedIn = true;
                 this.session = {
-                  user: res.body
+                  user: info.body
                 };
                 this.setRegional(regional_id.split('-')[0], regional_id.split('-')[1]);
+                console.log(template);
+                localStorage.setItem('match-template', JSON.stringify(template.body));
                 this.saveSession();
                 return Observable.of(true);
               }).catch((res: HttpErrorResponse) => {
@@ -159,6 +170,7 @@ export class AuthService {
     localStorage.removeItem('session');
     localStorage.removeItem('offline-backlog');
     localStorage.removeItem('team_data');
+    localStorage.removeItem('match-template');
     this.router.navigate(['login']);
   }
 

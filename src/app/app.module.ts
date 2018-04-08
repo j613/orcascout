@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 // Modules
 import { SidebarModule } from 'ng-sidebar';
@@ -31,6 +31,7 @@ import { AdminUsersComponent } from './pages/admin/admin-users/admin-users.compo
 import { AdminCompetitionsComponent } from './pages/admin/admins-competitions/admins-competitions.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { ListComponent } from './pages/list/list.component';
+import { MatchQuestionComponent } from './templates/match-question/match-question.component';
 
 @NgModule({
   imports: [
@@ -41,7 +42,8 @@ import { ListComponent } from './pages/list/list.component';
     AdminRoutingModule,
     AppRoutingModule,
     HttpClientModule,
-    AccordionModule.forRoot()
+    AccordionModule.forRoot(),
+    ReactiveFormsModule
   ],
   declarations: [
     AppComponent,
@@ -57,7 +59,8 @@ import { ListComponent } from './pages/list/list.component';
     AdminUsersComponent,
     AdminCompetitionsComponent,
     NotificationsComponent,
-    ListComponent
+    ListComponent,
+    MatchQuestionComponent
   ],
   providers: [
     BackendUpdateService,
