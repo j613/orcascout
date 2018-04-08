@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./admin.component.less']
 })
 export class AdminComponent implements OnInit {
-  public title = 'Admin';
+  public _title = 'Admin';
 
   constructor() { }
 

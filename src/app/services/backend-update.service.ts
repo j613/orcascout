@@ -17,10 +17,9 @@ import { NotificationsService } from './notifications.service';
 
 @Injectable()
 export class BackendUpdateService {
-  public is_online = navigator.onLine;
-  public backlog: Backlog[] = [];
-  public team_data: PitTeam[];
-
+  private is_online = navigator.onLine;
+  private backlog: BacklogItem[];
+  private team_data: PitTeam[];
   private url_endpoint = environment.api_endpoint;
   private tba_api_key = environment.tba_key;
   private tba_cache_track: Object = {};
@@ -39,6 +38,9 @@ export class BackendUpdateService {
     });
     window.addEventListener('offline', () => this.is_online = false);
     this.team_data = JSON.parse(localStorage.getItem('team_data'));
+    if (this.team_data === null) {
+      this.team_data = [];
+    }
     this.backlog = JSON.parse(localStorage.getItem('offline-backlog'));
     if (this.backlog === null) {
       this.backlog = [];
@@ -110,6 +112,12 @@ export class BackendUpdateService {
         };
         return Observable.of(rd);
       }
+    }).catch((err: HttpErrorResponse) => {
+      const rd: RegionalData = {
+        teams: [],
+        matches: []
+      };
+      return Observable.of(rd);
     });
   }
 
@@ -155,23 +163,10 @@ export class BackendUpdateService {
                         return Observable.of(<Regional[]>t);
                       }
                     }).catch((res: HttpErrorResponse) => {
+                      this.notif.addNotification('Error fetching competitions.', 3);
                       return Observable.of(false);
                     });
   }
-
-  // public updateTeamData(): Observable<PitTeam[]|Boolean> {
-  //   return this.utils.craftHttpGetPit('getteams')
-  //                   .mergeMap((res: HttpResponse<any>) => {
-  //                     return Observable.of(<PitTeam[]>res.body.teams);
-  //                   }).catch((res: HttpErrorResponse) => {
-  //                     return Observable.of(false);
-  //                   }).do((res: Boolean|PitTeam[]) => {
-  //                     if (res) {
-  //                       this.team_data = <PitTeam[]>res;
-  //                       this.updateLocalStorage();
-  //                     }
-  //                   });
-  // }
 
   public addRegional(key: string, name: string): Observable<Boolean> {
     const data = {
@@ -268,10 +263,9 @@ export class BackendUpdateService {
     } else {
       const ps = {
         type: 'pitscout',
-        data: Object.assign({}, data) // This copies the data.  If you dont all backlog items will have the reference to the same variable.
+        data: data // This copies the data.  If you dont all backlog items will have the reference to the same variable.
       };
       this.addToBacklog(ps);
-      console.log(this.backlog);
     }
   }
 
@@ -286,13 +280,13 @@ export class BackendUpdateService {
     }
   }
 
-  private addToBacklog(item: Backlog): void {
+  private addToBacklog(item: BacklogItem): void {
     this.backlog.push(item);
     this.updateLocalStorage();
   }
 
   private publishBacklog(): void {
-    let log: Backlog;
+    let log: BacklogItem;
     while (this.is_online && this.backlog.length > 0) {
       log = this.backlog.shift();
       switch (log.type) {
@@ -324,11 +318,19 @@ export class BackendUpdateService {
   }
 
   public getTeamData(): PitTeam[] {
-    return JSON.parse(localStorage.getItem('team_data'));
+    return this.team_data;
+  }
+
+  public getBacklog(): BacklogItem[] {
+    return this.backlog;
+  }
+
+  public isOnline(): boolean {
+    return this.is_online;
   }
 }
 
-interface Backlog {
+interface BacklogItem {
   type: string;
   data: any;
 }

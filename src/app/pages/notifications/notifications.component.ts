@@ -7,6 +7,7 @@ import { NotificationsService } from '../../services/notifications.service';
   styleUrls: ['./notifications.component.less']
 })
 export class NotificationsComponent implements OnInit {
+  // public vidOn = false;
 
   constructor(private notif: NotificationsService) { }
 

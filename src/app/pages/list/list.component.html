@@ -1,8 +1,7 @@
-<app-header [title]="title"></app-header>
+<app-header [title]="_title"></app-header>
 
 <div class="col-sm-12">
   <accordion>
-    <!-- <div class="card" *ngFor="let t of teams"> -->
     <accordion-group *ngFor="let t of teams" heading="{{ t.team_number }} - {{ t.nickname }}">
       <div class="row">
         <div class="col-sm-4">
@@ -53,6 +52,5 @@
         </div>
       </div>
     </accordion-group>
-    <!-- </div> -->
   </accordion>
 </div>

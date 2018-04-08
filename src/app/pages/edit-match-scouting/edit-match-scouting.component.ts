@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./edit-match-scouting.component.less']
 })
 export class EditMatchScoutingComponent implements OnInit {
-  public title = 'Edit Scouting Data';
+  public _title = 'Edit Scouting Data';
 
   constructor() { }
 

@@ -11,7 +11,7 @@ import { Match } from '../../classes/match';
   styleUrls: ['./list.component.less']
 })
 export class ListComponent implements OnInit, OnDestroy {
-  public title = 'List';
+  public _title = 'List';
   public teams: Team[];
 
   private checker;
@@ -19,7 +19,7 @@ export class ListComponent implements OnInit, OnDestroy {
   constructor(private auth: AuthService, private backend_update: BackendUpdateService) { }
 
   ngOnInit() {
-    this.teams = this.auth.getSessionData().regional.data.teams.sort((t1, t2) => {
+    this.teams = this.auth.getSession().regional.data.teams.sort((t1, t2) => {
       return t1.team_number > t2.team_number ? 1 : -1;
     });
     this.refreshData();
@@ -38,7 +38,7 @@ export class ListComponent implements OnInit, OnDestroy {
 
   public getData(team_num: number): PitTeam {
     // TODO: Figure out why === doesnt work in this comparison.
-    return this.backend_update.team_data.find(tm => tm.teamnumber == team_num);
+    return this.backend_update.getTeamData().find(tm => tm.teamnumber == team_num);
   }
 
   public getWinStats(team_num: number): string {
@@ -67,7 +67,7 @@ export class ListComponent implements OnInit, OnDestroy {
   }
 
   public getMatches(team_num: number): Match[] {
-    return this.auth.getSessionData().regional.data.matches.filter((m) => {
+    return this.auth.getSession().regional.data.matches.filter((m) => {
       if (m.alliances.blue.team_keys.indexOf('frc' + team_num) >= 0 || m.alliances.red.team_keys.indexOf('frc' + team_num) >= 0) {
         return true;
       }

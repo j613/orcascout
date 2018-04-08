@@ -22,7 +22,7 @@
             {{ message }}
         </div>
         <div class="col-sm-12 text-center">
-            <button type="submit" class="btn btn-primary " [disabled]="(!this.backend_update.is_online || loginForm.invalid)">Submit</button>
+            <button type="submit" class="btn btn-primary " [disabled]="(!this.backend_update.isOnline() || loginForm.invalid)">Submit</button>
         </div>
     </form>
 </div>

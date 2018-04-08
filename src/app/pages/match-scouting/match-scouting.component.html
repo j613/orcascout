@@ -1,15 +1,11 @@
 <app-header [title]="title"></app-header>
 
 <div class="offset-sm-2 col-sm-8">
-    <form #scoutForm="ngForm" (ngSubmit)="submitMatchScout();">
-        <div class="row">
-            <div class="form-group col-sm-6">
-                <label for="team-name" class="col-form-label">Team Name</label>
-                <input type="text" id="team-name" class="form-control" required [(ngModel)]="match_data.team_name" name="name">
-            </div>
-            <div class="form-group col-sm-6">
-                <label for="team-number" class="col-form-label">Team #</label>
-                <input type="number" id="team-number" class="form-control" required [(ngModel)]="match_data.team_number" name="number" #teamnum="ngModel">
+    <form (ngSubmit)="submitMatchScout();" [formGroup]="form">
+        <div class="row" [formGroup]="form">
+            <div class="form-group col-sm-12">
+                <label for="team_number" class="col-form-label">Team Number</label>
+                <input type="number" id="team_number" class="form-control" name="team_number" formControlName="team_number">
             </div>
         </div>
         <div class="col-sm-12">
@@ -20,94 +16,116 @@
         <h2>Autonomous</h2>
         <hr>
 
-        <div class="custom-control custom-checkbox">
-            <input type="checkbox" id="cross-baseline" class="custom-control-input" [(ngModel)]="match_data.auto.crossed_baseline" name="cross_baseline">
-            <label for="cross-baseline" class="custom-control-label">Crossed Baseline?</label>
+        <div *ngFor="let question of getAutoFields()">
+            <app-match-question [question]="question" [form]="form"></app-match-question>
         </div>
-        <div class="row">
-            <div class="form-row col-sm-6">
-                <label for="auto-switch" class="col-form-label col-sm-12">Switch</label>
-                <input type="number" id="auto-switch" class="form-control col-sm-8" required [(ngModel)]="match_data.auto.switch" name="auto-switch" #autoswitch="ngModel">
-                <div class="col-sm-4">
-                    <div (click)="match_data.auto.switch=match_data.auto.switch+1" class="custom-btn"><div class="content">+</div></div>
-                    <div (click)="match_data.auto.switch > 0 ? match_data.auto.switch=match_data.auto.switch-1 : 0" class="custom-btn"><div class="content">-</div></div>
-                </div>
+
+        <!-- Checkbox -->
+        <!-- <div class="custom-control custom-checkbox">
+            <input type="checkbox" id="cross_baseline" class="custom-control-input" [(ngModel)]="match_template.auto.crossed_baseline" name="cross_baseline">
+            <label for="cross_baseline" class="custom-control-label">Crossed Baseline?</label>
+        </div> -->
+
+        <!-- Number -->
+        <!-- <div class="form-row">
+            <label for="auto-switch" class="col-form-label col-sm-12">Switch</label>
+            <input type="number" id="auto-switch" class="form-control col-sm-10" required [(ngModel)]="match_template.auto.switch" name="auto-switch" #autoswitch="ngModel">
+            <div class="col-sm-2">
+                <div (click)="match_template.auto.switch=match_template.auto.switch+1" class="custom-btn"><div class="content">+</div></div>
+                <div (click)="match_template.auto.switch > 0 ? match_template.auto.switch=match_template.auto.switch-1 : 0" class="custom-btn"><div class="content">-</div></div>
             </div>
-            <div class="form-row col-sm-6">
-                <label for="auto-scale" class="col-form-label col-sm-12">Scale</label>
-                <input type="number" id="auto-scale" class="form-control col-sm-8" required [(ngModel)]="match_data.auto.scale" name="auto-scale">
-                <div class="col-sm-4">
-                    <div (click)="match_data.auto.scale=match_data.auto.scale+1" class="custom-btn"><div class="content">+</div></div>
-                    <div (click)="match_data.auto.scale > 0 ? match_data.auto.scale=match_data.auto.scale-1 : 0" class="custom-btn"><div class="content">-</div></div>
-                </div>
+        </div> -->
+
+        <!-- Number -->
+        <!-- <div class="form-row">
+            <label for="auto-scale" class="col-form-label col-sm-12">Scale</label>
+            <input type="number" id="auto-scale" class="form-control col-sm-10" required [(ngModel)]="match_template.auto.scale" name="auto-scale">
+            <div class="col-sm-2">
+                <div (click)="match_template.auto.scale=match_template.auto.scale+1" class="custom-btn"><div class="content">+</div></div>
+                <div (click)="match_template.auto.scale > 0 ? match_template.auto.scale=match_template.auto.scale-1 : 0" class="custom-btn"><div class="content">-</div></div>
             </div>
-        </div>
-        <div class="form-group">
+        </div> -->
+
+        <!-- Textarea -->
+        <!-- <div class="form-group">
             <label for="auto_comments" class="col-form-label">Auto Comments</label>
-            <textarea id="auto_comments" class="form-control" [(ngModel)]="match_data.auto.comments" name="auto_comments"></textarea>
+            <textarea id="auto_comments" class="form-control" [(ngModel)]="match_template.auto.comments" name="auto_comments"></textarea>
         </div>
-        <br>
+        <br> -->
 
         <h2>Teleop</h2>
         <hr>
 
-        <div class="row">
-            <div class="form-row col-sm-6">
-                <label for="teleop-own-switch" class="col-form-label col-sm-12">Team's Switch</label>
-                <input type="number" id="teleop-own-switch" class="form-control col-sm-8" required [(ngModel)]="match_data.teleop.teams_switch" name="teleop-own-switch">
-                <div class="col-sm-4">
-                    <div (click)="match_data.teleop.teams_switch=match_data.teleop.teams_switch+1" class="custom-btn"><div class="content">+</div></div>
-                    <div (click)="match_data.teleop.teams_switch > 0 ? match_data.teleop.teams_switch=match_data.teleop.teams_switch-1 : 0" class="custom-btn"><div class="content">-</div></div>
-                </div>
-            </div>
-            <div class="form-row col-sm-6">
-                <label for="teleop-scale" class="col-form-label, col-sm-12">Scale</label>
-                <input type="number" id="teleop-scale" class="form-control col-sm-8" required [(ngModel)]="match_data.teleop.scale" name="teleop-scale">
-                <div class="col-sm-4">
-                    <div (click)="match_data.teleop.scale=match_data.teleop.scale+1" class="custom-btn"><div class="content">+</div></div>
-                    <div (click)="match_data.teleop.scale > 0 ? match_data.teleop.scale=match_data.teleop.scale-1 : 0" class="custom-btn"><div class="content">-</div></div>
-                </div>
-            </div>
+        <div *ngFor="let question of getTeleopFields()">
+            <app-match-question [question]="question" [form]="form"></app-match-question>
         </div>
-        <div class="row">
-            <div class="form-row col-sm-6">
-                <label for="opp-switch" class="col-form-lebel col-sm-12">Opponent's Switch</label>
-                <input type="number" id="opp-switch" class="form-control col-sm-8" required [(ngModel)]="match_data.teleop.opponents_switch" name="opp-switch">
-                <div class="col-sm-4">
-                    <div (click)="match_data.teleop.opponents_switch=match_data.teleop.opponents_switch+1" class="custom-btn"><div class="content">+</div></div>
-                    <div (click)="match_data.teleop.opponents_switch > 0 ? match_data.teleop.opponents_switch=match_data.teleop.opponents_switch-1 : 0" class="custom-btn"><div class="content">-</div></div>
-                </div>
+
+        <!-- Number -->
+        <!-- <div class="form-row">
+            <label for="teleop-own-switch" class="col-form-label col-sm-12">Team's Switch</label>
+            <input type="number" id="teleop-own-switch" class="form-control col-sm-10" required [(ngModel)]="match_template.teleop.teams_switch" name="teleop-own-switch">
+            <div class="col-sm-2">
+                <div (click)="match_template.teleop.teams_switch=match_template.teleop.teams_switch+1" class="custom-btn"><div class="content">+</div></div>
+                <div (click)="match_template.teleop.teams_switch > 0 ? match_template.teleop.teams_switch=match_template.teleop.teams_switch-1 : 0" class="custom-btn"><div class="content">-</div></div>
             </div>
-            <div class="form-row col-sm-6">
-                <label for="cubeexchange" class="col-form-lebel col-sm-12">Cube Exchange</label>
-                <input type="number" id="cubeexchange" class="form-control col-sm-8" required [(ngModel)]="match_data.teleop.cube_exchange" name="cubeexchange">
-                <div class="col-sm-4">
-                    <div (click)="match_data.teleop.cube_exchange=match_data.teleop.cube_exchange+1" class="custom-btn"><div class="content">+</div></div>
-                    <div (click)="match_data.teleop.cube_exchange > 0 ? match_data.teleop.cube_exchange=match_data.teleop.cube_exchange-1 : 0" class="custom-btn"><div class="content">-</div></div>
-                </div>
+        </div> -->
+
+        <!-- Number -->
+        <!-- <div class="form-row">
+            <label for="teleop-scale" class="col-form-label, col-sm-12">Scale</label>
+            <input type="number" id="teleop-scale" class="form-control col-sm-10" required [(ngModel)]="match_template.teleop.scale" name="teleop-scale">
+            <div class="col-sm-2">
+                <div (click)="match_template.teleop.scale=match_template.teleop.scale+1" class="custom-btn"><div class="content">+</div></div>
+                <div (click)="match_template.teleop.scale > 0 ? match_template.teleop.scale=match_template.teleop.scale-1 : 0" class="custom-btn"><div class="content">-</div></div>
             </div>
-        </div>
-        <div class="form-group">
+        </div> -->
+
+        <!-- Number -->
+        <!-- <div class="form-row">
+            <label for="opp-switch" class="col-form-lebel col-sm-12">Opponent's Switch</label>
+            <input type="number" id="opp-switch" class="form-control col-sm-10" required [(ngModel)]="match_template.teleop.opponents_switch" name="opp-switch">
+            <div class="col-sm-2">
+                <div (click)="match_template.teleop.opponents_switch=match_template.teleop.opponents_switch+1" class="custom-btn"><div class="content">+</div></div>
+                <div (click)="match_template.teleop.opponents_switch > 0 ? match_template.teleop.opponents_switch=match_template.teleop.opponents_switch-1 : 0" class="custom-btn"><div class="content">-</div></div>
+            </div>
+        </div> -->
+
+        <!-- Number -->
+        <!-- <div class="form-row">
+            <label for="cubeexchange" class="col-form-lebel col-sm-12">Cube Exchange</label>
+            <input type="number" id="cubeexchange" class="form-control col-sm-10" required [(ngModel)]="match_template.teleop.cube_exchange" name="cubeexchange">
+            <div class="col-sm-2">
+                <div (click)="match_template.teleop.cube_exchange=match_template.teleop.cube_exchange+1" class="custom-btn"><div class="content">+</div></div>
+                <div (click)="match_template.teleop.cube_exchange > 0 ? match_template.teleop.cube_exchange=match_template.teleop.cube_exchange-1 : 0" class="custom-btn"><div class="content">-</div></div>
+            </div>
+        </div> -->
+
+        <!-- Dropdown -->
+        <!-- <div class="form-group">
             <label for="climb" class="col-form-label">Climb</label>
-            <select id="climb" class="custom-select" required [(ngModel)]="match_data.teleop.climb" name="climb">
+            <select id="climb" class="custom-select" required [(ngModel)]="match_template.teleop.climb" name="climb">
                 <option value="noclimb">No Climb</option>
                 <option value="climb">Climb</option>
                 <option value="levitate">Levitated</option>
                 <option value="carried">Carried By Other Bot</option>
             </select>
-        </div>
-        <div class="row">
-            <div class="form-group col-sm-6">
-                <label for="teleop_comments" class="col-form-label">Teleop Comments</label>
-                <textarea id="teleop_comments" class="form-control" [(ngModel)]="match_data.teleop.comments" name="teleop_comments"></textarea>
-            </div>
-            <div class="form-group col-sm-6">
-                <label for="teleop_penalties" class="col-form-label">Teleop Penalties</label>
-                <textarea id="teleop_penalties" class="form-control" [(ngModel)]="match_data.teleop.penalties" name="teleop_penalties"></textarea>
-            </div>
-        </div>
+        </div> -->
+
+        <!-- Textarea -->
+        <!-- <div class="form-group">
+            <label for="teleop_comments" class="col-form-label">Teleop Comments</label>
+            <textarea id="teleop_comments" class="form-control" [(ngModel)]="match_template.teleop.comments" name="teleop_comments"></textarea>
+        </div> -->
+
+        <!-- Textarea -->
+        <!-- <div class="form-group">
+            <label for="teleop_penalties" class="col-form-label">Teleop Penalties</label>
+            <textarea id="teleop_penalties" class="form-control" [(ngModel)]="match_template.teleop.penalties" name="teleop_penalties"></textarea>
+        </div> -->
+
         <div class="col-sm-12 text-center">
-            <button type="submit" class="btn btn-primary" [disabled]="!scoutForm.valid">Submit</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!form.valid">Submit</button>
         </div>
     </form>
+
 </div>

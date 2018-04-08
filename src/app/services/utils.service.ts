@@ -7,6 +7,9 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
+import { AuthService } from './auth.service';
+import { FormControl, FormGroup } from '@angular/forms';
+import { GameTemplate } from '../classes/gametemplate';
 
 interface Cookie {
   name: string;
@@ -27,6 +30,27 @@ export class UtilsService {
       cookies[cookie[0]] = cookie[1];
     }
     return cookies;
+  }
+
+  public getMatchTemplate(): GameTemplate {
+    return JSON.parse(localStorage.getItem('match-template'));
+  }
+
+  public createFormGroup(): FormGroup {
+    const group: any = {};
+    const questions = this.getMatchTemplate();
+
+    group['team_number'] = new FormControl('');
+
+    questions.autonomous.fields.forEach(q => {
+      group[q.name] = new FormControl(q.default_value !== null ? q.default_value : '');
+    });
+
+    questions.teleop.fields.forEach(q => {
+      group[q.name] = new FormControl(q.default_value !== null ? q.default_value : '');
+    });
+
+    return new FormGroup(group); // Need to create a form group based off of data
   }
 
   public craftHttpPostPit(endpoint: string, data: Object) {
@@ -51,6 +75,10 @@ export class UtilsService {
 
   public craftHttpGetUser(endpoint: string): Observable<HttpResponse<Object>> {
     return this.http.get(this.url_endpoint + 'submitUser?method=' + endpoint, {observe: 'response', withCredentials: true});
+  }
+
+  public craftHttpGetGameTemplate(): Observable<HttpResponse<Object>> {
+    return this.http.get(this.url_endpoint + 'gametemplates/' + environment.year + '.json', {observe: 'response', withCredentials: true});
   }
 
 }

@@ -9,7 +9,7 @@ export class AuthGuard implements CanActivate, CanLoad {
 
   // TODO: Create actual auth checking
   private canView(): boolean {
-    return this.auth.userLoggedIn() && this.auth.session.user.level.toLowerCase() !== 'limited';
+    return this.auth.userLoggedIn() && this.auth.getSession().user.level.toLowerCase() !== 'limited';
   }
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate, CanLoad {
 
     if (this.canView()) {
       return true;
-    } else if (this.auth.session.user.level.toLowerCase() === 'limited') {
+    } else if (this.auth.getSession().user.level.toLowerCase() === 'limited') {
       this.router.navigate(['limited']);
       return false;
     }
@@ -28,6 +28,6 @@ export class AuthGuard implements CanActivate, CanLoad {
   }
 
   canLoad(route: Route) {
-    return this.canView() && this.auth.session.user.level.toLowerCase() !== 'limited';
+    return this.canView() && this.auth.getSession().user.level.toLowerCase() !== 'limited';
   }
 }
