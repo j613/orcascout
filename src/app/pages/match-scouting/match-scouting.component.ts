@@ -3,6 +3,7 @@ import { AuthService } from '../../services/auth.service';
 import { GameTemplate } from '../../classes/gametemplate';
 import { FormGroup } from '@angular/forms';
 import { UtilsService } from '../../services/utils.service';
+import { BackendUpdateService } from '../../services/backend-update.service';
 
 @Component({
   selector: 'app-match-scouting',
@@ -41,7 +42,7 @@ export class MatchScoutingComponent implements OnInit {
   public form: FormGroup;
   public match_template: GameTemplate;
 
-  constructor(private utils: UtilsService) { }
+  constructor(private utils: UtilsService, private backend_update: BackendUpdateService) { }
 
   ngOnInit() {
     this.match_template = this.utils.getMatchTemplate();
@@ -49,7 +50,24 @@ export class MatchScoutingComponent implements OnInit {
   }
 
   public submitMatchScout() {
-    console.log(this.form.value);
+    const old_data = this.form.value;
+    const new_data = {
+      'autonomous': {},
+      'teleop': {}
+    };
+    for (const key in old_data) {
+      if (!old_data.hasOwnProperty(key)) {
+        continue;
+      }
+      if (key.startsWith('teleop_')) {
+        new_data.teleop[key.substr(7)] = old_data[key];
+      } else if (key.startsWith('auto_')) {
+        new_data.autonomous[key.substr(5)] = old_data[key];
+      } else {
+        new_data[key] = old_data[key];
+      }
+    }
+    this.backend_update.submitMatchScout(new_data);
   }
 
   public getAutoFields() {

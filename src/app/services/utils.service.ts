@@ -8,7 +8,7 @@ import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 import { AuthService } from './auth.service';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { GameTemplate } from '../classes/gametemplate';
 
 interface Cookie {
@@ -40,14 +40,16 @@ export class UtilsService {
     const group: any = {};
     const questions = this.getMatchTemplate();
 
-    group['team_number'] = new FormControl('');
+    group['team_number'] = new FormControl('', Validators.required);
+    // TODO: Look at last match played and add 1 to it to get current match.
+    group['match_number'] = new FormControl('', [Validators.required, Validators.pattern('(?:QF|SF|Q|F|qf|sf|q|f)[0-99]+')]);
 
     questions.autonomous.fields.forEach(q => {
-      group[q.name] = new FormControl(q.default_value !== null ? q.default_value : '');
+      group['auto_' + q.name] = new FormControl(q.default_value !== null ? q.default_value : '', Validators.required);
     });
 
     questions.teleop.fields.forEach(q => {
-      group[q.name] = new FormControl(q.default_value !== null ? q.default_value : '');
+      group['teleop_' + q.name] = new FormControl(q.default_value !== null ? q.default_value : '', Validators.required);
     });
 
     return new FormGroup(group); // Need to create a form group based off of data
@@ -59,6 +61,14 @@ export class UtilsService {
 
   public craftHttpGetPit(endpoint: string) {
     return this.http.get(this.url_endpoint + 'submitPit?method=' + endpoint, {observe: 'response', withCredentials: true});
+  }
+
+  public craftHttpPostMatch(endpoint: string, data: Object) {
+    return this.http.post(this.url_endpoint + 'submitMatch?method=' + endpoint, data, {observe: 'response', withCredentials: true});
+  }
+
+  public craftHttpGetMatch(endpoint: string) {
+    return this.http.get(this.url_endpoint + 'submitMatch?method=' + endpoint, {observe: 'response', withCredentials: true});
   }
 
   public craftHttpPostComp(endpoint: string, data: Object) {

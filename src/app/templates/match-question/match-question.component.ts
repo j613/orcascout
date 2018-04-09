@@ -10,27 +10,33 @@ import { MatchQuestion } from '../../classes/matchquestion';
 export class MatchQuestionComponent implements OnInit {
   @Input() question: MatchQuestion;
   @Input() form: FormGroup;
+  @Input() type: string;
+  public name: string;
 
   constructor() { }
 
   ngOnInit() {
-    console.log(this.question);
+    this.name = this.type + '_' + this.question.name;
   }
 
   inc() {
-    // This is kinda hacky...
-    const ele: HTMLFormElement = <HTMLFormElement>document.getElementById(this.question.name);
+    // This is kinda hacky... (maybe use 'controls' property of FormGroup??)
+    const ele: HTMLFormElement = <HTMLFormElement>document.getElementById(this.name);
     if (ele.value < this.question.max_value) {
-      ele.value = ++this.form.value[this.question.name];
+      ele.value = ++this.form.value[this.name];
     }
   }
 
   dec() {
     // Also kinda hacky...
-    const ele: HTMLFormElement = <HTMLFormElement>document.getElementById(this.question.name);
+    const ele: HTMLFormElement = <HTMLFormElement>document.getElementById(this.name);
     if (ele.value > this.question.min_value) {
-      ele.value = --this.form.value[this.question.name];
+      ele.value = --this.form.value[this.name];
     }
+  }
+
+  get isValid() {
+    return this.form.controls[this.name].valid;
   }
 
 }

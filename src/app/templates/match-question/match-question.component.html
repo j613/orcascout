@@ -3,14 +3,14 @@
 
     <!-- Checkbox -->
     <div *ngSwitchCase="'boolean'" class="custom-control custom-checkbox">
-      <input type="checkbox" [id]="question.name" class="custom-control-input" [name]="question.name" [formControlName]="question.name">
-      <label [for]="question.name" class="custom-control-label">{{ question.display_name }}</label>
+      <input type="checkbox" [id]="name" class="custom-control-input" [name]="name" [formControlName]="name" [class.error]="!isValid">
+      <label [for]="name" class="custom-control-label">{{ question.display_name }}</label>
     </div>
 
     <!-- Number -->
     <div *ngSwitchCase="'int'" class="form-row">
-      <label [for]="question.name" class="col-form-label col-sm-12">{{ question.display_name }}</label>
-      <input type="number" [id]="question.name" class="form-control col-sm-10 counter" [name]="question.name" [formControlName]="question.name">
+      <label [for]="name" class="col-form-label col-sm-12">{{ question.display_name }}</label>
+      <input type="number" [id]="name" class="form-control col-sm-10 counter" [name]="name" [formControlName]="name" [class.error]="!isValid">
       <div class="col-sm-2">
         <div (click)="inc()" class="custom-btn"><div class="content">+</div></div>
         <div (click)="dec()" class="custom-btn"><div class="content">-</div></div>
@@ -19,14 +19,14 @@
 
     <!-- Textbox -->
     <div *ngSwitchCase="'text_box'" class="form-group">
-      <label [for]="question.name" class="col-form-label">{{ question.display_name }}</label>
-      <textarea [id]="question.name" class="form-control" [name]="question.name" [formControlName]="question.name"></textarea>
+      <label [for]="name" class="col-form-label">{{ question.display_name }}</label>
+      <textarea [id]="name" class="form-control" [name]="name" [formControlName]="name" [class.error]="!isValid"></textarea>
     </div>
 
     <!-- Dropdown? -->
     <div *ngSwitchCase="'enum'" class="form-group">
-      <label [for]="question.name" class="col-form-label">{{ question.display_name }}</label>
-      <select [id]="question.name" class="custom-select" [name]="question.name" [formControlName]="question.name">
+      <label [for]="name" class="col-form-label">{{ question.display_name }}</label>
+      <select [id]="name" class="custom-select" [name]="name" [formControlName]="name" [class.error]="!isValid">
         <option *ngFor="let opt of question.values" [value]="opt" [selected]="opt == question.default_value">{{ opt }}</option>
       </select>
     </div>

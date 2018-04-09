@@ -3,9 +3,19 @@
 <div class="offset-sm-2 col-sm-8">
     <form (ngSubmit)="submitMatchScout();" [formGroup]="form">
         <div class="row" [formGroup]="form">
-            <div class="form-group col-sm-12">
+            <div class="form-group col-sm-6">
                 <label for="team_number" class="col-form-label">Team Number</label>
-                <input type="number" id="team_number" class="form-control" name="team_number" formControlName="team_number">
+                <input type="number" id="team_number" class="form-control" name="team_number" formControlName="team_number" #tnum [class.error]="!form.controls['team_number'].valid">
+                <div *ngIf="!form.controls['team_number'].valid">
+                    Ayy lmao
+                </div>
+            </div>
+            <div class="form-group col-sm-6">
+                <label for="match_number" class="col-form-label">Match Number</label>
+                <input type="text" id="match_number" class="form-control" name="match_number" formControlName="match_number" #mnum [class.error]="!form.controls['match_number'].valid">
+                <div *ngIf="!form.controls['match_number'].valid">
+                    Match number must follow pattern: Q1, QF4, SF8, F2
+                </div>
             </div>
         </div>
         <div class="col-sm-12">
@@ -17,7 +27,7 @@
         <hr>
 
         <div *ngFor="let question of getAutoFields()">
-            <app-match-question [question]="question" [form]="form"></app-match-question>
+            <app-match-question [question]="question" [form]="form" type="auto"></app-match-question>
         </div>
 
         <!-- Checkbox -->
@@ -57,7 +67,7 @@
         <hr>
 
         <div *ngFor="let question of getTeleopFields()">
-            <app-match-question [question]="question" [form]="form"></app-match-question>
+            <app-match-question [question]="question" [form]="form" type="teleop"></app-match-question>
         </div>
 
         <!-- Number -->

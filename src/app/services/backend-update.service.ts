@@ -255,9 +255,9 @@ export class BackendUpdateService {
                   return Observable.of(false);
                 }).subscribe((val: boolean) => {
                   if (val) {
-                    console.log('Submitted Success');
+                    console.log('Pit Submitted Success');
                   } else {
-                    console.log('Submit Failed.');
+                    console.log('Pit Submit Failed.');
                   }
                 });
     } else {
@@ -271,7 +271,22 @@ export class BackendUpdateService {
 
   public submitMatchScout(data: any): void {
     if (this.is_online) {
-      // TODO: Add http call
+      this.utils.craftHttpPostMatch('create', data)
+                .mergeMap((res: HttpResponse<Object>) => {
+                  if (res.status === 204) {
+                    this.notif.addNotification('Match Scout for team ' + data.teamnumber + ' submitted.', 1);
+                    return Observable.of(true);
+                  }
+                  return Observable.of(false);
+                }).catch((res: HttpErrorResponse) => {
+                  return Observable.of(false);
+                }).subscribe((val: boolean) => {
+                  if (val) {
+                    console.log('Match Submit Success!');
+                  } else {
+                    console.log('Match Submit Failed.');
+                  }
+                });
     } else {
       this.addToBacklog({
         type: 'matchscout',
