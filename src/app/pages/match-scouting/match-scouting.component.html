@@ -6,9 +6,6 @@
             <div class="form-group col-sm-6">
                 <label for="team_number" class="col-form-label">Team Number</label>
                 <input type="number" id="team_number" class="form-control" name="team_number" formControlName="team_number" #tnum [class.error]="!form.controls['team_number'].valid">
-                <div *ngIf="!form.controls['team_number'].valid">
-                    Ayy lmao
-                </div>
             </div>
             <div class="form-group col-sm-6">
                 <label for="match_number" class="col-form-label">Match Number</label>
