@@ -97,7 +97,6 @@ export class BackendUpdateService {
       this.makeTBARequest<Match[]>('event/' + regional_id + '/matches/simple'),
       this.utils.craftHttpGetPit('getteams')
     ).mergeMap((res: [Team[]|Boolean, Match[]|Boolean, HttpResponse<any>]) => {
-      console.log(res);
       if (res[0] && res[1]) {
         this.team_data = res[2].body.teams.map((team) => {
           team.teamname = team.team_name;
