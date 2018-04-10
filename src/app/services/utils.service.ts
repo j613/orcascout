@@ -42,7 +42,7 @@ export class UtilsService {
 
     group['team_number'] = new FormControl('', Validators.required);
     // TODO: Look at last match played and add 1 to it to get current match.
-    group['match_number'] = new FormControl('', [Validators.required, Validators.pattern('(?:QF|SF|Q|F|qf|sf|q|f)[0-99]+')]);
+    group['match_number'] = new FormControl('', [Validators.required, Validators.pattern('(?:QF|Qf|qF|qf|SF|Sf|sF|sf|Q|q|F|f)[0-99]+')]);
 
     questions.autonomous.fields.forEach(q => {
       group['auto_' + q.name] = new FormControl(q.default_value !== null ? q.default_value : '', Validators.required);
