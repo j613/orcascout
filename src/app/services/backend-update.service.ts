@@ -89,7 +89,7 @@ export class BackendUpdateService {
                     });
   }
 
-  public getRegionalData(regional_id: string): Observable<RegionalData> {
+  public getRegionalData(regional_id: string): Observable<RegionalData|Boolean> {
     // This needs to return an Observable<RegionalData> object that is constructed from 2 http requests:
     //  /event/{event_key}/teams/simple and /event/{event_key}/matches/simple
     return Observable.forkJoin(
@@ -97,6 +97,7 @@ export class BackendUpdateService {
       this.makeTBARequest<Match[]>('event/' + regional_id + '/matches/simple'),
       this.utils.craftHttpGetPit('getteams')
     ).mergeMap((res: [Team[]|Boolean, Match[]|Boolean, HttpResponse<any>]) => {
+      console.log(res);
       if (res[0] && res[1]) {
         this.team_data = res[2].body.teams.map((team) => {
           team.teamname = team.team_name;
@@ -117,7 +118,8 @@ export class BackendUpdateService {
         teams: [],
         matches: []
       };
-      return Observable.of(rd);
+      // return Observable.of(rd);
+      return Observable.of(false);
     });
   }
 

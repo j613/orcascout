@@ -154,10 +154,13 @@ export class AuthService {
 
   public refreshRegionalData() {
     this.backend_update.getRegionalData(this.session.regional.key)
-                      .subscribe((reg: RegionalData) => {
-                        this.session.regional.data = reg;
-                        // this.setRegionalBackend();
-                        this.saveSession();
+                      .subscribe((reg: RegionalData|Boolean) => {
+                        if (reg) {
+                          reg = <RegionalData>reg;
+                          this.session.regional.data = reg;
+                          // this.setRegionalBackend();
+                          this.saveSession();
+                        }
                       });
   }
 
